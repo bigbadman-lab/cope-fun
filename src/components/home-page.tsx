@@ -110,6 +110,21 @@ export function HomePage() {
     scheduleAgentMessages();
   }, [scheduleAgentMessages]);
 
+  const handleReset = useCallback(() => {
+    clearTimeouts();
+    agentsScheduledRef.current = false;
+    setBelief("");
+    setPhase("idle");
+    setLockedBelief("");
+    setVisibleAgentCount(0);
+    setShowCta(false);
+    setMoveOffsetPx(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      heroInputRef.current?.focus({ preventScroll: true });
+    });
+  }, [clearTimeouts]);
+
   useEffect(() => () => clearTimeouts(), [clearTimeouts]);
 
   useEffect(() => {
@@ -184,7 +199,7 @@ export function HomePage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <TopNav />
+      <TopNav onLogoClick={handleReset} />
 
       <main
         className={`flex-1 pt-14 ${
