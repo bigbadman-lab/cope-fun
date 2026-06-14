@@ -224,9 +224,6 @@ export function HomePage() {
                   <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
                     What do you believe?
                   </h1>
-                  <p className="text-base text-zinc-400">
-                    Enter a belief. Watch it argue.
-                  </p>
                 </div>
               </div>
 
@@ -251,6 +248,7 @@ export function HomePage() {
                 onSubmit={handleSubmit}
                 disabled={isPostSubmit}
                 compact={isPostSubmit}
+                animateExamples={phase === "idle"}
               />
             </div>
           </div>
