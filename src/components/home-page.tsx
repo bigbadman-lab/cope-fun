@@ -70,6 +70,7 @@ export function HomePage() {
 
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const beliefRef = useRef<HTMLDivElement>(null);
+  const heroInputRef = useRef<HTMLTextAreaElement>(null);
   const agentsScheduledRef = useRef(false);
 
   const agentMessages = lockedBelief ? buildAgentMessages(lockedBelief) : [];
@@ -110,6 +111,10 @@ export function HomePage() {
   }, [scheduleAgentMessages]);
 
   useEffect(() => () => clearTimeouts(), [clearTimeouts]);
+
+  useEffect(() => {
+    heroInputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     if (phase !== "belief-created") return;
@@ -233,6 +238,7 @@ export function HomePage() {
               )}
 
               <BeliefInput
+                ref={heroInputRef}
                 value={belief}
                 onChange={setBelief}
                 onSubmit={handleSubmit}

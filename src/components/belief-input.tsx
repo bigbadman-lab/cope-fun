@@ -1,5 +1,7 @@
 "use client";
 
+import { forwardRef } from "react";
+
 type BeliefInputProps = {
   value: string;
   onChange: (value: string) => void;
@@ -8,13 +10,11 @@ type BeliefInputProps = {
   compact?: boolean;
 };
 
-export function BeliefInput({
-  value,
-  onChange,
-  onSubmit,
-  disabled = false,
-  compact = false,
-}: BeliefInputProps) {
+export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
+  function BeliefInput(
+    { value, onChange, onSubmit, disabled = false, compact = false },
+    ref,
+  ) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (value.trim() && !disabled) onSubmit();
@@ -35,6 +35,7 @@ export function BeliefInput({
         }`}
       >
         <textarea
+          ref={ref}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -68,4 +69,5 @@ export function BeliefInput({
       </div>
     </form>
   );
-}
+  },
+);
