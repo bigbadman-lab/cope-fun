@@ -30,7 +30,7 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div
-        className={`flex items-end gap-2 rounded-3xl border border-zinc-700/80 bg-surface px-4 py-3 shadow-lg shadow-black/20 transition-colors focus-within:border-zinc-500 ${
+        className={`flex items-end gap-2 rounded-3xl border border-zinc-700/80 bg-surface px-4 py-3 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.22)] transition-[border-color,box-shadow] duration-300 ease-out focus-within:border-zinc-600/95 focus-within:shadow-[var(--belief-input-focus-shadow),0_4px_24px_-6px_rgba(0,0,0,0.22)] ${
           compact ? "py-2.5" : "py-3.5"
         }`}
       >

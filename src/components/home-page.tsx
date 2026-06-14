@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { BeliefInput } from "./belief-input";
 import { ConversationStage } from "./conversation-stage";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
-import { LogoPlaceholder } from "./logo-placeholder";
 import { TopNav } from "./top-nav";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
 
@@ -213,8 +213,15 @@ export function HomePage() {
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <LogoPlaceholder size="lg" className="mb-8" />
-                  <h1 className="mb-3 text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+                  <Image
+                    src="/logomain2.png"
+                    alt=""
+                    width={150}
+                    height={75}
+                    className="mb-8 h-auto w-24 sm:w-28 md:w-32"
+                    priority
+                  />
+                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
                     What do you believe?
                   </h1>
                   <p className="text-base text-zinc-400">
