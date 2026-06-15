@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { iconButtonClass } from "./theme-toggle";
+import { navIconButtonClass, navIconClass } from "./theme-toggle";
 
 function CopyLinkIcon({ className }: { className?: string }) {
   return (
@@ -72,20 +72,20 @@ export function RoomShareButton({ slug }: RoomShareButtonProps) {
       type="button"
       onClick={handleCopy}
       aria-label={copied ? "Copied" : "Copy link"}
-      className={`${iconButtonClass} size-9 transition-all duration-300 ease-out ${
+      className={`${navIconButtonClass} transition-all duration-300 ease-out ${
         copied
           ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400"
           : ""
       }`}
     >
-      <span className="relative block size-4">
+      <span className={`relative block ${navIconClass}`}>
         <CopyLinkIcon
-          className={`absolute inset-0 size-4 transition-all duration-300 ease-out ${
+          className={`absolute inset-0 ${navIconClass} transition-all duration-300 ease-out ${
             copied ? "scale-75 opacity-0" : "scale-100 opacity-100"
           }`}
         />
         <CheckIcon
-          className={`absolute inset-0 size-4 transition-all duration-300 ease-out ${
+          className={`absolute inset-0 ${navIconClass} transition-all duration-300 ease-out ${
             copied ? "scale-100 opacity-100" : "scale-75 opacity-0"
           }`}
         />

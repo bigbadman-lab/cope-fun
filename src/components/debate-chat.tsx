@@ -32,7 +32,7 @@ export function ChatMessageRow({ message, animate = true }: ChatMessageRowProps)
         <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {message.isUser ? USER_DISPLAY_NAME : message.author}
         </p>
-        <p className="text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
+        <p className="whitespace-pre-line text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
           {message.text}
         </p>
       </div>
@@ -81,7 +81,7 @@ export function AgentTurnRow({ message, mode }: AgentTurnRowProps) {
             <p className="mb-1 text-xs font-medium text-zinc-400">
               {message.author}
             </p>
-            <p className="animate-message-in text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
+            <p className="animate-message-in whitespace-pre-line text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
               {message.text}
             </p>
           </>

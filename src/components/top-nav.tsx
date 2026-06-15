@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useGlobalSearch } from "./global-search-provider";
+import { MobileMenu } from "./mobile-menu";
 import { RoomShareButton } from "./room-share-button";
-import { ThemeToggle, iconButtonClass } from "./theme-toggle";
+import { ThemeToggle, navIconButtonClass, navIconClass } from "./theme-toggle";
 
 type TopNavProps = {
   onLogoClick?: () => void;
@@ -47,60 +49,107 @@ function WalletIcon({ className }: { className?: string }) {
   );
 }
 
+function MenuIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
 export function TopNav({ onLogoClick }: TopNavProps) {
   const { openSearch } = useGlobalSearch();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
 
+  const handleOpenSearch = useCallback(() => {
+    setMenuOpen(false);
+    openSearch();
+  }, [openSearch]);
+
+  const handleLogoClick = useCallback(() => {
+    setMenuOpen(false);
+    onLogoClick?.();
+  }, [onLogoClick]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200/80 bg-background/85 backdrop-blur-md dark:border-white/5 dark:bg-background/80">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4">
-        <Link
-          href="/"
-          onClick={onLogoClick}
-          className="shrink-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
-        >
-          <Image
-            src="/logotext.png"
-            alt="cope"
-            width={313}
-            height={94}
-            className="h-8 w-auto"
-            priority
-          />
-        </Link>
-        <div className="flex items-center gap-2">
+    <>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200/80 bg-background/85 pt-[env(safe-area-inset-top,0px)] backdrop-blur-md dark:border-white/5 dark:bg-background/80">
+        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-4">
           <Link
-            href="/about"
-            className="text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            href="/"
+            onClick={handleLogoClick}
+            className="shrink-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
-            About
+            <Image
+              src="/logotext.png"
+              alt="cope"
+              width={313}
+              height={94}
+              className="h-7 w-auto sm:h-8"
+              priority
+            />
           </Link>
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={openSearch}
-            aria-label="Search beliefs"
-            className={`${iconButtonClass} h-9 gap-1.5 px-2.5 sm:px-3`}
-          >
-            <SearchIcon className="size-4" />
-            <kbd className="hidden rounded border border-zinc-200 px-1 py-0.5 text-[10px] text-zinc-500 sm:inline dark:border-white/10 dark:text-zinc-500">
-              ⌘K
-            </kbd>
-          </button>
-          <button
-            type="button"
-            disabled
-            aria-label="Connect wallet"
-            className={`${iconButtonClass} size-9`}
-          >
-            <WalletIcon className="size-4" />
-          </button>
-          {roomSlug && <RoomShareButton slug={roomSlug} />}
+
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/about"
+              className="hidden text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-900 md:inline dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              About
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleOpenSearch}
+              aria-label="Search beliefs"
+              className={navIconButtonClass}
+            >
+              <SearchIcon className={navIconClass} />
+            </button>
+
+            <ThemeToggle />
+
+            <button
+              type="button"
+              disabled
+              aria-label="Connect wallet"
+              className={navIconButtonClass}
+            >
+              <WalletIcon className={navIconClass} />
+            </button>
+
+            {roomSlug && <RoomShareButton slug={roomSlug} />}
+
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={menuOpen}
+              className={`${navIconButtonClass} md:hidden`}
+            >
+              <MenuIcon className={navIconClass} />
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
   );
 }

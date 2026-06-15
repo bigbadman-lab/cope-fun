@@ -219,7 +219,7 @@ export function MarketLive({ market }: MarketLiveProps) {
         <span className="rounded-full border border-zinc-200 px-2 py-0.5 text-[10px] text-zinc-500 dark:border-zinc-800">
           {market.durationHours ?? 72}h market
         </span>
-        <span className="ml-auto text-[11px] text-zinc-500">
+        <span className="basis-full text-[11px] text-zinc-500 sm:ml-auto sm:basis-auto">
           {closed ? "Ended" : `${timeRemaining} left`}
         </span>
       </div>
@@ -283,14 +283,14 @@ export function MarketLive({ market }: MarketLiveProps) {
                 <button
                   type="button"
                   onClick={() => enterPosition("believe")}
-                  className="rounded-full border border-emerald-900/40 px-4 py-1.5 text-xs font-medium text-emerald-400/85 transition-colors hover:border-emerald-700/50 hover:bg-emerald-950/25 hover:text-emerald-300"
+                  className="min-h-11 rounded-full border border-emerald-900/40 px-4 py-2.5 text-sm font-medium text-emerald-400/85 transition-colors hover:border-emerald-700/50 hover:bg-emerald-950/25 hover:text-emerald-300 md:min-h-0 md:py-1.5 md:text-xs"
                 >
                   Enter Believe
                 </button>
                 <button
                   type="button"
                   onClick={() => enterPosition("cope")}
-                  className="rounded-full border border-rose-900/40 px-4 py-1.5 text-xs font-medium text-rose-400/85 transition-colors hover:border-rose-700/50 hover:bg-rose-950/25 hover:text-rose-300"
+                  className="min-h-11 rounded-full border border-rose-900/40 px-4 py-2.5 text-sm font-medium text-rose-400/85 transition-colors hover:border-rose-700/50 hover:bg-rose-950/25 hover:text-rose-300 md:min-h-0 md:py-1.5 md:text-xs"
                 >
                   Enter Cope
                 </button>
@@ -300,14 +300,14 @@ export function MarketLive({ market }: MarketLiveProps) {
                 <button
                   type="button"
                   onClick={increasePosition}
-                  className="rounded-full border border-zinc-700 px-4 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-500 hover:bg-zinc-800/50"
+                  className="min-h-11 rounded-full border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-500 hover:bg-zinc-800/50 md:min-h-0 md:py-1.5 md:text-xs"
                 >
                   Increase {position.side === "believe" ? "Believe" : "Cope"}
                 </button>
                 <button
                   type="button"
                   onClick={exitPosition}
-                  className="rounded-full border border-zinc-800 px-4 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-300"
+                  className="min-h-11 rounded-full border border-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-300 md:min-h-0 md:py-1.5 md:text-xs"
                 >
                   Exit position
                 </button>

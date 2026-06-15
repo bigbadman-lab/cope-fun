@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimatedConversation } from "./animated-conversation";
-import { TopNav } from "./top-nav";
+import { InnerPageShell } from "./inner-page-shell";
 import {
   getAgentConversation,
   getAgentProfile,
@@ -16,18 +16,15 @@ type AgentProfilePageProps = {
 export function AgentProfilePage({ slug }: AgentProfilePageProps) {
   if (!isAgentSlug(slug)) {
     return (
-      <div className="flex min-h-full flex-col">
-        <TopNav />
-        <main className="flex flex-1 flex-col items-center justify-center px-4 pt-14 text-center">
-          <p className="text-sm text-zinc-500">Agent not found.</p>
-          <Link
-            href="/agents"
-            className="mt-4 text-sm font-medium text-zinc-300 transition-colors hover:text-zinc-100"
-          >
-            Back to Agents
-          </Link>
-        </main>
-      </div>
+      <InnerPageShell centerMain mainClassName="px-4">
+        <p className="text-sm text-zinc-500">Agent not found.</p>
+        <Link
+          href="/agents"
+          className="mt-4 text-sm font-medium text-zinc-700 transition-colors hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+        >
+          Back to Agents
+        </Link>
+      </InnerPageShell>
     );
   }
 

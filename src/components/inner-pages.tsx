@@ -1,11 +1,11 @@
 import { AnimatedConversation } from "./animated-conversation";
-import { AvatarPlaceholder, USER_DISPLAY_NAME } from "./avatar-placeholder";
-import { ChatMessageRow, type ChatMessage } from "./debate-chat";
+import { type ChatMessage } from "./debate-chat";
 import {
   ConversationPageLayout,
 } from "./conversation-page-layout";
-import { TopNav } from "./top-nav";
-import { AGENT_PROFILES, type AgentProfile } from "@/lib/agent-profiles";
+import { InnerPageShell } from "./inner-page-shell";
+import { getAgentsOverviewConversation } from "@/lib/agent-profiles";
+import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 
 const GUEST = (id: string, text: string): ChatMessage => ({
   id,
@@ -64,59 +64,8 @@ export function AboutPage() {
   return <AnimatedConversation messages={ABOUT_MESSAGES} />;
 }
 
-function AgentProfileRow({ profile }: { profile: AgentProfile }) {
-  return (
-    <div className="-mx-1 rounded-lg px-1">
-      <div className="flex gap-2.5">
-        <AvatarPlaceholder name={profile.name} />
-        <div className="min-w-0 flex-1 pt-0.5">
-          <p className="mb-0.5 text-xs font-medium text-zinc-400">
-            {profile.name}
-          </p>
-          <p className="mb-1.5 text-[11px] text-zinc-500">{profile.role}</p>
-          <p className="text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
-            {profile.quote}
-          </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-zinc-500">
-            {profile.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function AgentsPage() {
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <TopNav />
-      <main className="flex-1 overflow-y-auto pt-14">
-        <div className="mx-auto w-full max-w-md space-y-4 px-4 py-6">
-          {AGENT_PROFILES.map((profile, index) => (
-            <div key={profile.slug}>
-              <ChatMessageRow
-                message={GUEST(
-                  `agents-${index + 1}`,
-                  `who is ${profile.slug}?`,
-                )}
-                animate={false}
-              />
-              <AgentProfileRow profile={profile} />
-            </div>
-          ))}
-
-          <ChatMessageRow
-            message={AGENT(
-              "agents-5",
-              "Cope Engine",
-              "Together they run every belief through the room. You bring the claim — they bring the friction.",
-            )}
-            animate={false}
-          />
-        </div>
-      </main>
-    </div>
-  );
+  return <AnimatedConversation messages={getAgentsOverviewConversation()} />;
 }
 
 const CONTACT_MESSAGES: ChatMessage[] = [
@@ -134,10 +83,8 @@ export function ContactPage() {
 
 export function LegalPage() {
   return (
-    <div className="flex min-h-dvh flex-col">
-      <TopNav />
-      <main className="flex-1 overflow-y-auto pt-14">
-        <article className="mx-auto w-full max-w-md px-4 py-8">
+    <InnerPageShell>
+      <article className="inner-page-content !py-8">
           <p className="mb-6 text-xs font-medium uppercase tracking-wide text-amber-500/80">
             MVP placeholder legal copy
           </p>
@@ -180,7 +127,6 @@ export function LegalPage() {
             </p>
           </section>
         </article>
-      </main>
-    </div>
+    </InnerPageShell>
   );
 }

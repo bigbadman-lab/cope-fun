@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSyncExternalStore } from "react";
 import { ParticipantAvatarStack } from "./avatar-placeholder";
-import { iconButtonClass } from "./theme-toggle";
+import { BeliefBadges } from "./belief-list-badges";
+import { navIconButtonClass } from "./theme-toggle";
 import {
   buildSearchIndex,
   searchConversations,
@@ -20,28 +21,6 @@ import {
 type GlobalSearchOverlayProps = {
   onClose: () => void;
 };
-
-function SearchBadges({ result }: { result: SearchResult }) {
-  return (
-    <div className="mt-1.5 flex flex-wrap gap-1.5">
-      {result.hasMarket && (
-        <span className="rounded-full border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-medium text-emerald-400/85">
-          Market Live
-        </span>
-      )}
-      {result.userVote === "believe" && (
-        <span className="rounded-full border border-emerald-900/30 bg-emerald-950/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400/70">
-          Believe
-        </span>
-      )}
-      {result.userVote === "cope" && (
-        <span className="rounded-full border border-rose-900/30 bg-rose-950/20 px-2 py-0.5 text-[10px] font-medium text-rose-400/70">
-          Cope
-        </span>
-      )}
-    </div>
-  );
-}
 
 function CloseIcon({ className }: { className?: string }) {
   return (
@@ -145,7 +124,7 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
               type="button"
               onClick={onClose}
               aria-label="Close search"
-              className={`${iconButtonClass} size-10 sm:hidden`}
+              className={`${navIconButtonClass} sm:hidden`}
             >
               <CloseIcon className="size-4" />
             </button>
@@ -201,7 +180,10 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
                           {result.preview}
                         </p>
                       )}
-                      <SearchBadges result={result} />
+                      <BeliefBadges
+                        hasMarket={result.hasMarket}
+                        userVote={result.userVote}
+                      />
                     </button>
                   </li>
                 );

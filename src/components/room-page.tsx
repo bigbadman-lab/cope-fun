@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useSyncExternalStore } from "react";
+import { InnerPageShell } from "./inner-page-shell";
 import { SavedChatView } from "./saved-chat-view";
-import { TopNav } from "./top-nav";
 import {
   getSavedConversationSnapshotBySlug,
   SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
@@ -33,44 +33,33 @@ export function RoomPage({ slug }: RoomPageProps) {
   );
 
   if (!isClient) {
-    return (
-      <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <TopNav />
-        <main className="flex-1 min-h-0 pt-14" />
-      </div>
-    );
+    return <InnerPageShell variant="room" />;
   }
 
   if (!conversation) {
     return (
-      <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <TopNav />
-        <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-x-hidden px-4 pt-14 text-center">
-          <p className="text-sm text-zinc-500">Belief not found.</p>
-          <Link
-            href="/beliefs"
-            className="mt-4 text-sm font-medium text-zinc-700 transition-colors hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-          >
-            Back to Beliefs
-          </Link>
-        </main>
-      </div>
+      <InnerPageShell variant="scroll" centerMain mainClassName="px-4">
+        <p className="text-sm text-zinc-500">Belief not found.</p>
+        <Link
+          href="/beliefs"
+          className="mt-4 text-sm font-medium text-zinc-700 transition-colors hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+        >
+          Back to Beliefs
+        </Link>
+      </InnerPageShell>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <TopNav />
-      <main className="flex min-h-0 flex-1 flex-col overflow-hidden pt-14">
-        <SavedChatView
-          messages={conversation.messages}
-          belief={conversation.belief}
-          userVote={conversation.userVote}
-          believeCount={conversation.believeCount}
-          copeCount={conversation.copeCount}
-          market={conversation.market}
-        />
-      </main>
-    </div>
+    <InnerPageShell variant="room">
+      <SavedChatView
+        messages={conversation.messages}
+        belief={conversation.belief}
+        userVote={conversation.userVote}
+        believeCount={conversation.believeCount}
+        copeCount={conversation.copeCount}
+        market={conversation.market}
+      />
+    </InnerPageShell>
   );
 }

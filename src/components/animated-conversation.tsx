@@ -7,8 +7,8 @@ import {
   type AgentTurnMode,
   type ChatMessage,
 } from "./debate-chat";
-import { TopNav } from "./top-nav";
 import { scheduleScriptedConversation } from "@/lib/scripted-conversation-timing";
+import { InnerPageShell } from "./inner-page-shell";
 
 type AnimatedConversationProps = {
   messages: ChatMessage[];
@@ -57,10 +57,8 @@ export function AnimatedConversation({ messages }: AnimatedConversationProps) {
   }, [shownUserIndices, agentTurns]);
 
   return (
-    <div className="flex min-h-full flex-col">
-      <TopNav />
-      <main className="flex-1 overflow-y-auto pt-14">
-        <div className="mx-auto w-full max-w-md space-y-4 px-4 py-6">
+    <InnerPageShell>
+      <div className="inner-page-content space-y-4">
           {messages.map((message, index) => {
             if (message.isUser) {
               if (!shownUserIndices.has(index)) return null;
@@ -86,7 +84,6 @@ export function AnimatedConversation({ messages }: AnimatedConversationProps) {
           })}
           <div ref={conversationEndRef} aria-hidden />
         </div>
-      </main>
-    </div>
+    </InnerPageShell>
   );
 }

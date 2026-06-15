@@ -187,6 +187,43 @@ const PROFILE_CONVERSATIONS: Record<AgentSlug, ChatMessage[]> = {
   ],
 };
 
+function formatAgentIntro(profile: AgentProfile): string {
+  return `${profile.name} · ${profile.role}\n\n${profile.quote}\n\n${profile.description}`;
+}
+
+export function getAgentsOverviewConversation(): ChatMessage[] {
+  const messages: ChatMessage[] = [
+    GUEST("agents-1", "who are the agents?"),
+    AGENT(
+      "agents-2",
+      "Cope Engine",
+      "Four personalities. Each one stress-tests a different angle of your belief.",
+    ),
+  ];
+
+  for (const profile of AGENT_PROFILES) {
+    messages.push(
+      GUEST(`agents-${profile.slug}-q`, `who is ${profile.slug}?`),
+      AGENT(
+        `agents-${profile.slug}-a`,
+        profile.name,
+        formatAgentIntro(profile),
+      ),
+    );
+  }
+
+  messages.push(
+    GUEST("agents-close-q", "do they ever agree?"),
+    AGENT(
+      "agents-close-a",
+      "Cope Engine",
+      "Together they run every belief through the room. You bring the claim — they bring the friction.",
+    ),
+  );
+
+  return messages;
+}
+
 export function isAgentSlug(slug: string): slug is AgentSlug {
   return slug in PROFILE_CONVERSATIONS;
 }

@@ -112,6 +112,48 @@ body {
   .pb-composer-scroll {
     padding-bottom: calc(var(--composer-bottom) + 5.5rem);
   }
+
+  .inner-page-shell {
+    display: flex;
+    min-height: calc(100vh - var(--nav-height));
+    min-height: calc(100dvh - var(--nav-height));
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .inner-page-main {
+    min-height: 0;
+    flex: 1 1 0%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .inner-page-content {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 28rem;
+    padding-inline: 1rem;
+    padding-block: 1.5rem;
+  }
+
+  .inner-page-shell-room {
+    display: flex;
+    min-height: calc(100vh - var(--nav-height));
+    min-height: calc(100dvh - var(--nav-height));
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .inner-page-main-room {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 0%;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+  }
 }
 
 @keyframes message-in {

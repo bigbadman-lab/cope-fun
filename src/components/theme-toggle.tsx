@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 const iconButtonClass =
   "inline-flex shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-900/[0.04] text-zinc-600 transition-colors hover:bg-zinc-900/[0.06] hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500";
 
+const navIconButtonClass = `${iconButtonClass} size-11 md:size-9`;
+
+const navIconClass = "size-[18px] md:size-4";
+
 function SunIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -55,7 +59,7 @@ export function ThemeToggle() {
         type="button"
         aria-hidden
         tabIndex={-1}
-        className={`${iconButtonClass} size-9`}
+        className={`${navIconButtonClass}`}
       />
     );
   }
@@ -67,15 +71,15 @@ export function ThemeToggle() {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label="Toggle theme"
-      className={`${iconButtonClass} size-9`}
+      className={navIconButtonClass}
     >
       {isDark ? (
-        <SunIcon className="size-4" />
+        <SunIcon className={navIconClass} />
       ) : (
-        <MoonIcon className="size-4" />
+        <MoonIcon className={navIconClass} />
       )}
     </button>
   );
 }
 
-export { iconButtonClass };
+export { iconButtonClass, navIconButtonClass, navIconClass };

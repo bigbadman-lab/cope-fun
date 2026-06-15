@@ -33,7 +33,7 @@ export function BelieveCopeVote({
           type="button"
           onClick={() => onVote?.("believe")}
           disabled={readOnly}
-          className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 ${
+          className={`min-h-11 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 md:min-h-0 md:py-2 ${
             userVote === "believe"
               ? "border border-emerald-600/50 bg-emerald-950/40 text-emerald-300 shadow-[0_0_12px_-4px_rgb(16_185_129/0.35)]"
               : "border border-emerald-900/40 bg-transparent text-emerald-400/80 hover:border-emerald-700/50 hover:bg-emerald-950/20 hover:text-emerald-300"
@@ -45,7 +45,7 @@ export function BelieveCopeVote({
           type="button"
           onClick={() => onVote?.("cope")}
           disabled={readOnly}
-          className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 ${
+          className={`min-h-11 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 md:min-h-0 md:py-2 ${
             userVote === "cope"
               ? "border border-rose-600/50 bg-rose-950/40 text-rose-300 shadow-[0_0_12px_-4px_rgb(244_63_94/0.3)]"
               : "border border-rose-900/40 bg-transparent text-rose-400/80 hover:border-rose-700/50 hover:bg-rose-950/20 hover:text-rose-300"

@@ -21,7 +21,7 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 ${
+      className={`hidden border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 md:block ${
         isHomepage
           ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background/80 lg:py-0 lg:backdrop-blur"
           : ""
