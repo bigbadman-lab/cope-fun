@@ -208,11 +208,11 @@ export function MarketLive({ market }: MarketLiveProps) {
           className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide ${
             closed
               ? "border-zinc-200 bg-zinc-100 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-500"
-              : "border-emerald-900/50 bg-emerald-950/30 text-emerald-400/90"
+              : "border-emerald-300/70 bg-emerald-100 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400/90"
           }`}
         >
           {!closed && (
-            <span className="size-1.5 animate-pulse rounded-full bg-emerald-500/80" />
+            <span className="size-1.5 animate-pulse rounded-full bg-emerald-600 dark:bg-emerald-500/80" />
           )}
           {closed ? "Market closed" : "Market live"}
         </span>
