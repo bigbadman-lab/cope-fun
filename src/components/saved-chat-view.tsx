@@ -69,8 +69,8 @@ export function SavedChatView({
   });
 
   return (
-    <div className="relative h-[calc(100dvh-3.5rem)] w-full">
-      <div className="h-full overflow-y-auto px-4 pb-[160px]">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden w-full">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-[calc(9rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto w-full max-w-md space-y-4 pt-4">
           {hasMarket && <MarketLive market={market} />}
           {!hasMarket && showMarketUnavailable && <MarketUnavailableNote />}
@@ -93,7 +93,7 @@ export function SavedChatView({
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/5 bg-background/95 px-4 pt-3 backdrop-blur-md before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/5 bg-background/95 px-4 pt-3 pb-safe-4 backdrop-blur-md before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent">
         <div className="relative mx-auto w-full max-w-md">
           <BeliefInput
             value={belief}

@@ -34,18 +34,18 @@ export function RoomPage({ slug }: RoomPageProps) {
 
   if (!isClient) {
     return (
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <TopNav />
-        <main className="flex-1 pt-14" />
+        <main className="flex-1 min-h-0 pt-14" />
       </div>
     );
   }
 
   if (!conversation) {
     return (
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <TopNav />
-        <main className="flex flex-1 flex-col items-center justify-center px-4 pt-14 text-center">
+        <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-x-hidden px-4 pt-14 text-center">
           <p className="text-sm text-zinc-500">Conversation not found.</p>
           <Link
             href="/conversations"
@@ -59,9 +59,9 @@ export function RoomPage({ slug }: RoomPageProps) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <TopNav />
-      <main className="flex-1 overflow-hidden pt-14">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden pt-14">
         <SavedChatView
           messages={conversation.messages}
           belief={conversation.belief}

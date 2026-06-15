@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { GlobalSearchProvider } from "@/components/global-search-provider";
@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   description: "Enter a belief. Watch it argue.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,9 +35,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-dvh flex-col bg-background text-foreground">
+      <body className="flex min-h-app flex-col overflow-x-hidden bg-background text-foreground">
         <GlobalSearchProvider>
-          <div className="flex-1">{children}</div>
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
           <SiteFooter />
         </GlobalSearchProvider>
       </body>

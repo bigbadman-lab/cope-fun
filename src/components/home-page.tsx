@@ -343,10 +343,10 @@ export function HomePage() {
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4">
             <div className="mx-auto w-full max-w-md">
               <div
-                className={`overflow-hidden transition-all duration-500 ease-out ${
+                className={`mb-6 transition-[opacity,filter,transform] duration-500 ease-out ${
                   phase === "idle"
-                    ? "mb-6 max-h-96 opacity-100"
-                    : "mb-0 max-h-0 opacity-0"
+                    ? "scale-100 opacity-100 blur-0"
+                    : "pointer-events-none scale-[0.98] opacity-0 blur-sm"
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
