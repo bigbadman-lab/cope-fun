@@ -36,13 +36,19 @@ type AvatarPlaceholderProps = {
 type AvatarLinkWrapperProps = {
   name: string;
   className?: string;
+  linkable?: boolean;
   children: React.ReactNode;
 };
 
-function AvatarLinkWrapper({ name, className = "", children }: AvatarLinkWrapperProps) {
+function AvatarLinkWrapper({
+  name,
+  className = "",
+  linkable = true,
+  children,
+}: AvatarLinkWrapperProps) {
   const href = getAgentProfilePath(name);
 
-  if (!href) {
+  if (!linkable || !href) {
     return <div className={className}>{children}</div>;
   }
 
@@ -92,9 +98,14 @@ const MINI_AVATAR_CLASS = "size-7 shrink-0 overflow-hidden rounded-md";
 type MiniAvatarProps = {
   name: string;
   className?: string;
+  linkable?: boolean;
 };
 
-export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
+export function MiniAvatar({
+  name,
+  className = "",
+  linkable = true,
+}: MiniAvatarProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const src = AGENT_AVATARS[name];
 
@@ -114,6 +125,7 @@ export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
     return (
       <AvatarLinkWrapper
         name={name}
+        linkable={linkable}
         className={`ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
       >
         <div
@@ -129,6 +141,7 @@ export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
   return (
     <AvatarLinkWrapper
       name={name}
+      linkable={linkable}
       className={`relative ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
     >
       <Image
@@ -146,11 +159,13 @@ export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
 type ParticipantAvatarStackProps = {
   participants: string[];
   max?: number;
+  linkable?: boolean;
 };
 
 export function ParticipantAvatarStack({
   participants,
   max = 4,
+  linkable = true,
 }: ParticipantAvatarStackProps) {
   const agents = participants
     .filter((name) => name !== USER_DISPLAY_NAME)
@@ -166,6 +181,7 @@ export function ParticipantAvatarStack({
         <MiniAvatar
           key={name}
           name={name}
+          linkable={linkable}
           className={index > 0 ? "-ml-2" : ""}
         />
       ))}

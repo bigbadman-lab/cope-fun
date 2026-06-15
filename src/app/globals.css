@@ -4,10 +4,10 @@
 
 :root {
   color-scheme: light;
-  --background: #f4f4f5;
+  --background: #ffffff;
   --foreground: #18181b;
   --muted: #71717a;
-  --surface: #ffffff;
+  --surface: #fafafa;
   --surface-elevated: #f4f4f5;
   --accent: #52525b;
   --cope-orange: #d9773f;
@@ -20,13 +20,14 @@
   --belief-top-in-main: calc(14vh - var(--nav-height));
 }
 
-.dark {
+.dark,
+:root.dark {
   color-scheme: dark;
-  --background: #09090b;
+  --background: #000000;
   --foreground: #fafafa;
   --muted: #71717a;
-  --surface: #18181b;
-  --surface-elevated: #27272a;
+  --surface: #0a0a0a;
+  --surface-elevated: #141414;
   --accent: #a1a1aa;
   --cope-orange: #e8854a;
   --belief-input-focus-shadow:
@@ -63,11 +64,11 @@
 html,
 body {
   overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
@@ -119,6 +120,7 @@ body {
     min-height: calc(100dvh - var(--nav-height));
     flex-direction: column;
     overflow-x: hidden;
+    background-color: var(--background);
   }
 
   .inner-page-main {
@@ -144,6 +146,7 @@ body {
     min-height: calc(100dvh - var(--nav-height));
     flex-direction: column;
     overflow: hidden;
+    background-color: var(--background);
   }
 
   .inner-page-main-room {

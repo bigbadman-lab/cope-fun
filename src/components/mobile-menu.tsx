@@ -13,6 +13,7 @@ const PRIMARY_LINKS = [
 
 const SECONDARY_LINKS = [
   { href: "/about", label: "About" },
+  { href: "/manifesto", label: "Manifesto" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
 ] as const;
@@ -140,7 +141,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-[55] flex flex-col bg-background/95 backdrop-blur-md transition-[opacity,transform] duration-[220ms] ease-out md:hidden ${
+      className={`fixed inset-0 z-[55] flex flex-col bg-background transition-[opacity,transform] duration-[220ms] ease-out md:hidden ${
         visible
           ? "opacity-100 translate-y-0"
           : "pointer-events-none opacity-0 -translate-y-2"

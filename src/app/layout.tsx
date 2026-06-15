@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-app flex-col overflow-x-hidden bg-background text-foreground">
@@ -55,7 +55,7 @@ export default function RootLayout({
         </Script>
         <ThemeProvider>
           <GlobalSearchProvider>
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+            <div className="flex min-h-0 flex-1 flex-col bg-background">{children}</div>
             <SiteFooter />
           </GlobalSearchProvider>
         </ThemeProvider>

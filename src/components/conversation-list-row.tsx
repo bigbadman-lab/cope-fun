@@ -11,26 +11,38 @@ type ConversationListRowProps = {
   conversation: SavedConversation;
 };
 
+const rowLinkClass = [
+  "group -mx-2 flex w-auto items-start gap-3 rounded-xl px-2 py-3.5",
+  "transition-[background-color,transform] duration-300 ease-out",
+  "hover:bg-zinc-900/[0.04] active:bg-zinc-900/[0.06] active:scale-[0.998]",
+  "dark:hover:bg-white/[0.04] dark:active:bg-white/[0.06]",
+  "sm:items-center sm:py-4",
+].join(" ");
+
 export function ConversationListRow({ conversation }: ConversationListRowProps) {
   return (
-    <div className="flex w-full items-start gap-3 border-b border-zinc-200/80 py-4 transition-colors active:bg-zinc-950/[0.03] dark:border-white/5 dark:active:bg-white/[0.02] sm:items-center sm:py-3.5 sm:hover:bg-zinc-950/[0.03] dark:sm:hover:bg-white/[0.02]">
-      <ParticipantAvatarStack participants={conversation.participants} />
-      <Link
-        href={`/room/${conversation.slug}`}
-        className="min-w-0 flex-1"
-      >
-        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-          <p className="min-w-0 flex-1 text-[15px] font-medium leading-snug text-zinc-900 dark:text-zinc-100">
-            {conversation.belief}
-          </p>
-          <span className="shrink-0 text-xs text-zinc-500">
-            {formatConversationTime(conversation.createdAt)}
-          </span>
+    <div className="border-b border-zinc-200/60 last:border-b-0 dark:border-white/[0.06]">
+      <Link href={`/room/${conversation.slug}`} className={rowLinkClass}>
+        <div className="shrink-0 pt-0.5 transition-transform duration-300 ease-out group-hover:scale-[1.04] sm:pt-0">
+          <ParticipantAvatarStack
+            participants={conversation.participants}
+            linkable={false}
+          />
         </div>
-        <p className="mt-0.5 line-clamp-2 text-sm leading-relaxed text-zinc-500">
-          {getLastMessagePreview(conversation)}
-        </p>
-        <BeliefListBadges conversation={conversation} />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+            <p className="min-w-0 flex-1 text-[15px] font-medium leading-snug text-zinc-900 transition-colors duration-300 ease-out group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-white">
+              {conversation.belief}
+            </p>
+            <span className="shrink-0 text-xs text-zinc-500 transition-colors duration-300 ease-out group-hover:text-zinc-600 dark:group-hover:text-zinc-400">
+              {formatConversationTime(conversation.createdAt)}
+            </span>
+          </div>
+          <p className="mt-0.5 line-clamp-2 text-sm leading-relaxed text-zinc-500 transition-colors duration-300 ease-out group-hover:text-zinc-600 dark:group-hover:text-zinc-400">
+            {getLastMessagePreview(conversation)}
+          </p>
+          <BeliefListBadges conversation={conversation} />
+        </div>
       </Link>
     </div>
   );

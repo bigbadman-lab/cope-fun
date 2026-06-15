@@ -89,7 +89,7 @@ export function TopNav({ onLogoClick }: TopNavProps) {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200/80 bg-background/85 pt-[env(safe-area-inset-top,0px)] backdrop-blur-md dark:border-white/5 dark:bg-background/80">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200/80 bg-background pt-[env(safe-area-inset-top,0px)] backdrop-blur-md dark:border-white/5 dark:bg-background dark:backdrop-blur-none">
         <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-4">
           <Link
             href="/"

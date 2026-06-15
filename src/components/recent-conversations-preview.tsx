@@ -36,12 +36,12 @@ export function RecentConversationsPreview() {
         </h2>
         <Link
           href="/beliefs"
-          className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+          className="text-xs text-zinc-500 transition-colors duration-300 ease-out hover:text-zinc-700 dark:hover:text-zinc-300"
         >
           View all
         </Link>
       </div>
-      <div className="-mx-1">
+      <div>
         {recent.map((conversation) => (
           <ConversationListRow
             key={conversation.id}

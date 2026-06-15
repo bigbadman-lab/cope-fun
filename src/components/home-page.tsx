@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BeliefInput } from "./belief-input";
 import { ConversationStage } from "./conversation-stage";
 import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
+import { HeroMedia } from "./hero-media";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
@@ -322,7 +322,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-background">
       <TopNav onLogoClick={handleReset} />
 
       <main
@@ -362,14 +362,7 @@ export function HomePage() {
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <Image
-                    src="/logomain2.png"
-                    alt=""
-                    width={150}
-                    height={75}
-                    className="mb-8 h-auto w-24 sm:w-28 md:w-32"
-                    priority
-                  />
+                  <HeroMedia />
                   <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl dark:text-zinc-50">
                     What do you believe?
                   </h1>

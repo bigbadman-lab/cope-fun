@@ -98,7 +98,7 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex flex-col bg-background/95 backdrop-blur sm:items-start sm:justify-center sm:bg-black/55 sm:p-4 sm:pt-[12vh] sm:backdrop-blur-[2px] dark:sm:bg-black/55"
+      className="fixed inset-0 z-[60] flex flex-col bg-background sm:items-start sm:justify-center sm:bg-black/55 sm:p-4 sm:pt-[12vh] sm:backdrop-blur-[2px] dark:sm:bg-black/55"
       onClick={onClose}
       role="presentation"
     >

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const FOOTER_LINKS = [
   { href: "/beliefs", label: "Beliefs" },
   { href: "/agents", label: "Agents" },
+  { href: "/manifesto", label: "Manifesto" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
 ] as const;
@@ -21,9 +22,9 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`hidden border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 md:block ${
+      className={`hidden bg-background border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 md:block ${
         isHomepage
-          ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background/80 lg:py-0 lg:backdrop-blur"
+          ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background lg:py-0"
           : ""
       }`}
     >
