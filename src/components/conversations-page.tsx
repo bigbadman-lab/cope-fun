@@ -22,18 +22,18 @@ export function ConversationsPage() {
       <TopNav />
       <main className="flex-1 pt-14">
         <div className="mx-auto w-full max-w-md px-4">
-          <h1 className="py-5 text-lg font-semibold tracking-tight text-zinc-50">
-            Conversations
+          <h1 className="py-5 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Beliefs
           </h1>
 
           {conversations.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-zinc-500">
-                No saved conversations yet.
+                No saved beliefs yet.
               </p>
               <Link
                 href="/"
-                className="mt-4 inline-block text-sm font-medium text-zinc-300 transition-colors hover:text-zinc-100"
+                className="mt-4 inline-block text-sm font-medium text-zinc-700 transition-colors hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
               >
                 Back to Home
               </Link>

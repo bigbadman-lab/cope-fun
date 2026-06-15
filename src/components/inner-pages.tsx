@@ -74,7 +74,7 @@ function AgentProfileRow({ profile }: { profile: AgentProfile }) {
             {profile.name}
           </p>
           <p className="mb-1.5 text-[11px] text-zinc-500">{profile.role}</p>
-          <p className="text-[15px] leading-relaxed text-zinc-100">
+          <p className="text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
             {profile.quote}
           </p>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500">
@@ -142,12 +142,12 @@ export function LegalPage() {
             MVP placeholder legal copy
           </p>
 
-          <h1 className="mb-8 text-xl font-semibold tracking-tight text-zinc-50">
+          <h1 className="mb-8 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
             Legal
           </h1>
 
           <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold text-zinc-200">Terms</h2>
+            <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">Terms</h2>
             <p className="text-sm leading-relaxed text-zinc-500">
               Cope.fun is an early MVP. By using the site you agree that
               features may change, break, or disappear without notice. Beliefs
@@ -157,11 +157,11 @@ export function LegalPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold text-zinc-200">
+            <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
               Privacy
             </h2>
             <p className="text-sm leading-relaxed text-zinc-500">
-              Saved conversations are stored locally in your browser. We do not
+              Saved beliefs are stored locally in your browser. We do not
               operate accounts, authentication, or a backend database in this
               version. If analytics or third-party services are added later,
               this policy will be updated.
@@ -169,7 +169,7 @@ export function LegalPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold text-zinc-200">
+            <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
               Disclaimer
             </h2>
             <p className="text-sm leading-relaxed text-zinc-500">

@@ -93,7 +93,7 @@ export function SavedChatView({
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/5 bg-background/95 px-4 pt-3 pb-safe-4 backdrop-blur-md before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200/80 bg-background/95 px-4 pt-3 pb-safe-4 backdrop-blur-md before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
         <div className="relative mx-auto w-full max-w-md">
           <BeliefInput
             value={belief}

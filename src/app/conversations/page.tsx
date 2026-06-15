@@ -1,5 +1,5 @@
-import { ConversationsPage } from "@/components/conversations-page";
+import { redirect } from "next/navigation";
 
-export default function Conversations() {
-  return <ConversationsPage />;
+export default function ConversationsRedirect() {
+  redirect("/beliefs");
 }

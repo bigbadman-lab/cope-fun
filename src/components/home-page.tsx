@@ -86,6 +86,9 @@ export function HomePage() {
   const [copeCount, setCopeCount] = useState(0);
   const [userVote, setUserVote] = useState<VoteChoice | null>(null);
   const [moveOffsetPx, setMoveOffsetPx] = useState(0);
+  const [composerStartCenterY, setComposerStartCenterY] = useState<number | null>(
+    null,
+  );
 
   const router = useRouter();
 
@@ -184,6 +187,7 @@ export function HomePage() {
     setCopeCount(0);
     setUserVote(null);
     setMoveOffsetPx(0);
+    setComposerStartCenterY(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
     requestAnimationFrame(() => {
       heroInputRef.current?.focus({ preventScroll: true });
@@ -218,10 +222,13 @@ export function HomePage() {
       });
     });
 
-    const fallback = setTimeout(
-      () => setPhase("belief-settled"),
-      MOVE_DURATION_MS + 80,
-    );
+    const fallback = setTimeout(() => {
+      const rect = heroInputRef.current?.getBoundingClientRect();
+      setComposerStartCenterY(
+        rect ? rect.top + rect.height / 2 : null,
+      );
+      setPhase("belief-settled");
+    }, MOVE_DURATION_MS + 80);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -243,6 +250,10 @@ export function HomePage() {
 
   function handleBeliefTransitionEnd(e: React.TransitionEvent<HTMLDivElement>) {
     if (phase !== "belief-moving" || e.propertyName !== "transform") return;
+    const rect = heroInputRef.current?.getBoundingClientRect();
+    setComposerStartCenterY(
+      rect ? rect.top + rect.height / 2 : null,
+    );
     setPhase("belief-settled");
   }
 
@@ -292,7 +303,7 @@ export function HomePage() {
     });
 
     setChatSaved(true);
-    setTimeout(() => router.push("/conversations"), SAVE_CONFIRM_MS);
+    setTimeout(() => router.push("/beliefs"), SAVE_CONFIRM_MS);
   }, [
     lockedBelief,
     chatSaved,
@@ -332,6 +343,7 @@ export function HomePage() {
             showCta={showCta}
             belief={belief}
             inputGlideActive={phase !== "belief-settled"}
+            composerStartCenterY={composerStartCenterY}
             believeCount={believeCount}
             copeCount={copeCount}
             userVote={userVote}
@@ -358,7 +370,7 @@ export function HomePage() {
                     className="mb-8 h-auto w-24 sm:w-28 md:w-32"
                     priority
                   />
-                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
+                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl dark:text-zinc-50">
                     What do you believe?
                   </h1>
                 </div>

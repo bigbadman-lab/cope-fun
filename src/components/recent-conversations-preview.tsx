@@ -23,7 +23,7 @@ export function RecentConversationsPreview() {
   if (recent.length === 0) {
     return (
       <p className="mt-10 text-center text-xs text-zinc-600">
-        Saved conversations will appear here.
+        Saved beliefs will appear here.
       </p>
     );
   }
@@ -32,10 +32,10 @@ export function RecentConversationsPreview() {
     <div className="mt-10">
       <div className="mb-1 flex items-center justify-between px-0.5">
         <h2 className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-          Recent conversations
+          Recent beliefs
         </h2>
         <Link
-          href="/conversations"
+          href="/beliefs"
           className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
         >
           View all

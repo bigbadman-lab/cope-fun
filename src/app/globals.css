@@ -1,6 +1,27 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
+  --background: #f4f4f5;
+  --foreground: #18181b;
+  --muted: #71717a;
+  --surface: #ffffff;
+  --surface-elevated: #f4f4f5;
+  --accent: #52525b;
+  --cope-orange: #d9773f;
+  --belief-input-focus-shadow:
+    0 0 0 1px rgb(217 119 63 / 0.12),
+    0 0 14px -2px rgb(217 119 63 / 0.1);
+  --nav-height: 3.5rem;
+  --footer-height: 3rem;
+  --composer-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  --belief-top-in-main: calc(14vh - var(--nav-height));
+}
+
+.dark {
+  color-scheme: dark;
   --background: #09090b;
   --foreground: #fafafa;
   --muted: #71717a;
@@ -11,13 +32,19 @@
   --belief-input-focus-shadow:
     0 0 0 1px rgb(232 133 74 / 0.1),
     0 0 14px -2px rgb(232 133 74 / 0.07);
-  --nav-height: 3.5rem;
-  --belief-top-in-main: calc(14vh - var(--nav-height));
 }
 
 @supports (height: 100dvh) {
   :root {
     --belief-top-in-main: calc(14dvh - var(--nav-height));
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --composer-bottom: calc(
+      var(--footer-height) + 1rem + env(safe-area-inset-bottom, 0px)
+    );
   }
 }
 
@@ -76,6 +103,14 @@ body {
 
   .pb-safe-4 {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .bottom-composer {
+    bottom: var(--composer-bottom);
+  }
+
+  .pb-composer-scroll {
+    padding-bottom: calc(var(--composer-bottom) + 5.5rem);
   }
 }
 

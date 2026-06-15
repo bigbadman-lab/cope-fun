@@ -24,7 +24,7 @@ export function BelieveCopeVote({
 
   return (
     <div className="space-y-3 pt-1">
-      <p className="text-sm text-zinc-400">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
         {hasVoted ? "your take" : "what do you think?"}
       </p>
 
@@ -57,7 +57,7 @@ export function BelieveCopeVote({
 
       {hasVoted && (
         <div className="animate-vote-results-in space-y-2 pt-1">
-          <div className="flex h-2 overflow-hidden rounded-full bg-zinc-800/80">
+          <div className="flex h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800/80">
             <div
               className="bg-emerald-600/65 transition-[width] duration-700 ease-out"
               style={{ width: `${believePct}%` }}

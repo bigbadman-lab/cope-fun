@@ -29,10 +29,10 @@ export function ChatMessageRow({ message, animate = true }: ChatMessageRowProps)
         name={message.isUser ? USER_DISPLAY_NAME : message.author}
       />
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="mb-1 text-xs font-medium text-zinc-400">
+        <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {message.isUser ? USER_DISPLAY_NAME : message.author}
         </p>
-        <p className="text-[15px] leading-relaxed text-zinc-100">
+        <p className="text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
           {message.text}
         </p>
       </div>
@@ -81,7 +81,7 @@ export function AgentTurnRow({ message, mode }: AgentTurnRowProps) {
             <p className="mb-1 text-xs font-medium text-zinc-400">
               {message.author}
             </p>
-            <p className="animate-message-in text-[15px] leading-relaxed text-zinc-100">
+            <p className="animate-message-in text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
               {message.text}
             </p>
           </>
@@ -96,7 +96,7 @@ export function AgentTurnRow({ message, mode }: AgentTurnRowProps) {
 export function GroupFormationMessage({ animate = true }: { animate?: boolean }) {
   return (
     <p
-      className={`py-1 text-center text-[11px] leading-relaxed text-zinc-600 ${
+      className={`py-1 text-center text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-600 ${
         animate ? "animate-join-in" : ""
       }`}
     >
@@ -133,7 +133,7 @@ export function DebateCTA({
       <button
         type="button"
         onClick={onSaveChat}
-        className="rounded-full border border-zinc-700 px-5 py-2 text-sm font-medium text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200 disabled:opacity-70"
+        className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900 disabled:opacity-70 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:text-zinc-200"
         disabled={chatSaved}
       >
         {chatSaved ? "Saved" : "Save Chat"}

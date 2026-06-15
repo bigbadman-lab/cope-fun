@@ -114,7 +114,7 @@ function PositionCard({ position }: { position: MarketPosition }) {
           <p className="text-[10px] uppercase tracking-wide text-zinc-500">
             Size
           </p>
-          <p className="mt-0.5 text-sm font-medium text-zinc-200">
+          <p className="mt-0.5 text-sm font-medium text-zinc-800 dark:text-zinc-200">
             {position.size}
             <span className="ml-1 text-xs font-normal text-zinc-500">
               credits
@@ -149,7 +149,7 @@ function WinnerBanner({
           ? "border-emerald-900/30 bg-emerald-950/15 text-emerald-400/80"
           : winner === "cope"
             ? "border-rose-900/30 bg-rose-950/15 text-rose-400/80"
-            : "border-zinc-800 bg-zinc-900/40 text-zinc-400"
+            : "border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400"
       }`}
     >
       {label}
@@ -159,7 +159,7 @@ function WinnerBanner({
 
 export function MarketUnavailableNote() {
   return (
-    <p className="border-b border-white/5 pb-4 text-[11px] leading-relaxed text-zinc-600">
+    <p className="border-b border-zinc-200/80 pb-4 text-[11px] leading-relaxed text-zinc-500 dark:border-white/5 dark:text-zinc-600">
       No live market on this room. Markets attach to selected beliefs only.
     </p>
   );
@@ -199,7 +199,7 @@ export function MarketLive({ market }: MarketLiveProps) {
 
   return (
     <section
-      className={`border-b border-white/5 pb-4 ${
+      className={`border-b border-zinc-200/80 pb-4 dark:border-white/5 ${
         closed ? "opacity-80" : ""
       }`}
     >
@@ -207,7 +207,7 @@ export function MarketLive({ market }: MarketLiveProps) {
         <span
           className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide ${
             closed
-              ? "border-zinc-800 bg-zinc-900/50 text-zinc-500"
+              ? "border-zinc-200 bg-zinc-100 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-500"
               : "border-emerald-900/50 bg-emerald-950/30 text-emerald-400/90"
           }`}
         >
@@ -216,7 +216,7 @@ export function MarketLive({ market }: MarketLiveProps) {
           )}
           {closed ? "Market closed" : "Market live"}
         </span>
-        <span className="rounded-full border border-zinc-800 px-2 py-0.5 text-[10px] text-zinc-500">
+        <span className="rounded-full border border-zinc-200 px-2 py-0.5 text-[10px] text-zinc-500 dark:border-zinc-800">
           {market.durationHours ?? 72}h market
         </span>
         <span className="ml-auto text-[11px] text-zinc-500">
@@ -237,7 +237,7 @@ export function MarketLive({ market }: MarketLiveProps) {
         </span>
       </div>
 
-      <div className="mb-3 flex h-1.5 overflow-hidden rounded-full bg-zinc-800/80">
+      <div className="mb-3 flex h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800/80">
         <div
           className="bg-emerald-600/60 transition-[width] duration-700 ease-out"
           style={{ width: `${displayBelievePct}%` }}

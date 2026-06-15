@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const FOOTER_LINKS = [
-  { href: "/conversations", label: "Conversations" },
+  { href: "/beliefs", label: "Beliefs" },
   { href: "/agents", label: "Agents" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
@@ -21,7 +21,7 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`border-t border-white/5 px-4 py-6 ${
+      className={`border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 ${
         isHomepage
           ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background/80 lg:py-0 lg:backdrop-blur"
           : ""
@@ -32,7 +32,7 @@ export function SiteFooter() {
           <Link
             key={link.href}
             href={link.href}
-            className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+            className="text-xs text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300"
           >
             {link.label}
           </Link>

@@ -46,12 +46,12 @@ export function RoomPage({ slug }: RoomPageProps) {
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <TopNav />
         <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-x-hidden px-4 pt-14 text-center">
-          <p className="text-sm text-zinc-500">Conversation not found.</p>
+          <p className="text-sm text-zinc-500">Belief not found.</p>
           <Link
-            href="/conversations"
-            className="mt-4 text-sm font-medium text-zinc-300 transition-colors hover:text-zinc-100"
+            href="/beliefs"
+            className="mt-4 text-sm font-medium text-zinc-700 transition-colors hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
           >
-            Back to Conversations
+            Back to Beliefs
           </Link>
         </main>
       </div>

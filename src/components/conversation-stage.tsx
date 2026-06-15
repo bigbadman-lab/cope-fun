@@ -13,7 +13,16 @@ import type { VoteChoice } from "@/lib/vote";
 import { BELIEF_TOP_IN_MAIN } from "@/lib/belief-layout";
 
 const INPUT_SETTLE_MS = 1100;
-const INPUT_BOTTOM_PADDING_PX = 16;
+
+function getComposerBottomPx(): number {
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "position:fixed;bottom:var(--composer-bottom);visibility:hidden;pointer-events:none";
+  document.body.appendChild(probe);
+  const px = parseFloat(getComputedStyle(probe).bottom);
+  document.body.removeChild(probe);
+  return Number.isFinite(px) ? px : 16;
+}
 
 type ConversationStageProps = {
   userMessage: ChatMessage;
@@ -25,6 +34,7 @@ type ConversationStageProps = {
   showCta: boolean;
   belief: string;
   inputGlideActive: boolean;
+  composerStartCenterY: number | null;
   believeCount: number;
   copeCount: number;
   userVote: VoteChoice | null;
@@ -43,6 +53,7 @@ export function ConversationStage({
   showCta,
   belief,
   inputGlideActive,
+  composerStartCenterY,
   believeCount,
   copeCount,
   userVote,
@@ -50,24 +61,26 @@ export function ConversationStage({
   onSaveChat,
   chatSaved,
 }: ConversationStageProps) {
-  const stageRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
-  const [inputTopPx, setInputTopPx] = useState<number | null>(null);
-  const [isSettling, setIsSettling] = useState(false);
+  const [translateY, setTranslateY] = useState(0);
+  const [isGliding, setIsGliding] = useState(false);
   const glideStartedRef = useRef(false);
 
   useLayoutEffect(() => {
-    const stage = stageRef.current;
     const inputWrapper = inputWrapperRef.current;
-    if (!stage || !inputWrapper) return;
+    if (!inputWrapper) return;
 
     const inputHeight = inputWrapper.offsetHeight;
-    const stageHeight = stage.clientHeight;
-    const centerTop = (stageHeight - inputHeight) / 2;
-    const bottomTop = stageHeight - inputHeight - INPUT_BOTTOM_PADDING_PX;
+    const composerBottomPx = getComposerBottomPx();
+    const finalCenterY =
+      window.innerHeight - composerBottomPx - inputHeight / 2;
+    const startCenterY = composerStartCenterY ?? finalCenterY;
+    const initialOffset = startCenterY - finalCenterY;
 
-    setInputTopPx(centerTop);
+    if (!glideStartedRef.current) {
+      setTranslateY(initialOffset);
+    }
 
     if (!inputGlideActive || glideStartedRef.current) return;
 
@@ -75,13 +88,13 @@ export function ConversationStage({
 
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        setIsSettling(true);
-        setInputTopPx(bottomTop);
+        setIsGliding(true);
+        setTranslateY(0);
       });
     });
 
     return () => cancelAnimationFrame(raf);
-  }, [inputGlideActive]);
+  }, [inputGlideActive, composerStartCenterY]);
 
   useEffect(() => {
     if (
@@ -99,11 +112,8 @@ export function ConversationStage({
   }, [visibleAgentCount, showGroupFormation, typingAgent, typingFadingOut, showCta, userVote]);
 
   return (
-    <div
-      ref={stageRef}
-      className="relative h-[calc(100dvh-3.5rem)] w-full"
-    >
-      <div className="absolute inset-0 overflow-y-auto px-4 pb-40">
+    <div className="relative h-[calc(100dvh-3.5rem)] w-full">
+      <div className="absolute inset-0 overflow-y-auto px-4 pb-composer-scroll">
         <div
           className="mx-auto w-full max-w-md space-y-4"
           style={{ paddingTop: BELIEF_TOP_IN_MAIN }}
@@ -147,11 +157,11 @@ export function ConversationStage({
 
       <div
         ref={inputWrapperRef}
-        className="absolute inset-x-0 px-4 will-change-[top]"
+        className="fixed inset-x-0 bottom-composer z-50 px-4 will-change-transform"
         style={{
-          top: inputTopPx ?? "50%",
-          transition: isSettling
-            ? `top ${INPUT_SETTLE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
+          transform: `translateY(${translateY}px)`,
+          transition: isGliding
+            ? `transform ${INPUT_SETTLE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
             : "none",
         }}
       >
