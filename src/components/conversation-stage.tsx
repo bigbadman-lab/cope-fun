@@ -3,8 +3,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BeliefInput } from "./belief-input";
 import {
+  AgentTurnRow,
   ChatMessageRow,
   DebateCTA,
+  GroupFormationMessage,
   type ChatMessage,
 } from "./debate-chat";
 import { BELIEF_TOP_IN_MAIN } from "@/lib/belief-layout";
@@ -14,20 +16,30 @@ const INPUT_BOTTOM_PADDING_PX = 16;
 
 type ConversationStageProps = {
   userMessage: ChatMessage;
+  showGroupFormation: boolean;
+  typingAgent: string | null;
+  typingFadingOut: boolean;
   agentMessages: ChatMessage[];
   visibleAgentCount: number;
   showCta: boolean;
   belief: string;
   inputGlideActive: boolean;
+  onSaveChat?: () => void;
+  chatSaved?: boolean;
 };
 
 export function ConversationStage({
   userMessage,
+  showGroupFormation,
+  typingAgent,
+  typingFadingOut,
   agentMessages,
   visibleAgentCount,
   showCta,
   belief,
   inputGlideActive,
+  onSaveChat,
+  chatSaved,
 }: ConversationStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
@@ -63,12 +75,19 @@ export function ConversationStage({
   }, [inputGlideActive]);
 
   useEffect(() => {
-    if (visibleAgentCount === 0 && !showCta) return;
+    if (
+      visibleAgentCount === 0 &&
+      !showGroupFormation &&
+      !typingAgent &&
+      !showCta
+    ) {
+      return;
+    }
     conversationEndRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
     });
-  }, [visibleAgentCount, showCta]);
+  }, [visibleAgentCount, showGroupFormation, typingAgent, typingFadingOut, showCta]);
 
   return (
     <div
@@ -81,10 +100,31 @@ export function ConversationStage({
           style={{ paddingTop: BELIEF_TOP_IN_MAIN }}
         >
           <ChatMessageRow message={userMessage} animate={false} />
-          {agentMessages.slice(0, visibleAgentCount).map((message) => (
-            <ChatMessageRow key={message.id} message={message} />
-          ))}
-          {showCta && <DebateCTA />}
+          {showGroupFormation && <GroupFormationMessage />}
+          {agentMessages.map((message, index) => {
+            const isComplete = index < visibleAgentCount;
+            const isActive =
+              typingAgent === message.author && index === visibleAgentCount;
+
+            if (!isComplete && !isActive) return null;
+
+            return (
+              <AgentTurnRow
+                key={message.id}
+                message={message}
+                mode={
+                  isComplete
+                    ? "message"
+                    : typingFadingOut
+                      ? "fading"
+                      : "typing"
+                }
+              />
+            );
+          })}
+          {showCta && (
+            <DebateCTA onSaveChat={onSaveChat} chatSaved={chatSaved} />
+          )}
           <div ref={conversationEndRef} aria-hidden />
         </div>
       </div>

@@ -23,12 +23,20 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             priority
           />
         </Link>
-        <button
-          type="button"
-          className="rounded-full border border-zinc-700 bg-zinc-900 px-4 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-800"
-        >
-          Connect Wallet
-        </button>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link
+            href="/conversations"
+            className="text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-200"
+          >
+            Conversations
+          </Link>
+          <button
+            type="button"
+            className="rounded-full border border-zinc-700 bg-zinc-900 px-4 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-800"
+          >
+            Connect Wallet
+          </button>
+        </div>
       </div>
     </header>
   );

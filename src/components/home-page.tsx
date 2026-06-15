@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { BeliefInput } from "./belief-input";
 import { ConversationStage } from "./conversation-stage";
+import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
 import { TopNav } from "./top-nav";
+import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
+import { buildDebateTurnTimings } from "@/lib/debate-timing";
+import { saveConversation } from "@/lib/saved-chats";
+
+const SAVE_CONFIRM_MS = 700;
 
 export type Phase =
   | "idle"
@@ -14,6 +21,7 @@ export type Phase =
   | "belief-moving"
   | "belief-settled"
   | "input-settling"
+  | "agents-joining"
   | "debating"
   | "complete";
 
@@ -49,8 +57,7 @@ const BELIEF_PAUSE_MS = 1500;
 const MOVE_DURATION_MS = 900;
 const BELIEF_SETTLED_PAUSE_MS = 500;
 const AGENT_START_AFTER_INPUT_MS = 450;
-const AGENT_MESSAGE_DELAYS = [0, 700, 1400, 2100, 2800];
-const CTA_DELAY_MS = 3600;
+const GROUP_FORMATION_PAUSE_MS = 600;
 
 function buildAgentMessages(belief: string): ChatMessage[] {
   return RESPONSES.map((r, i) => ({
@@ -65,21 +72,31 @@ export function HomePage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [lockedBelief, setLockedBelief] = useState("");
   const [visibleAgentCount, setVisibleAgentCount] = useState(0);
+  const [showGroupFormation, setShowGroupFormation] = useState(false);
+  const [typingAgent, setTypingAgent] = useState<string | null>(null);
+  const [typingFadingOut, setTypingFadingOut] = useState(false);
   const [showCta, setShowCta] = useState(false);
+  const [chatSaved, setChatSaved] = useState(false);
   const [moveOffsetPx, setMoveOffsetPx] = useState(0);
+
+  const router = useRouter();
 
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const beliefRef = useRef<HTMLDivElement>(null);
   const heroInputRef = useRef<HTMLTextAreaElement>(null);
   const agentsScheduledRef = useRef(false);
 
-  const agentMessages = lockedBelief ? buildAgentMessages(lockedBelief) : [];
+  const agentMessages = useMemo(
+    () => (lockedBelief ? buildAgentMessages(lockedBelief) : []),
+    [lockedBelief],
+  );
   const isPostSubmit = phase !== "idle";
   const isDetaching =
     phase === "belief-created" || phase === "belief-moving";
   const isConversationLayout =
     phase === "belief-settled" ||
     phase === "input-settling" ||
+    phase === "agents-joining" ||
     phase === "debating" ||
     phase === "complete";
 
@@ -93,15 +110,35 @@ export function HomePage() {
     agentsScheduledRef.current = true;
     clearTimeouts();
 
-    AGENT_MESSAGE_DELAYS.forEach((delay, i) => {
-      const t = setTimeout(() => setVisibleAgentCount(i + 1), delay);
-      timeoutsRef.current.push(t);
+    const { turns, ctaDelayMs } = buildDebateTurnTimings(
+      RESPONSES.map((r) => r.author),
+    );
+
+    turns.forEach((turn, i) => {
+      const typingTimer = setTimeout(() => {
+        setTypingFadingOut(false);
+        setTypingAgent(turn.author);
+      }, turn.typingStartMs);
+      timeoutsRef.current.push(typingTimer);
+
+      const fadeTimer = setTimeout(
+        () => setTypingFadingOut(true),
+        turn.typingFadeMs,
+      );
+      timeoutsRef.current.push(fadeTimer);
+
+      const messageTimer = setTimeout(() => {
+        setTypingAgent(null);
+        setTypingFadingOut(false);
+        setVisibleAgentCount(i + 1);
+      }, turn.messageMs);
+      timeoutsRef.current.push(messageTimer);
     });
 
     const cta = setTimeout(() => {
       setPhase("complete");
       setShowCta(true);
-    }, CTA_DELAY_MS);
+    }, ctaDelayMs);
     timeoutsRef.current.push(cta);
   }, [clearTimeouts]);
 
@@ -110,6 +147,19 @@ export function HomePage() {
     scheduleAgentMessages();
   }, [scheduleAgentMessages]);
 
+  const scheduleGroupFormation = useCallback(() => {
+    clearTimeouts();
+    setShowGroupFormation(true);
+
+    const t = setTimeout(beginDebating, GROUP_FORMATION_PAUSE_MS);
+    timeoutsRef.current.push(t);
+  }, [clearTimeouts, beginDebating]);
+
+  const beginAgentJoins = useCallback(() => {
+    setPhase("agents-joining");
+    scheduleGroupFormation();
+  }, [scheduleGroupFormation]);
+
   const handleReset = useCallback(() => {
     clearTimeouts();
     agentsScheduledRef.current = false;
@@ -117,7 +167,11 @@ export function HomePage() {
     setPhase("idle");
     setLockedBelief("");
     setVisibleAgentCount(0);
+    setShowGroupFormation(false);
+    setTypingAgent(null);
+    setTypingFadingOut(false);
     setShowCta(false);
+    setChatSaved(false);
     setMoveOffsetPx(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
     requestAnimationFrame(() => {
@@ -172,9 +226,9 @@ export function HomePage() {
 
   useEffect(() => {
     if (phase !== "input-settling") return;
-    const t = setTimeout(beginDebating, AGENT_START_AFTER_INPUT_MS);
+    const t = setTimeout(beginAgentJoins, AGENT_START_AFTER_INPUT_MS);
     return () => clearTimeout(t);
-  }, [phase, beginDebating]);
+  }, [phase, beginAgentJoins]);
 
   function handleBeliefTransitionEnd(e: React.TransitionEvent<HTMLDivElement>) {
     if (phase !== "belief-moving" || e.propertyName !== "transform") return;
@@ -190,9 +244,29 @@ export function HomePage() {
     setPhase("belief-created");
   }
 
+  const handleSaveChat = useCallback(() => {
+    if (!lockedBelief || chatSaved) return;
+
+    saveConversation({
+      belief: lockedBelief,
+      messages: [
+        {
+          id: "user",
+          author: USER_DISPLAY_NAME,
+          text: lockedBelief,
+          isUser: true,
+        },
+        ...agentMessages,
+      ],
+    });
+
+    setChatSaved(true);
+    setTimeout(() => router.push("/conversations"), SAVE_CONFIRM_MS);
+  }, [lockedBelief, chatSaved, agentMessages, router]);
+
   const userMessage: ChatMessage = {
     id: "user",
-    author: "You",
+    author: USER_DISPLAY_NAME,
     text: lockedBelief,
     isUser: true,
   };
@@ -211,11 +285,16 @@ export function HomePage() {
         {isConversationLayout ? (
           <ConversationStage
             userMessage={userMessage}
+            showGroupFormation={showGroupFormation}
+            typingAgent={typingAgent}
+            typingFadingOut={typingFadingOut}
             agentMessages={agentMessages}
             visibleAgentCount={visibleAgentCount}
             showCta={showCta}
             belief={belief}
             inputGlideActive={phase !== "belief-settled"}
+            onSaveChat={handleSaveChat}
+            chatSaved={chatSaved}
           />
         ) : (
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4">
@@ -265,6 +344,7 @@ export function HomePage() {
                 compact={isPostSubmit}
                 animateExamples={phase === "idle"}
               />
+              {phase === "idle" && <RecentConversationsPreview />}
             </div>
           </div>
         )}
