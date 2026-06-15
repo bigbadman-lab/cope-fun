@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useGlobalSearch } from "./global-search-provider";
+import { RoomShareButton } from "./room-share-button";
 import { ThemeToggle, iconButtonClass } from "./theme-toggle";
 
 type TopNavProps = {
@@ -47,6 +49,10 @@ function WalletIcon({ className }: { className?: string }) {
 
 export function TopNav({ onLogoClick }: TopNavProps) {
   const { openSearch } = useGlobalSearch();
+  const pathname = usePathname();
+  const roomSlug = pathname.startsWith("/room/")
+    ? pathname.slice("/room/".length).split("/")[0]
+    : null;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200/80 bg-background/85 backdrop-blur-md dark:border-white/5 dark:bg-background/80">
@@ -92,6 +98,7 @@ export function TopNav({ onLogoClick }: TopNavProps) {
           >
             <WalletIcon className="size-4" />
           </button>
+          {roomSlug && <RoomShareButton slug={roomSlug} />}
         </div>
       </div>
     </header>
