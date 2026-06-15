@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
+import { GlobalSearchProvider } from "@/components/global-search-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,8 +30,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-dvh flex-col bg-background text-foreground">
-        <div className="flex-1">{children}</div>
-        <SiteFooter />
+        <GlobalSearchProvider>
+          <div className="flex-1">{children}</div>
+          <SiteFooter />
+        </GlobalSearchProvider>
       </body>
     </html>
   );
