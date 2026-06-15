@@ -12,12 +12,12 @@ type ConversationListRowProps = {
 
 export function ConversationListRow({ conversation }: ConversationListRowProps) {
   return (
-    <Link
-      href={`/room/${conversation.slug}`}
-      className="flex items-center gap-3 border-b border-white/5 py-3.5 transition-colors hover:bg-white/[0.02] active:bg-white/[0.04]"
-    >
+    <div className="flex items-center gap-3 border-b border-white/5 py-3.5 transition-colors hover:bg-white/[0.02]">
       <ParticipantAvatarStack participants={conversation.participants} />
-      <div className="min-w-0 flex-1">
+      <Link
+        href={`/room/${conversation.slug}`}
+        className="min-w-0 flex-1 active:opacity-80"
+      >
         <div className="flex items-baseline justify-between gap-2">
           <p className="truncate text-[15px] font-medium text-zinc-100">
             {conversation.belief}
@@ -29,7 +29,7 @@ export function ConversationListRow({ conversation }: ConversationListRowProps) 
         <p className="mt-0.5 truncate text-sm text-zinc-500">
           {getLastMessagePreview(conversation)}
         </p>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

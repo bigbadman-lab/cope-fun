@@ -1,6 +1,10 @@
 import { USER_DISPLAY_NAME } from "@/components/avatar-placeholder";
 import type { ChatMessage } from "@/components/debate-chat";
 
+import type { VoteChoice } from "@/lib/vote";
+import type { MarketSnapshot } from "@/lib/market";
+import { seedMarketData, shouldAttachMarket } from "@/lib/market";
+
 export type SavedConversation = {
   id: string;
   slug: string;
@@ -8,6 +12,10 @@ export type SavedConversation = {
   createdAt: string;
   messages: ChatMessage[];
   participants: string[];
+  userVote?: VoteChoice | null;
+  believeCount?: number;
+  copeCount?: number;
+  market?: MarketSnapshot;
 };
 
 const STORAGE_KEY = "cope-fun:saved-conversations";
@@ -141,7 +149,20 @@ export function getSavedConversationBySlug(
 export function saveConversation(input: {
   belief: string;
   messages: ChatMessage[];
+  userVote?: VoteChoice | null;
+  believeCount?: number;
+  copeCount?: number;
 }): SavedConversation {
+  const believeCount = input.believeCount ?? 0;
+  const copeCount = input.copeCount ?? 0;
+  const hasVote = input.userVote != null;
+  const market =
+    hasVote &&
+    believeCount + copeCount > 0 &&
+    shouldAttachMarket(input.belief)
+      ? seedMarketData(input.belief, believeCount, copeCount)
+      : undefined;
+
   const conversation: SavedConversation = {
     id: crypto.randomUUID(),
     slug: createConversationSlug(input.belief),
@@ -149,6 +170,10 @@ export function saveConversation(input: {
     createdAt: new Date().toISOString(),
     messages: input.messages,
     participants: getParticipants(input.messages),
+    userVote: input.userVote ?? null,
+    believeCount: input.believeCount,
+    copeCount: input.copeCount,
+    market,
   };
 
   writeAll([conversation, ...readAll()]);

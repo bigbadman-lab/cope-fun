@@ -65,6 +65,10 @@ export function RoomPage({ slug }: RoomPageProps) {
         <SavedChatView
           messages={conversation.messages}
           belief={conversation.belief}
+          userVote={conversation.userVote}
+          believeCount={conversation.believeCount}
+          copeCount={conversation.copeCount}
+          market={conversation.market}
         />
       </main>
     </div>

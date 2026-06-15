@@ -1,7 +1,9 @@
 "use client";
 
 import { AvatarPlaceholder, USER_DISPLAY_NAME } from "./avatar-placeholder";
+import { BelieveCopeVote } from "./believe-cope-vote";
 import { TYPING_FADE_OUT_MS } from "@/lib/debate-timing";
+import type { VoteChoice } from "@/lib/vote";
 
 export type ChatMessage = {
   id: string;
@@ -104,25 +106,30 @@ export function GroupFormationMessage({ animate = true }: { animate?: boolean })
 }
 
 type DebateCTAProps = {
+  believeCount: number;
+  copeCount: number;
+  userVote: VoteChoice | null;
+  onVote: (choice: VoteChoice) => void;
   onSaveChat?: () => void;
   chatSaved?: boolean;
 };
 
-export function DebateCTA({ onSaveChat, chatSaved = false }: DebateCTAProps) {
+export function DebateCTA({
+  believeCount,
+  copeCount,
+  userVote,
+  onVote,
+  onSaveChat,
+  chatSaved = false,
+}: DebateCTAProps) {
   return (
-    <div className="animate-cta-in flex flex-wrap gap-2 pt-1">
-      <button
-        type="button"
-        className="rounded-full bg-zinc-100 px-5 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-white"
-      >
-        Believe
-      </button>
-      <button
-        type="button"
-        className="rounded-full border border-zinc-600 px-5 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-400 hover:bg-zinc-800/50"
-      >
-        Cope
-      </button>
+    <div className="space-y-3">
+      <BelieveCopeVote
+        believeCount={believeCount}
+        copeCount={copeCount}
+        userVote={userVote}
+        onVote={onVote}
+      />
       <button
         type="button"
         onClick={onSaveChat}

@@ -9,6 +9,7 @@ import {
   GroupFormationMessage,
   type ChatMessage,
 } from "./debate-chat";
+import type { VoteChoice } from "@/lib/vote";
 import { BELIEF_TOP_IN_MAIN } from "@/lib/belief-layout";
 
 const INPUT_SETTLE_MS = 1100;
@@ -24,6 +25,10 @@ type ConversationStageProps = {
   showCta: boolean;
   belief: string;
   inputGlideActive: boolean;
+  believeCount: number;
+  copeCount: number;
+  userVote: VoteChoice | null;
+  onVote: (choice: VoteChoice) => void;
   onSaveChat?: () => void;
   chatSaved?: boolean;
 };
@@ -38,6 +43,10 @@ export function ConversationStage({
   showCta,
   belief,
   inputGlideActive,
+  believeCount,
+  copeCount,
+  userVote,
+  onVote,
   onSaveChat,
   chatSaved,
 }: ConversationStageProps) {
@@ -87,7 +96,7 @@ export function ConversationStage({
       behavior: "smooth",
       block: "nearest",
     });
-  }, [visibleAgentCount, showGroupFormation, typingAgent, typingFadingOut, showCta]);
+  }, [visibleAgentCount, showGroupFormation, typingAgent, typingFadingOut, showCta, userVote]);
 
   return (
     <div
@@ -123,7 +132,14 @@ export function ConversationStage({
             );
           })}
           {showCta && (
-            <DebateCTA onSaveChat={onSaveChat} chatSaved={chatSaved} />
+            <DebateCTA
+              believeCount={believeCount}
+              copeCount={copeCount}
+              userVote={userVote}
+              onVote={onVote}
+              onSaveChat={onSaveChat}
+              chatSaved={chatSaved}
+            />
           )}
           <div ref={conversationEndRef} aria-hidden />
         </div>

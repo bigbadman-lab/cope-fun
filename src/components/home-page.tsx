@@ -12,6 +12,11 @@ import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
 import { buildDebateTurnTimings } from "@/lib/debate-timing";
 import { saveConversation } from "@/lib/saved-chats";
+import {
+  applyVoteChange,
+  seedVoteCounts,
+  type VoteChoice,
+} from "@/lib/vote";
 
 const SAVE_CONFIRM_MS = 700;
 
@@ -77,6 +82,9 @@ export function HomePage() {
   const [typingFadingOut, setTypingFadingOut] = useState(false);
   const [showCta, setShowCta] = useState(false);
   const [chatSaved, setChatSaved] = useState(false);
+  const [believeCount, setBelieveCount] = useState(0);
+  const [copeCount, setCopeCount] = useState(0);
+  const [userVote, setUserVote] = useState<VoteChoice | null>(null);
   const [moveOffsetPx, setMoveOffsetPx] = useState(0);
 
   const router = useRouter();
@@ -172,6 +180,9 @@ export function HomePage() {
     setTypingFadingOut(false);
     setShowCta(false);
     setChatSaved(false);
+    setBelieveCount(0);
+    setCopeCount(0);
+    setUserVote(null);
     setMoveOffsetPx(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
     requestAnimationFrame(() => {
@@ -239,10 +250,27 @@ export function HomePage() {
     const trimmed = belief.trim();
     if (!trimmed || isPostSubmit) return;
 
+    const seeded = seedVoteCounts(trimmed);
     setLockedBelief(trimmed);
+    setBelieveCount(seeded.believeCount);
+    setCopeCount(seeded.copeCount);
+    setUserVote(null);
     setMoveOffsetPx(0);
     setPhase("belief-created");
   }
+
+  const handleVote = useCallback(
+    (choice: VoteChoice) => {
+      const next = applyVoteChange(
+        { believeCount, copeCount, userVote },
+        choice,
+      );
+      setBelieveCount(next.believeCount);
+      setCopeCount(next.copeCount);
+      setUserVote(next.userVote);
+    },
+    [believeCount, copeCount, userVote],
+  );
 
   const handleSaveChat = useCallback(() => {
     if (!lockedBelief || chatSaved) return;
@@ -258,11 +286,22 @@ export function HomePage() {
         },
         ...agentMessages,
       ],
+      userVote,
+      believeCount,
+      copeCount,
     });
 
     setChatSaved(true);
     setTimeout(() => router.push("/conversations"), SAVE_CONFIRM_MS);
-  }, [lockedBelief, chatSaved, agentMessages, router]);
+  }, [
+    lockedBelief,
+    chatSaved,
+    agentMessages,
+    router,
+    userVote,
+    believeCount,
+    copeCount,
+  ]);
 
   const userMessage: ChatMessage = {
     id: "user",
@@ -293,6 +332,10 @@ export function HomePage() {
             showCta={showCta}
             belief={belief}
             inputGlideActive={phase !== "belief-settled"}
+            believeCount={believeCount}
+            copeCount={copeCount}
+            userVote={userVote}
+            onVote={handleVote}
             onSaveChat={handleSaveChat}
             chatSaved={chatSaved}
           />

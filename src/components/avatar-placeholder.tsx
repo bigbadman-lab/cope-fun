@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import { getAgentProfilePath } from "@/lib/agent-profiles";
 
 export const USER_DISPLAY_NAME = "You";
 
@@ -24,9 +26,36 @@ const AGENT_AVATARS: Record<string, string> = {
 const AVATAR_CLASS =
   "size-11 shrink-0 overflow-hidden rounded-lg sm:size-[52px]";
 
+const CLICKABLE_AVATAR_CLASS =
+  "cursor-pointer transition-[opacity,transform] duration-150 hover:opacity-90 sm:hover:scale-[1.03]";
+
 type AvatarPlaceholderProps = {
   name: string;
 };
+
+type AvatarLinkWrapperProps = {
+  name: string;
+  className?: string;
+  children: React.ReactNode;
+};
+
+function AvatarLinkWrapper({ name, className = "", children }: AvatarLinkWrapperProps) {
+  const href = getAgentProfilePath(name);
+
+  if (!href) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={`View ${name}'s profile`}
+      className={`${CLICKABLE_AVATAR_CLASS} ${className}`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 // Future: uploaded profile → Privy/social → identicon → initial fallback
 function GuestAvatar() {
@@ -47,12 +76,14 @@ function GradientPlaceholder({ name }: AvatarPlaceholderProps) {
   const gradient = AVATAR_COLORS[name] ?? "from-zinc-500 to-zinc-700";
 
   return (
-    <div
-      className={`flex items-center justify-center bg-gradient-to-br text-sm font-semibold text-white ${AVATAR_CLASS} ${gradient}`}
-      aria-hidden
-    >
-      {name.charAt(0)}
-    </div>
+    <AvatarLinkWrapper name={name} className={AVATAR_CLASS}>
+      <div
+        className={`flex size-full items-center justify-center bg-gradient-to-br text-sm font-semibold text-white ${gradient}`}
+        aria-hidden
+      >
+        {name.charAt(0)}
+      </div>
+    </AvatarLinkWrapper>
   );
 }
 
@@ -81,17 +112,23 @@ export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
   if (!src || imageFailed) {
     const gradient = AVATAR_COLORS[name] ?? "from-zinc-500 to-zinc-700";
     return (
-      <div
-        className={`flex items-center justify-center bg-gradient-to-br text-[10px] font-semibold text-white ring-2 ring-background ${MINI_AVATAR_CLASS} ${gradient} ${className}`}
-        aria-hidden
+      <AvatarLinkWrapper
+        name={name}
+        className={`ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
       >
-        {name.charAt(0)}
-      </div>
+        <div
+          className={`flex size-full items-center justify-center bg-gradient-to-br text-[10px] font-semibold text-white ${gradient}`}
+          aria-hidden
+        >
+          {name.charAt(0)}
+        </div>
+      </AvatarLinkWrapper>
     );
   }
 
   return (
-    <div
+    <AvatarLinkWrapper
+      name={name}
       className={`relative ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
     >
       <Image
@@ -102,7 +139,7 @@ export function MiniAvatar({ name, className = "" }: MiniAvatarProps) {
         className="size-full object-cover"
         onError={() => setImageFailed(true)}
       />
-    </div>
+    </AvatarLinkWrapper>
   );
 }
 
@@ -149,7 +186,7 @@ export function AvatarPlaceholder({ name }: AvatarPlaceholderProps) {
   }
 
   return (
-    <div className={`relative ${AVATAR_CLASS}`}>
+    <AvatarLinkWrapper name={name} className={`relative ${AVATAR_CLASS}`}>
       <Image
         src={src}
         alt=""
@@ -158,6 +195,6 @@ export function AvatarPlaceholder({ name }: AvatarPlaceholderProps) {
         className="size-full object-cover"
         onError={() => setImageFailed(true)}
       />
-    </div>
+    </AvatarLinkWrapper>
   );
 }
