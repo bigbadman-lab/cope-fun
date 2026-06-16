@@ -1,10 +1,8 @@
 import { AnimatedConversation } from "./animated-conversation";
+import { AgentsPage } from "./agents-page";
 import { type ChatMessage } from "./debate-chat";
-import {
-  ConversationPageLayout,
-} from "./conversation-page-layout";
+import { ConversationPageLayout } from "./conversation-page-layout";
 import { InnerPageShell } from "./inner-page-shell";
-import { getAgentsOverviewConversation } from "@/lib/agent-profiles";
 import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 
 const GUEST = (id: string, text: string): ChatMessage => ({
@@ -64,9 +62,7 @@ export function AboutPage() {
   return <AnimatedConversation messages={ABOUT_MESSAGES} />;
 }
 
-export function AgentsPage() {
-  return <AnimatedConversation messages={getAgentsOverviewConversation()} />;
-}
+export { AgentsPage };
 
 const CONTACT_MESSAGES: ChatMessage[] = [
   GUEST("contact-1", "how do i contact cope?"),

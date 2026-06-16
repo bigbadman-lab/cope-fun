@@ -106,7 +106,7 @@ function VoteControls({
       )}
 
       {showMeter && (
-        <div className={`space-y-2 ${hasVoted ? "animate-vote-results-in" : ""}`}>
+        <div className="space-y-2">
           <div className="flex items-baseline justify-between gap-3 text-xs tabular-nums">
             <span
               className={`font-medium transition-colors duration-300 ${
@@ -177,7 +177,7 @@ export function BelieveCopeVote({
 
   if (variant === "room") {
     return (
-      <section className="animate-message-in border-t border-zinc-200/80 pt-5 dark:border-white/5">
+      <section className="border-t border-zinc-200/80 pt-5 dark:border-white/5">
         <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-500">
           {hasVoted ? "Your take" : "Where do you stand?"}
         </p>
@@ -195,7 +195,7 @@ export function BelieveCopeVote({
   }
 
   return (
-    <div className="animate-cta-in space-y-3 pt-1">
+    <div className="space-y-3 pt-1">
       <VoteControls
         believeCount={believeCount}
         copeCount={copeCount}

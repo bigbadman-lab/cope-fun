@@ -23,6 +23,14 @@ const AGENT_AVATARS: Record<string, string> = {
   Theo: "/theo.png",
 };
 
+export function getAgentAvatarSrc(name: string): string | undefined {
+  return AGENT_AVATARS[name];
+}
+
+export function getAgentAvatarGradient(name: string): string {
+  return AVATAR_COLORS[name] ?? "from-zinc-500 to-zinc-700";
+}
+
 const AVATAR_CLASS =
   "size-11 shrink-0 overflow-hidden rounded-lg sm:size-[52px]";
 
@@ -31,6 +39,7 @@ const CLICKABLE_AVATAR_CLASS =
 
 type AvatarPlaceholderProps = {
   name: string;
+  linkable?: boolean;
 };
 
 type AvatarLinkWrapperProps = {
@@ -78,11 +87,11 @@ function GuestAvatar() {
   );
 }
 
-function GradientPlaceholder({ name }: AvatarPlaceholderProps) {
+function GradientPlaceholder({ name, linkable = true }: AvatarPlaceholderProps) {
   const gradient = AVATAR_COLORS[name] ?? "from-zinc-500 to-zinc-700";
 
   return (
-    <AvatarLinkWrapper name={name} className={AVATAR_CLASS}>
+    <AvatarLinkWrapper name={name} linkable={linkable} className={AVATAR_CLASS}>
       <div
         className={`flex size-full items-center justify-center bg-gradient-to-br text-sm font-semibold text-white ${gradient}`}
         aria-hidden
@@ -189,7 +198,10 @@ export function ParticipantAvatarStack({
   );
 }
 
-export function AvatarPlaceholder({ name }: AvatarPlaceholderProps) {
+export function AvatarPlaceholder({
+  name,
+  linkable = true,
+}: AvatarPlaceholderProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const src = AGENT_AVATARS[name];
 
@@ -198,11 +210,15 @@ export function AvatarPlaceholder({ name }: AvatarPlaceholderProps) {
   }
 
   if (!src || imageFailed) {
-    return <GradientPlaceholder name={name} />;
+    return <GradientPlaceholder name={name} linkable={linkable} />;
   }
 
   return (
-    <AvatarLinkWrapper name={name} className={`relative ${AVATAR_CLASS}`}>
+    <AvatarLinkWrapper
+      name={name}
+      linkable={linkable}
+      className={`relative ${AVATAR_CLASS}`}
+    >
       <Image
         src={src}
         alt=""

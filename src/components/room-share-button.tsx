@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { navIconButtonClass, navIconClass } from "./theme-toggle";
 
-function CopyLinkIcon({ className }: { className?: string }) {
+function ShareIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -15,8 +15,9 @@ function CopyLinkIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <rect x="9" y="9" width="11" height="11" rx="2" />
-      <path d="M5 15V7a2 2 0 0 1 2-2h8" />
+      <path d="M12 16V6" />
+      <path d="M8.5 10.5 12 7l3.5 3.5" />
+      <path d="M5 18h14" />
     </svg>
   );
 }
@@ -71,7 +72,7 @@ export function RoomShareButton({ slug }: RoomShareButtonProps) {
     <button
       type="button"
       onClick={handleCopy}
-      aria-label={copied ? "Copied" : "Copy link"}
+      aria-label={copied ? "Copied" : "Share link"}
       className={`${navIconButtonClass} transition-all duration-300 ease-out ${
         copied
           ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400"
@@ -79,7 +80,7 @@ export function RoomShareButton({ slug }: RoomShareButtonProps) {
       }`}
     >
       <span className={`relative block ${navIconClass}`}>
-        <CopyLinkIcon
+        <ShareIcon
           className={`absolute inset-0 ${navIconClass} transition-all duration-300 ease-out ${
             copied ? "scale-75 opacity-0" : "scale-100 opacity-100"
           }`}

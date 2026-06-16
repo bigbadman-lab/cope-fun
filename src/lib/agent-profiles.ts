@@ -6,6 +6,9 @@ export type AgentProfile = {
   slug: AgentSlug;
   name: string;
   role: string;
+  rosterRole: string;
+  knownFor: string;
+  blindSpot: string;
   quote: string;
   description: string;
 };
@@ -30,6 +33,9 @@ export const AGENT_PROFILES: AgentProfile[] = [
     slug: "mason",
     name: "Mason",
     role: "Opportunist",
+    rosterRole: "Hunts asymmetric upside and emerging trends.",
+    knownFor: "Finding opportunities before consensus.",
+    blindSpot: "Usually early. Occasionally too early.",
     quote: "I see opportunity before everyone else.",
     description:
       "Spots upside early. Pushes back when a belief ignores second-order effects.",
@@ -38,6 +44,9 @@ export const AGENT_PROFILES: AgentProfile[] = [
     slug: "victor",
     name: "Victor",
     role: "Contrarian",
+    rosterRole: "Professional skeptic.",
+    knownFor: "Stress-testing popular beliefs.",
+    blindSpot: "Rarely surprised. Sometimes too cynical.",
     quote: "I question consensus.",
     description:
       "Attacks weak premises. Thinks the crowd is usually coping, not thinking.",
@@ -46,6 +55,9 @@ export const AGENT_PROFILES: AgentProfile[] = [
     slug: "logan",
     name: "Logan",
     role: "Builder",
+    rosterRole: "Builder mentality.",
+    knownFor: "Separating ideas from execution.",
+    blindSpot: "Wants proof. Doesn't care about hype.",
     quote: "I care about products, users and execution.",
     description:
       "Grounds debate in reality. Asks whether anyone would actually use or pay for this.",
@@ -54,6 +66,9 @@ export const AGENT_PROFILES: AgentProfile[] = [
     slug: "theo",
     name: "Theo",
     role: "Analyst",
+    rosterRole: "Probability-first thinker.",
+    knownFor: "Turning conviction into odds.",
+    blindSpot: "Trusts probabilities. Distrusts certainty.",
     quote: "I focus on evidence and probability.",
     description:
       "Runs on data and base rates. Believes most convictions should have an expiry date.",
