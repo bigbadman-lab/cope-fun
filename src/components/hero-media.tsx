@@ -6,19 +6,11 @@ export function HeroMedia() {
   return (
     <div className={MEDIA_WRAPPER_CLASS}>
       <Image
-        src="/copemain.png"
-        alt=""
-        width={150}
-        height={75}
-        className="hidden h-full w-full object-contain dark:block"
-        priority
-      />
-      <Image
         src="/copemainlight.png"
         alt=""
         width={150}
         height={75}
-        className="block h-full w-full object-contain dark:hidden"
+        className="h-full w-full object-contain"
         priority
       />
     </div>

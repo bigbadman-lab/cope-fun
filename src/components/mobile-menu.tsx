@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -194,6 +195,22 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             </li>
           ))}
         </ul>
+
+        <div className="mt-8 px-3 pb-2">
+          <Link
+            href="/"
+            onClick={onClose}
+            className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
+          >
+            <Image
+              src="/logotext.png"
+              alt="cope"
+              width={313}
+              height={94}
+              className="h-8 w-auto"
+            />
+          </Link>
+        </div>
       </nav>
     </div>
   );

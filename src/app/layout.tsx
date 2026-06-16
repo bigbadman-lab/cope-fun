@@ -55,7 +55,7 @@ export default function RootLayout({
         </Script>
         <ThemeProvider>
           <GlobalSearchProvider>
-            <div className="flex min-h-0 flex-1 flex-col bg-background">{children}</div>
+            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
             <SiteFooter />
           </GlobalSearchProvider>
         </ThemeProvider>

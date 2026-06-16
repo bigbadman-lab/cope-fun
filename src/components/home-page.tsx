@@ -7,6 +7,7 @@ import { ConversationStage } from "./conversation-stage";
 import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
 import { HeroMedia } from "./hero-media";
+import { HomepageBackgroundVideo } from "./homepage-background-video";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
@@ -322,16 +323,18 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <TopNav onLogoClick={handleReset} />
+    <div className="relative isolate min-h-dvh">
+      <HomepageBackgroundVideo />
+      <div className="relative z-10 flex min-h-dvh flex-col">
+        <TopNav onLogoClick={handleReset} />
 
-      <main
-        className={`flex-1 pt-14 ${
-          isConversationLayout
-            ? "overflow-hidden"
-            : "relative min-h-[calc(100dvh-3.5rem)] overflow-hidden"
-        }`}
-      >
+        <main
+          className={`flex-1 pt-14 ${
+            isConversationLayout
+              ? "overflow-hidden"
+              : "relative min-h-[calc(100dvh-3.5rem)] overflow-hidden"
+          }`}
+        >
         {isConversationLayout ? (
           <ConversationStage
             userMessage={userMessage}
@@ -396,7 +399,8 @@ export function HomePage() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
