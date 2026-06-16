@@ -16,7 +16,7 @@ const AVATAR_COLORS: Record<string, string> = {
 };
 
 const AGENT_AVATARS: Record<string, string> = {
-  "Cope Engine": "/engine.png",
+  "Cope Engine": "/engine2.png",
   Mason: "/mason.png",
   Victor: "/victor.png",
   Logan: "/logan.png",

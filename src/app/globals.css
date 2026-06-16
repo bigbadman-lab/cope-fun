@@ -235,3 +235,58 @@ body {
 .animate-typing-dot {
   animation: typing-dot 1.2s ease-in-out infinite;
 }
+
+@keyframes wallet-ready {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.animate-wallet-ready {
+  animation: wallet-ready 2.4s ease-in-out infinite;
+}
+
+@keyframes cope-message-shake {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  20% {
+    opacity: 0.94;
+    transform: translateX(-2px);
+  }
+
+  40% {
+    opacity: 0.96;
+    transform: translateX(2px);
+  }
+
+  60% {
+    opacity: 0.98;
+    transform: translateX(-1px);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateX(1px);
+  }
+}
+
+.animate-cope-message-shake {
+  animation: cope-message-shake 0.45s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cope-message-shake {
+    animation: none;
+  }
+}

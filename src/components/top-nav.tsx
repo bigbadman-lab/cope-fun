@@ -7,7 +7,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useGlobalSearch } from "./global-search-provider";
 import { MobileMenu } from "./mobile-menu";
 import { RoomShareButton } from "./room-share-button";
-import { ThemeToggle, navIconButtonClass, navIconClass } from "./theme-toggle";
+import {
+  ThemeToggle,
+  navGroupDividerClass,
+  navIconActiveClass,
+  navIconButtonClass,
+  navIconButtonPrimaryClass,
+  navIconClass,
+} from "./theme-toggle";
 
 type TopNavProps = {
   onLogoClick?: () => void;
@@ -25,8 +32,27 @@ function SearchIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20L16.5 16.5" />
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M20 20l-4.5-4.5" />
+    </svg>
+  );
+}
+
+function InfoIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 8h.01" />
     </svg>
   );
 }
@@ -43,8 +69,9 @@ function WalletIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1.5H6.5A2.5 2.5 0 0 0 4 11v6.5A2.5 2.5 0 0 0 6.5 20H20a2 2 0 0 0 2-2v-1.5H6.5A2.5 2.5 0 0 1 4 15V7.5Z" />
-      <path d="M17 13.25h3" />
+      <path d="M4 8.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5" />
+      <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H18a2 2 0 0 1 2 2v2.5H6.5A2.5 2.5 0 0 0 4 13v-4.5Z" />
+      <path d="M17 14.25h2.5" />
     </svg>
   );
 }
@@ -65,17 +92,64 @@ function MenuIcon({ className }: { className?: string }) {
   );
 }
 
+const WALLET_CONNECT_MS = 1200;
+
+function WalletNavButton() {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleClick = useCallback(() => {
+    if (connecting) return;
+
+    setConnecting(true);
+    window.setTimeout(() => setConnecting(false), WALLET_CONNECT_MS);
+  }, [connecting]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="Connect wallet"
+      aria-busy={connecting}
+      className={`${navIconButtonClass} group relative hover:text-cope-orange dark:hover:text-cope-orange ${
+        connecting ? navIconActiveClass : ""
+      }`}
+    >
+      <WalletIcon
+        className={`${navIconClass} transition-transform duration-200 ease-out group-hover:scale-105 ${
+          connecting ? "scale-95 animate-pulse" : ""
+        }`}
+      />
+      <span
+        aria-hidden
+        className={`absolute top-2 right-2 size-1.5 rounded-full bg-cope-orange transition-[transform,opacity] duration-300 ${
+          connecting
+            ? "scale-150 animate-ping opacity-100"
+            : "animate-wallet-ready opacity-80 group-hover:scale-125 group-hover:opacity-100"
+        }`}
+      />
+    </button>
+  );
+}
+
+function isAboutPath(pathname: string) {
+  return pathname === "/about" || pathname.startsWith("/about/");
+}
+
 export function TopNav({ onLogoClick }: TopNavProps) {
   const { openSearch } = useGlobalSearch();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchPressed, setSearchPressed] = useState(false);
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
+  const aboutActive = isAboutPath(pathname);
 
   const handleOpenSearch = useCallback(() => {
     setMenuOpen(false);
+    setSearchPressed(true);
     openSearch();
+    window.setTimeout(() => setSearchPressed(false), 180);
   }, [openSearch]);
 
   const handleLogoClick = useCallback(() => {
@@ -106,34 +180,40 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             />
           </Link>
 
-          <div className="flex items-center gap-1.5">
-            <Link
-              href="/about"
-              className="hidden text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-900 md:inline dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              About
-            </Link>
+          <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-0.5">
+              <Link
+                href="/about"
+                aria-label="About"
+                aria-current={aboutActive ? "page" : undefined}
+                className={`${navIconButtonClass} hidden md:inline-flex ${
+                  aboutActive ? navIconActiveClass : ""
+                }`}
+              >
+                <InfoIcon className={navIconClass} />
+              </Link>
 
-            <button
-              type="button"
-              onClick={handleOpenSearch}
-              aria-label="Search beliefs"
-              className={navIconButtonClass}
-            >
-              <SearchIcon className={navIconClass} />
-            </button>
+              <button
+                type="button"
+                onClick={handleOpenSearch}
+                aria-label="Search beliefs"
+                className={navIconButtonPrimaryClass}
+              >
+                <SearchIcon
+                  className={`${navIconClass} transition-transform duration-150 ease-out ${
+                    searchPressed ? "scale-90" : "scale-100"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div
+              className={navGroupDividerClass}
+              aria-hidden
+            />
 
             <ThemeToggle />
-
-            <button
-              type="button"
-              disabled
-              aria-label="Connect wallet"
-              className={navIconButtonClass}
-            >
-              <WalletIcon className={navIconClass} />
-            </button>
-
+            <WalletNavButton />
             {roomSlug && <RoomShareButton slug={roomSlug} />}
 
             <button

@@ -8,7 +8,9 @@ import {
   ChatMessageRow,
   GroupFormationMessage,
   type ChatMessage,
+  type MessageReactionProps,
 } from "./debate-chat";
+import { useMessageReactions } from "@/hooks/use-message-reactions";
 import { shouldShowMarketUnavailableNote } from "@/lib/market";
 import type { MarketSnapshot } from "@/lib/market";
 import {
@@ -61,6 +63,25 @@ export function SavedChatView({
 
   const userMessage = messages.find((message) => message.isUser);
   const agentMessages = messages.filter((message) => !message.isUser);
+  const agentMessageIds = useMemo(
+    () => agentMessages.map((message) => message.id),
+    [agentMessages],
+  );
+  const { getCounts, getUserReaction, react, isShaking } = useMessageReactions(
+    belief,
+    agentMessageIds,
+  );
+
+  const getReactionProps = useCallback(
+    (messageId: string): MessageReactionProps => ({
+      counts: getCounts(messageId),
+      userReaction: getUserReaction(messageId),
+      onReact: (reaction) => react(messageId, reaction),
+      copeShake: isShaking(messageId),
+    }),
+    [getCounts, getUserReaction, react, isShaking],
+  );
+
   const hasMarket = market != null;
   const showMarketUnavailable = shouldShowMarketUnavailableNote({
     market,
@@ -79,7 +100,12 @@ export function SavedChatView({
           )}
           <GroupFormationMessage animate={false} />
           {agentMessages.map((message) => (
-            <ChatMessageRow key={message.id} message={message} animate={false} />
+            <ChatMessageRow
+              key={message.id}
+              message={message}
+              animate={false}
+              reactions={getReactionProps(message.id)}
+            />
           ))}
           {!hasMarket && (
             <BelieveCopeVote
@@ -87,6 +113,7 @@ export function SavedChatView({
               copeCount={localCopeCount}
               userVote={localUserVote}
               onVote={handleVote}
+              variant="room"
             />
           )}
           <div aria-hidden className="h-1" />
