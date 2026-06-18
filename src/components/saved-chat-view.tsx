@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { MarketLive, MarketUnavailableNote } from "./market-live";
+import { PinnedBelief } from "./pinned-belief";
 import { RoomAttentionDisplay } from "./room-attention-display";
 import { RoomConclusionPanel, RoomVisitorPanel } from "./room-bottom-panel";
 import {
@@ -236,17 +237,15 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
       <div
         className={`min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 ${bottomPanelHeight}`}
       >
-        <div className="mx-auto w-full max-w-md space-y-4 pt-4">
+        <div className="mx-auto w-full max-w-md space-y-4 pt-2">
+          {beliefMessage && <PinnedBelief text={beliefMessage.text} />}
+
           {isCreator && (
             <RoomAttentionDisplay remaining={attentionRemaining} />
           )}
 
           {hasMarket && <MarketLive market={conversation.market!} />}
           {!hasMarket && showMarketUnavailable && <MarketUnavailableNote />}
-
-          {beliefMessage && (
-            <ChatMessageRow message={beliefMessage} animate={false} />
-          )}
 
           <GroupFormationMessage animate={false} />
 
