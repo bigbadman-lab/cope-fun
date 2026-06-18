@@ -5,6 +5,9 @@ import type { VoteChoice } from "@/lib/vote";
 import type { MarketSnapshot } from "@/lib/market";
 import { seedMarketData, shouldAttachMarket } from "@/lib/market";
 
+import { getRoomCreatorSessionId } from "@/lib/room-creator";
+import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
+
 export type SavedConversation = {
   id: string;
   slug: string;
@@ -12,6 +15,8 @@ export type SavedConversation = {
   createdAt: string;
   messages: ChatMessage[];
   participants: string[];
+  creatorId: string;
+  attentionRemaining: number;
   userVote?: VoteChoice | null;
   believeCount?: number;
   copeCount?: number;
@@ -41,7 +46,9 @@ function refreshConversationsSnapshot(): SavedConversation[] {
   try {
     const parsed = raw ? (JSON.parse(raw) as SavedConversation[]) : [];
     conversationsSnapshot = Array.isArray(parsed)
-      ? [...parsed].sort(
+      ? [...parsed]
+          .map(normalizeConversation)
+          .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         )
@@ -126,10 +133,23 @@ function readAll(): SavedConversation[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as SavedConversation[];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeConversation) : [];
   } catch {
     return [];
   }
+}
+
+function normalizeConversation(
+  conversation: SavedConversation,
+): SavedConversation {
+  return {
+    ...conversation,
+    creatorId: conversation.creatorId ?? "",
+    attentionRemaining:
+      typeof conversation.attentionRemaining === "number"
+        ? Math.max(0, Math.min(MAX_ROOM_ATTENTION, conversation.attentionRemaining))
+        : MAX_ROOM_ATTENTION,
+  };
 }
 
 function writeAll(conversations: SavedConversation[]) {
@@ -170,6 +190,8 @@ export function saveConversation(input: {
     createdAt: new Date().toISOString(),
     messages: input.messages,
     participants: getParticipants(input.messages),
+    creatorId: getRoomCreatorSessionId(),
+    attentionRemaining: MAX_ROOM_ATTENTION,
     userVote: input.userVote ?? null,
     believeCount: input.believeCount,
     copeCount: input.copeCount,
@@ -179,6 +201,49 @@ export function saveConversation(input: {
   writeAll([conversation, ...readAll()]);
   notifySavedChatsListeners();
   return conversation;
+}
+
+export function updateSavedConversation(
+  slug: string,
+  patch: Partial<
+    Pick<
+      SavedConversation,
+      "messages" | "attentionRemaining" | "creatorId" | "participants"
+    >
+  >,
+): SavedConversation | null {
+  const conversations = readAll();
+  const index = conversations.findIndex(
+    (conversation) => conversation.slug === slug,
+  );
+  if (index === -1) return null;
+
+  const updated = normalizeConversation({
+    ...conversations[index],
+    ...patch,
+    participants:
+      patch.participants ??
+      (patch.messages
+        ? getParticipants(patch.messages)
+        : conversations[index].participants),
+  });
+
+  conversations[index] = updated;
+  writeAll(conversations);
+  notifySavedChatsListeners();
+  return updated;
+}
+
+export function claimRoomCreatorIfUnassigned(
+  slug: string,
+): SavedConversation | null {
+  const conversation = getSavedConversationBySlug(slug);
+  if (!conversation) return null;
+  if (conversation.creatorId) return conversation;
+
+  return updateSavedConversation(slug, {
+    creatorId: getRoomCreatorSessionId(),
+  });
 }
 
 export function formatConversationTime(iso: string): string {

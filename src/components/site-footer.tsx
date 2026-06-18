@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useHomepageFooterInFlow } from "./homepage-footer-context";
 
 const FOOTER_LINKS = [
   { href: "/beliefs", label: "Beliefs" },
@@ -15,6 +16,8 @@ export function SiteFooter() {
   const pathname = usePathname();
   const isHomepage = pathname === "/";
   const isRoomPage = pathname.startsWith("/room");
+  const homepageFooterInFlow = useHomepageFooterInFlow();
+  const useFixedHomeFooter = isHomepage && !homepageFooterInFlow;
 
   if (isRoomPage) {
     return null;
@@ -22,10 +25,10 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`hidden bg-background border-t border-zinc-200/80 px-4 py-6 dark:border-white/5 md:block ${
-        isHomepage
+      className={`hidden shrink-0 border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:block ${
+        useFixedHomeFooter
           ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background lg:py-0"
-          : ""
+          : "lg:flex lg:h-12 lg:items-center lg:py-0"
       }`}
     >
       <nav className="mx-auto flex w-full max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-2">

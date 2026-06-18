@@ -10,6 +10,8 @@ type BeliefInputProps = {
   disabled?: boolean;
   compact?: boolean;
   animateExamples?: boolean;
+  placeholder?: string;
+  submitAriaLabel?: string;
 };
 
 export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
@@ -21,6 +23,8 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
       disabled = false,
       compact = false,
       animateExamples = false,
+      placeholder,
+      submitAriaLabel = "Submit belief",
     },
     ref,
   ) {
@@ -66,14 +70,15 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
               onKeyDown={handleKeyDown}
               rows={compact ? 1 : 2}
               disabled={disabled}
-              className="relative max-h-32 min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-relaxed text-zinc-900 focus:outline-none disabled:opacity-50 dark:text-zinc-100"
+              placeholder={placeholder}
+              className="relative max-h-32 min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-relaxed text-zinc-900 placeholder:text-zinc-500 focus:outline-none disabled:opacity-50 dark:text-zinc-100 dark:placeholder:text-zinc-600"
             />
           </div>
           <button
             type="submit"
             disabled={!value.trim() || disabled}
             className="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-zinc-50 transition-all hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:hover:bg-zinc-100"
-            aria-label="Submit belief"
+            aria-label={submitAriaLabel}
           >
             <svg
               width="16"

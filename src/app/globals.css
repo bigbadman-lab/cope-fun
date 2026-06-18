@@ -114,6 +114,11 @@ body {
     padding-bottom: calc(var(--composer-bottom) + 5.5rem);
   }
 
+  .min-h-home-idle {
+    min-height: calc(100vh - var(--nav-height));
+    min-height: calc(100dvh - var(--nav-height));
+  }
+
   .inner-page-shell {
     display: flex;
     min-height: calc(100vh - var(--nav-height));

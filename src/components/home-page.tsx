@@ -8,6 +8,7 @@ import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
 import { HeroMedia } from "./hero-media";
 import { HomepageBackgroundVideo } from "./homepage-background-video";
+import { useSetHomepageFooterInFlow } from "./homepage-footer-context";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
@@ -111,6 +112,14 @@ export function HomePage() {
     phase === "agents-joining" ||
     phase === "debating" ||
     phase === "complete";
+  const setHomepageFooterInFlow = useSetHomepageFooterInFlow();
+
+  useEffect(() => {
+    if (!setHomepageFooterInFlow) return;
+
+    setHomepageFooterInFlow(phase === "idle");
+    return () => setHomepageFooterInFlow(true);
+  }, [phase, setHomepageFooterInFlow]);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -323,18 +332,22 @@ export function HomePage() {
   };
 
   return (
-    <div className="relative isolate min-h-dvh">
+    <div
+      className={
+        isConversationLayout ? "relative isolate min-h-dvh" : "relative isolate"
+      }
+    >
       <HomepageBackgroundVideo />
-      <div className="relative z-10 flex min-h-dvh flex-col">
+      <div
+        className={
+          isConversationLayout
+            ? "relative z-10 flex min-h-dvh flex-col"
+            : "relative z-10 flex flex-col"
+        }
+      >
         <TopNav onLogoClick={handleReset} />
 
-        <main
-          className={`flex-1 pt-14 ${
-            isConversationLayout
-              ? "overflow-hidden"
-              : "relative min-h-[calc(100dvh-3.5rem)] overflow-hidden"
-          }`}
-        >
+        <main className={isConversationLayout ? "flex-1 overflow-hidden pt-14" : "pt-14"}>
         {isConversationLayout ? (
           <ConversationStage
             userMessage={userMessage}
@@ -355,9 +368,8 @@ export function HomePage() {
             chatSaved={chatSaved}
           />
         ) : (
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4">
-            <div className="mx-auto w-full max-w-md">
-              <div
+          <div className="mx-auto flex w-full max-w-md min-h-home-idle flex-col justify-center px-4 py-8">
+            <div
                 className={`mb-6 transition-[opacity,filter,transform] duration-500 ease-out ${
                   phase === "idle"
                     ? "scale-100 opacity-100 blur-0"
@@ -396,7 +408,6 @@ export function HomePage() {
                 animateExamples={phase === "idle"}
               />
               {phase === "idle" && <RecentConversationsPreview />}
-            </div>
           </div>
         )}
         </main>

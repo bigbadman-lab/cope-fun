@@ -52,14 +52,7 @@ export function RoomPage({ slug }: RoomPageProps) {
 
   return (
     <InnerPageShell variant="room">
-      <SavedChatView
-        messages={conversation.messages}
-        belief={conversation.belief}
-        userVote={conversation.userVote}
-        believeCount={conversation.believeCount}
-        copeCount={conversation.copeCount}
-        market={conversation.market}
-      />
+      <SavedChatView conversation={conversation} />
     </InnerPageShell>
   );
 }
