@@ -24,8 +24,8 @@ type PinnedBeliefProps = {
 
 export function PinnedBelief({ text }: PinnedBeliefProps) {
   return (
-    <div className="sticky top-0 z-10 -mx-4 border-b border-zinc-200/60 bg-background/95 px-4 pb-4 backdrop-blur-sm dark:border-white/[0.05] dark:bg-background/90">
-      <div className="rounded-xl border border-zinc-200/70 bg-surface/60 px-3.5 py-3.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] dark:border-white/[0.07] dark:bg-surface/45">
+    <div className="bg-background pb-3 pt-0.5">
+      <div className="rounded-xl border border-zinc-200/70 bg-background px-3.5 py-3.5 dark:border-white/[0.07]">
         <div className="flex items-center gap-1.5">
           <PinIcon className="size-3 shrink-0 text-zinc-400 dark:text-zinc-500" />
           <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-500">

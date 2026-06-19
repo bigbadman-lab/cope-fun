@@ -28,7 +28,7 @@ export function InnerPageShell({
     return (
       <div className="inner-page-shell-room">
         <TopNav />
-        <main className={`inner-page-main-room ${mainClassName}`.trim()}>
+        <main ref={mainRef} className={`inner-page-main-room ${mainClassName}`.trim()}>
           {children}
         </main>
       </div>

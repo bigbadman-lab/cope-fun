@@ -53,6 +53,7 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
   const roundTimersRef = useRef<number[]>([]);
+  const debateBodyRef = useRef<HTMLDivElement>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
   const belief = conversation.belief;
@@ -71,6 +72,10 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
     const claimed = claimRoomCreatorIfUnassigned(initialConversation.slug);
     if (claimed) setConversation(claimed);
   }, [initialConversation.slug, initialConversation.creatorId]);
+
+  useEffect(() => {
+    debateBodyRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [initialConversation.slug]);
 
   useEffect(() => {
     return () => {
@@ -233,57 +238,63 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
     : "pb-[calc(11.5rem+env(safe-area-inset-bottom,0px))]";
 
   return (
-    <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-      <div
-        className={`min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 ${bottomPanelHeight}`}
-      >
-        <div className="mx-auto w-full max-w-md space-y-4 pt-2">
-          {beliefMessage && <PinnedBelief text={beliefMessage.text} />}
+    <>
+      <div className="flex min-h-0 flex-1 flex-col">
+        <header className="room-pinned-header px-4">
+          <div className="mx-auto w-full max-w-md">
+            <PinnedBelief text={beliefMessage?.text ?? belief} />
+          </div>
+        </header>
 
-          {isCreator && (
-            <RoomAttentionDisplay remaining={attentionRemaining} />
-          )}
+        <div ref={debateBodyRef} className="room-debate-body">
+          <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
+            <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
+              {isCreator && (
+                <RoomAttentionDisplay remaining={attentionRemaining} />
+              )}
 
-          {hasMarket && <MarketLive market={conversation.market!} />}
-          {!hasMarket && showMarketUnavailable && <MarketUnavailableNote />}
+              {hasMarket && <MarketLive market={conversation.market!} />}
+              {!hasMarket && showMarketUnavailable && <MarketUnavailableNote />}
 
-          <GroupFormationMessage animate={false} />
+              <GroupFormationMessage animate={false} />
 
-          {threadMessages.map((message) =>
-            message.isUser ? (
-              <ChatMessageRow key={message.id} message={message} animate={false} />
-            ) : (
-              <ChatMessageRow
-                key={message.id}
-                message={message}
-                animate={false}
-                reactions={getReactionProps(message.id)}
-              />
-            ),
-          )}
+              {threadMessages.map((message) =>
+                message.isUser ? (
+                  <ChatMessageRow key={message.id} message={message} animate={false} />
+                ) : (
+                  <ChatMessageRow
+                    key={message.id}
+                    message={message}
+                    animate={false}
+                    reactions={getReactionProps(message.id)}
+                  />
+                ),
+              )}
 
-          {liveTurn && (
-            <AgentTurnRow
-              message={{
-                id: "live-turn",
-                author: liveTurn.author,
-                text: liveTurn.text,
-              }}
-              mode={liveTurn.mode}
-            />
-          )}
+              {liveTurn && (
+                <AgentTurnRow
+                  message={{
+                    id: "live-turn",
+                    author: liveTurn.author,
+                    text: liveTurn.text,
+                  }}
+                  mode={liveTurn.mode}
+                />
+              )}
 
-          {!hasMarket && (
-            <BelieveCopeVote
-              believeCount={localBelieveCount}
-              copeCount={localCopeCount}
-              userVote={localUserVote}
-              onVote={handleVote}
-              variant="room"
-            />
-          )}
+              {!hasMarket && (
+                <BelieveCopeVote
+                  believeCount={localBelieveCount}
+                  copeCount={localCopeCount}
+                  userVote={localUserVote}
+                  onVote={handleVote}
+                  variant="room"
+                />
+              )}
 
-          <div ref={scrollEndRef} aria-hidden className="h-1" />
+              <div ref={scrollEndRef} aria-hidden className="h-1" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -306,6 +317,6 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
