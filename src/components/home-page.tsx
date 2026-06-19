@@ -11,9 +11,16 @@ import { HomepageBackgroundVideo } from "./homepage-background-video";
 import { useSetHomepageFooterInFlow } from "./homepage-footer-context";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
+import { GuestBeliefGate } from "./guest-belief-gate";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
 import { buildDebateTurnTimings } from "@/lib/debate-timing";
+import {
+  canGuestCreateBelief,
+  recordGuestBeliefCreated,
+  useGuestBeliefUsage,
+} from "@/lib/guest-usage";
 import { saveConversation } from "@/lib/saved-chats";
+import { getWalletSessionSnapshot, useWalletSession } from "@/lib/wallet-session";
 import {
   applyVoteChange,
   seedVoteCounts,
@@ -94,6 +101,8 @@ export function HomePage() {
   );
 
   const router = useRouter();
+  const wallet = useWalletSession();
+  const guestUsage = useGuestBeliefUsage();
 
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const beliefRef = useRef<HTMLDivElement>(null);
@@ -113,6 +122,8 @@ export function HomePage() {
     phase === "agents-joining" ||
     phase === "debating" ||
     phase === "complete";
+  const isGuestBlocked =
+    !wallet.connected && phase === "idle" && guestUsage.beliefCount >= 1;
   const setHomepageFooterInFlow = useSetHomepageFooterInFlow();
 
   useEffect(() => {
@@ -272,6 +283,12 @@ export function HomePage() {
     const trimmed = belief.trim();
     if (!trimmed || isPostSubmit) return;
 
+    const session = getWalletSessionSnapshot();
+    if (!session.connected) {
+      if (!canGuestCreateBelief()) return;
+      recordGuestBeliefCreated();
+    }
+
     const seeded = seedVoteCounts(trimmed);
     setLockedBelief(trimmed);
     setBelieveCount(seeded.believeCount);
@@ -400,16 +417,22 @@ export function HomePage() {
                 </div>
               )}
 
-              <BeliefInput
-                ref={heroInputRef}
-                value={belief}
-                onChange={setBelief}
-                onSubmit={handleSubmit}
-                disabled={isPostSubmit}
-                compact={isPostSubmit}
-                animateExamples={phase === "idle"}
-              />
-              {phase === "idle" && <RecentConversationsPreview />}
+              {isGuestBlocked ? (
+                <GuestBeliefGate />
+              ) : (
+                <BeliefInput
+                  ref={heroInputRef}
+                  value={belief}
+                  onChange={setBelief}
+                  onSubmit={handleSubmit}
+                  disabled={isPostSubmit}
+                  compact={isPostSubmit}
+                  animateExamples={phase === "idle"}
+                />
+              )}
+              {phase === "idle" && !isGuestBlocked && (
+                <RecentConversationsPreview />
+              )}
           </div>
         )}
         </main>
