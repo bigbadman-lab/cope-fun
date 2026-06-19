@@ -15,6 +15,7 @@ export type ChatMessage = {
   author: string;
   text: string;
   isUser?: boolean;
+  isAttentionChallenge?: boolean;
 };
 
 export type MessageReactionProps = {
@@ -27,16 +28,37 @@ export type MessageReactionProps = {
 export const GROUP_FORMATION_TEXT =
   "Cope Engine added Mason, Victor, Logan and Theo";
 
+function AttentionChallengeLabel() {
+  return (
+    <span className="mb-1 inline-flex items-center gap-1 rounded-md bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-orange-700 dark:bg-orange-500/15 dark:text-orange-400">
+      <svg
+        viewBox="0 0 12 12"
+        fill="none"
+        className="size-2.5 shrink-0"
+        aria-hidden
+      >
+        <path
+          d="M6.8 1.2 7.6 4h2.9l-2.4 1.7.9 2.9L6.8 6.8 4.6 8.6l.9-2.9L3.1 4h2.9l.8-2.8Z"
+          fill="currentColor"
+        />
+      </svg>
+      Attention Challenge
+    </span>
+  );
+}
+
 type ChatMessageRowProps = {
   message: ChatMessage;
   animate?: boolean;
   reactions?: MessageReactionProps;
+  attentionChallenge?: boolean;
 };
 
 export function ChatMessageRow({
   message,
   animate = true,
   reactions,
+  attentionChallenge = false,
 }: ChatMessageRowProps) {
   const isAgent = !message.isUser;
   const showReactions = isAgent && reactions;
@@ -49,6 +71,7 @@ export function ChatMessageRow({
         name={message.isUser ? USER_DISPLAY_NAME : message.author}
       />
       <div className="min-w-0 flex-1 pt-0.5">
+        {attentionChallenge && <AttentionChallengeLabel />}
         <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {message.isUser ? USER_DISPLAY_NAME : message.author}
         </p>

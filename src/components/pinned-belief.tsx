@@ -1,3 +1,5 @@
+import { RoomAttentionStrip } from "./room-attention-display";
+
 function PinIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -20,9 +22,18 @@ function PinIcon({ className }: { className?: string }) {
 
 type PinnedBeliefProps = {
   text: string;
+  attentionRemaining?: number;
+  isCreator?: boolean;
 };
 
-export function PinnedBelief({ text }: PinnedBeliefProps) {
+export function PinnedBelief({
+  text,
+  attentionRemaining,
+  isCreator,
+}: PinnedBeliefProps) {
+  const showAttention =
+    typeof attentionRemaining === "number" && typeof isCreator === "boolean";
+
   return (
     <div className="bg-background pb-3 pt-0.5">
       <div className="rounded-xl border border-zinc-200/70 bg-background px-3.5 py-3.5 dark:border-white/[0.07]">
@@ -38,6 +49,13 @@ export function PinnedBelief({ text }: PinnedBeliefProps) {
         <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
           Being stress-tested by the Cope Engine
         </p>
+
+        {showAttention && (
+          <RoomAttentionStrip
+            remaining={attentionRemaining}
+            isCreator={isCreator}
+          />
+        )}
       </div>
     </div>
   );

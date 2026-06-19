@@ -5,7 +5,6 @@ import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { MarketLive, MarketUnavailableNote } from "./market-live";
 import { PinnedBelief } from "./pinned-belief";
-import { RoomAttentionDisplay } from "./room-attention-display";
 import { RoomConclusionPanel, RoomVisitorPanel } from "./room-bottom-panel";
 import {
   AgentTurnRow,
@@ -24,6 +23,7 @@ import {
   createFollowUpUserMessage,
   getAgentTypingDelayMs,
   getGapBetweenAgentsMs,
+  isAttentionChallengeMessage,
   pickRespondingAgents,
 } from "@/lib/room-follow-up";
 import {
@@ -233,7 +233,7 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
 
   const bottomPanelHeight = isCreator
     ? attentionRemaining > 0
-      ? "pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))]"
+      ? "pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
       : "pb-[calc(10rem+env(safe-area-inset-bottom,0px))]"
     : "pb-[calc(11.5rem+env(safe-area-inset-bottom,0px))]";
 
@@ -242,17 +242,17 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
       <div className="flex min-h-0 flex-1 flex-col">
         <header className="room-pinned-header px-4">
           <div className="mx-auto w-full max-w-md">
-            <PinnedBelief text={beliefMessage?.text ?? belief} />
+            <PinnedBelief
+              text={beliefMessage?.text ?? belief}
+              attentionRemaining={attentionRemaining}
+              isCreator={isCreator}
+            />
           </div>
         </header>
 
         <div ref={debateBodyRef} className="room-debate-body">
           <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
             <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
-              {isCreator && (
-                <RoomAttentionDisplay remaining={attentionRemaining} />
-              )}
-
               {hasMarket && <MarketLive market={conversation.market!} />}
               {!hasMarket && showMarketUnavailable && <MarketUnavailableNote />}
 
@@ -260,7 +260,12 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
 
               {threadMessages.map((message) =>
                 message.isUser ? (
-                  <ChatMessageRow key={message.id} message={message} animate={false} />
+                  <ChatMessageRow
+                    key={message.id}
+                    message={message}
+                    animate={false}
+                    attentionChallenge={isAttentionChallengeMessage(message)}
+                  />
                 ) : (
                   <ChatMessageRow
                     key={message.id}
@@ -307,8 +312,9 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
               onSubmit={handleFollowUpSubmit}
               disabled={isAgentRoundActive}
               compact
-              placeholder="Spend Attention to push back…"
+              placeholder="Challenge the debate…"
               submitAriaLabel="Send follow-up"
+              helperText="Uses 1 Attention"
             />
           ) : isCreator ? (
             <RoomConclusionPanel />

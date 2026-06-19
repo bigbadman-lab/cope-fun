@@ -12,6 +12,7 @@ type BeliefInputProps = {
   animateExamples?: boolean;
   placeholder?: string;
   submitAriaLabel?: string;
+  helperText?: string;
 };
 
 export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
@@ -25,6 +26,7 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
       animateExamples = false,
       placeholder,
       submitAriaLabel = "Submit belief",
+      helperText,
     },
     ref,
   ) {
@@ -47,6 +49,11 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
 
     return (
       <form onSubmit={handleSubmit} className="w-full">
+        {helperText && (
+          <p className="mb-2 text-center text-[11px] text-zinc-500 dark:text-zinc-500">
+            {helperText}
+          </p>
+        )}
         <div
           className={`flex items-end gap-2 rounded-3xl border border-zinc-300/90 bg-surface px-4 py-3 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow] duration-300 ease-out focus-within:border-zinc-400/95 focus-within:shadow-[var(--belief-input-focus-shadow),0_4px_24px_-6px_rgba(0,0,0,0.08)] dark:border-zinc-700/80 dark:shadow-[0_4px_24px_-6px_rgba(0,0,0,0.22)] dark:focus-within:border-zinc-600/95 dark:focus-within:shadow-[var(--belief-input-focus-shadow),0_4px_24px_-6px_rgba(0,0,0,0.22)] ${
             compact ? "py-2.5" : "py-3.5"

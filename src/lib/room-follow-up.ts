@@ -70,7 +70,14 @@ export function createFollowUpUserMessage(text: string, index: number): ChatMess
     author: USER_DISPLAY_NAME,
     text: text.trim(),
     isUser: true,
+    isAttentionChallenge: true,
   };
+}
+
+export function isAttentionChallengeMessage(message: ChatMessage): boolean {
+  return (
+    message.isAttentionChallenge === true || message.id.startsWith("followup-user-")
+  );
 }
 
 export function createFollowUpAgentMessage(
