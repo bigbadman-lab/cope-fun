@@ -18,6 +18,7 @@ import {
   subscribeWalletSession,
   WALLET_SESSION_SERVER_SNAPSHOT,
 } from "@/lib/wallet-session";
+import { ProfileAvatarEditor } from "./profile-avatar-editor";
 
 export function ProfilePage() {
   const wallet = useSyncExternalStore(
@@ -68,6 +69,15 @@ export function ProfilePage() {
               Disconnect
             </button>
           </div>
+        )}
+
+        {wallet.connected && (
+          <section className="mb-6 rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
+            <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+              Avatar
+            </h2>
+            <ProfileAvatarEditor />
+          </section>
         )}
 
         <section className={wallet.connected ? "" : "pointer-events-none opacity-50"}>

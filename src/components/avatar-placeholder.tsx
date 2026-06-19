@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { getAgentProfilePath } from "@/lib/agent-profiles";
+import { ConnectedUserAvatarVisual } from "./user-avatar-visual";
 
 export const USER_DISPLAY_NAME = "You";
 
@@ -72,21 +73,6 @@ function AvatarLinkWrapper({
   );
 }
 
-// Future: uploaded profile → Privy/social → identicon → initial fallback
-function GuestAvatar() {
-  return (
-    <div
-      className={`relative bg-zinc-950 ${AVATAR_CLASS}`}
-      aria-hidden
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-950/70 via-zinc-900 to-zinc-950" />
-      <div className="absolute inset-[18%] rounded-md bg-gradient-to-tr from-orange-600/25 to-orange-900/10" />
-      <div className="absolute bottom-[22%] left-[24%] size-[28%] rounded-full bg-orange-500/20" />
-      <div className="absolute right-[20%] top-[26%] size-[22%] rounded-sm bg-zinc-700/40" />
-    </div>
-  );
-}
-
 function GradientPlaceholder({ name, linkable = true }: AvatarPlaceholderProps) {
   const gradient = AVATAR_COLORS[name] ?? "from-zinc-500 to-zinc-700";
 
@@ -120,12 +106,10 @@ export function MiniAvatar({
 
   if (name === USER_DISPLAY_NAME) {
     return (
-      <div
-        className={`relative bg-zinc-800 ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-950/70 via-zinc-900 to-zinc-950" />
-      </div>
+      <ConnectedUserAvatarVisual
+        size="mini"
+        className={`ring-2 ring-background ${className}`}
+      />
     );
   }
 
@@ -206,7 +190,7 @@ export function AvatarPlaceholder({
   const src = AGENT_AVATARS[name];
 
   if (name === USER_DISPLAY_NAME) {
-    return <GuestAvatar />;
+    return <ConnectedUserAvatarVisual size="md" />;
   }
 
   if (!src || imageFailed) {
