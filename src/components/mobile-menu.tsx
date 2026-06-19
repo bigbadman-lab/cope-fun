@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useWalletSession } from "@/lib/wallet-session";
 import { navIconButtonClass } from "./theme-toggle";
 
 const PRIMARY_LINKS = [
@@ -98,8 +99,13 @@ function MenuNavItem({
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const pathname = usePathname();
+  const wallet = useWalletSession();
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
+
+  const primaryLinks: MenuLink[] = wallet.connected
+    ? [{ href: "/profile", label: "Profile" }, ...PRIMARY_LINKS]
+    : [...PRIMARY_LINKS];
 
   useEffect(() => {
     if (open) {
@@ -169,7 +175,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-6">
         <ul className="space-y-1">
-          {PRIMARY_LINKS.map((link) => (
+          {primaryLinks.map((link) => (
             <li key={link.href}>
               <MenuNavItem
                 link={link}

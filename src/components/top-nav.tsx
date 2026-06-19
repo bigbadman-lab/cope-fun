@@ -2,11 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useGlobalSearch } from "./global-search-provider";
 import { MobileMenu } from "./mobile-menu";
+import { RoomFollowButton } from "./room-follow-button";
 import { RoomShareButton } from "./room-share-button";
+import {
+  getSavedConversationSnapshotBySlug,
+  SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
+  subscribeSavedChats,
+} from "@/lib/saved-chats";
+import {
+  connectMockWallet,
+  useWalletSession,
+} from "@/lib/wallet-session";
 import {
   navGroupDividerClass,
   navIconActiveClass,
@@ -91,26 +101,54 @@ function MenuIcon({ className }: { className?: string }) {
   );
 }
 
+function ProfileIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5.5 19.5c1.2-3 3.4-4.5 6.5-4.5s5.3 1.5 6.5 4.5" />
+    </svg>
+  );
+}
+
 const WALLET_CONNECT_MS = 1200;
 
 function WalletNavButton() {
+  const router = useRouter();
+  const session = useWalletSession();
   const [connecting, setConnecting] = useState(false);
 
   const handleClick = useCallback(() => {
     if (connecting) return;
 
+    if (session.connected) {
+      router.push("/profile");
+      return;
+    }
+
     setConnecting(true);
-    window.setTimeout(() => setConnecting(false), WALLET_CONNECT_MS);
-  }, [connecting]);
+    window.setTimeout(() => {
+      connectMockWallet();
+      setConnecting(false);
+    }, WALLET_CONNECT_MS);
+  }, [connecting, router, session.connected]);
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      aria-label="Connect wallet"
+      aria-label={session.connected ? "View profile" : "Connect wallet"}
       aria-busy={connecting}
       className={`${navIconButtonClass} group relative hover:text-cope-orange dark:hover:text-cope-orange ${
-        connecting ? navIconActiveClass : ""
+        connecting || session.connected ? navIconActiveClass : ""
       }`}
     >
       <WalletIcon
@@ -123,7 +161,9 @@ function WalletNavButton() {
         className={`absolute top-2 right-2 size-1.5 rounded-full bg-cope-orange transition-[transform,opacity] duration-300 ${
           connecting
             ? "scale-150 animate-ping opacity-100"
-            : "animate-wallet-ready opacity-80 group-hover:scale-125 group-hover:opacity-100"
+            : session.connected
+              ? "scale-125 opacity-100"
+              : "animate-wallet-ready opacity-80 group-hover:scale-125 group-hover:opacity-100"
         }`}
       />
     </button>
@@ -139,10 +179,29 @@ export function TopNav({ onLogoClick }: TopNavProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchPressed, setSearchPressed] = useState(false);
+  const wallet = useWalletSession();
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
   const aboutActive = isAboutPath(pathname);
+  const profileActive = pathname === "/profile";
+
+  const getRoomSnapshot = useCallback(
+    () =>
+      roomSlug
+        ? getSavedConversationSnapshotBySlug(roomSlug)
+        : SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
+    [roomSlug],
+  );
+
+  const roomConversation = useSyncExternalStore(
+    subscribeSavedChats,
+    getRoomSnapshot,
+    () => SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
+  );
+
+  const roomBelief = roomConversation?.belief ?? "Unknown belief";
+  const roomId = roomConversation?.id ?? null;
 
   const handleOpenSearch = useCallback(() => {
     setMenuOpen(false);
@@ -212,6 +271,25 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             />
 
             <WalletNavButton />
+            {wallet.connected && (
+              <Link
+                href="/profile"
+                aria-label="Profile"
+                aria-current={profileActive ? "page" : undefined}
+                className={`${navIconButtonClass} hidden sm:inline-flex ${
+                  profileActive ? navIconActiveClass : ""
+                }`}
+              >
+                <ProfileIcon className={navIconClass} />
+              </Link>
+            )}
+            {roomSlug && (
+              <RoomFollowButton
+                slug={roomSlug}
+                roomId={roomId}
+                belief={roomBelief}
+              />
+            )}
             {roomSlug && <RoomShareButton slug={roomSlug} />}
 
             <button
