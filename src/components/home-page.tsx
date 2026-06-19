@@ -84,6 +84,7 @@ export function HomePage() {
   const [typingFadingOut, setTypingFadingOut] = useState(false);
   const [showCta, setShowCta] = useState(false);
   const [chatSaved, setChatSaved] = useState(false);
+  const [saveToastVisible, setSaveToastVisible] = useState(false);
   const [believeCount, setBelieveCount] = useState(0);
   const [copeCount, setCopeCount] = useState(0);
   const [userVote, setUserVote] = useState<VoteChoice | null>(null);
@@ -296,7 +297,7 @@ export function HomePage() {
   const handleSaveChat = useCallback(() => {
     if (!lockedBelief || chatSaved) return;
 
-    saveConversation({
+    const saved = saveConversation({
       belief: lockedBelief,
       messages: [
         {
@@ -313,7 +314,8 @@ export function HomePage() {
     });
 
     setChatSaved(true);
-    setTimeout(() => router.push("/beliefs"), SAVE_CONFIRM_MS);
+    setSaveToastVisible(true);
+    setTimeout(() => router.push(`/room/${saved.slug}`), SAVE_CONFIRM_MS);
   }, [
     lockedBelief,
     chatSaved,
@@ -412,6 +414,18 @@ export function HomePage() {
         )}
         </main>
       </div>
+
+      {saveToastVisible && (
+        <div
+          className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="rounded-full border border-zinc-200/80 bg-background/95 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-background/95 dark:text-zinc-100">
+            Room created
+          </p>
+        </div>
+      )}
     </div>
   );
 }
