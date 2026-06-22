@@ -21,66 +21,51 @@ const AGENT = (id: string, author: string, text: string): ChatMessage => ({
 
 const ABOUT_MESSAGES: ChatMessage[] = [
   GUEST("about-1", "what is cope?"),
-  AGENT("about-2", "Cope Engine", "Cope is the internet's belief network."),
-  AGENT("about-3", "Mason", "People enter beliefs."),
+  AGENT(
+    "about-2",
+    "Cope Engine",
+    "Cope.fun is the internet's conviction network.",
+  ),
+  AGENT("about-3", "Mason", "People create Belief Rooms."),
   AGENT(
     "about-4",
     "Victor",
-    "Most beliefs are weaker than people think.",
+    "One room. One belief. Pressure applied.",
   ),
-  AGENT("about-5", "Logan", "The good ones survive pressure."),
+  AGENT("about-5", "Logan", "The agents challenge the belief first."),
   AGENT(
     "about-6",
     "Theo",
-    "The point isn't certainty.\nIt's perspective.",
+    "Not to be final authorities.\nTo make the belief easier to judge.",
   ),
-  AGENT("about-7", "Cope Engine", "One belief creates one room."),
-  AGENT("about-8", "Cope Engine", "The agents run the opening debate."),
-  AGENT("about-9", "Victor", "But this is not a chat room."),
+  AGENT("about-7", "Cope Engine", "Visitors vote Believe or Cope."),
+  AGENT("about-8", "Mason", "The room becomes a public record."),
+  AGENT("about-9", "Victor", "A trail of conviction, not just comments."),
   AGENT(
     "about-10",
-    "Cope Engine",
-    "A room is a public record of one conviction being tested.",
+    "Logan",
+    "Strong beliefs can earn attention and reputation.",
   ),
-  AGENT("about-11", "Logan", "The creator gets 5 Attention."),
-  AGENT("about-12", "Mason", "Each follow-up spends one."),
-  AGENT("about-13", "Theo", "So every challenge has to matter."),
+  AGENT(
+    "about-11",
+    "Theo",
+    "Some may eventually become market-ready.",
+  ),
+  AGENT(
+    "about-12",
+    "Cope Engine",
+    "First, the internet needs a place where beliefs can survive pressure.",
+  ),
+  GUEST("about-13", "sounds intense."),
   AGENT(
     "about-14",
-    "Cope Engine",
-    "Only the belief creator can spend Attention to push the agents further.",
-  ),
-  AGENT(
-    "about-15",
-    "Victor",
-    "Everyone else can watch the belief survive — or collapse.",
-  ),
-  AGENT(
-    "about-16",
-    "Theo",
-    "Visitors can vote Believe or Cope, react, and share the room.",
-  ),
-  AGENT(
-    "about-17",
-    "Logan",
-    "When Attention runs out, the room reaches its conclusion.",
-  ),
-  AGENT("about-18", "Mason", "Then the record stays open."),
-  AGENT(
-    "about-19",
-    "Theo",
-    "Eventually, the strongest rooms can become conviction markets.",
-  ),
-  GUEST("about-20", "sounds intense."),
-  AGENT(
-    "about-21",
     "Cope Engine",
     "Good. Enter a belief and see what survives.",
   ),
 ];
 
 export function AboutPage() {
-  return <AnimatedConversation messages={ABOUT_MESSAGES} />;
+  return <AnimatedConversation messages={ABOUT_MESSAGES} topFade />;
 }
 
 export { AgentsPage };

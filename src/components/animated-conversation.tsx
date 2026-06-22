@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   AgentTurnRow,
@@ -12,9 +13,15 @@ import { InnerPageShell } from "./inner-page-shell";
 
 type AnimatedConversationProps = {
   messages: ChatMessage[];
+  children?: ReactNode;
+  topFade?: boolean;
 };
 
-export function AnimatedConversation({ messages }: AnimatedConversationProps) {
+export function AnimatedConversation({
+  messages,
+  children,
+  topFade = false,
+}: AnimatedConversationProps) {
   const [shownUserIndices, setShownUserIndices] = useState<Set<number>>(
     () => new Set(),
   );
@@ -57,33 +64,24 @@ export function AnimatedConversation({ messages }: AnimatedConversationProps) {
   }, [shownUserIndices, agentTurns]);
 
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade={topFade}>
       <div className="inner-page-content space-y-4">
-          {messages.map((message, index) => {
-            if (message.isUser) {
-              if (!shownUserIndices.has(index)) return null;
-              return (
-                <ChatMessageRow
-                  key={message.id}
-                  message={message}
-                  animate
-                />
-              );
-            }
-
-            const mode = agentTurns[index];
-            if (!mode) return null;
-
+        {messages.map((message, index) => {
+          if (message.isUser) {
+            if (!shownUserIndices.has(index)) return null;
             return (
-              <AgentTurnRow
-                key={message.id}
-                message={message}
-                mode={mode}
-              />
+              <ChatMessageRow key={message.id} message={message} animate />
             );
-          })}
-          <div ref={conversationEndRef} aria-hidden />
-        </div>
+          }
+
+          const mode = agentTurns[index];
+          if (!mode) return null;
+
+          return <AgentTurnRow key={message.id} message={message} mode={mode} />;
+        })}
+        <div ref={conversationEndRef} aria-hidden />
+        {children}
+      </div>
     </InnerPageShell>
   );
 }
