@@ -18,7 +18,6 @@ import {
   useWalletSession,
 } from "@/lib/wallet-session";
 import {
-  ThemeToggle,
   navGroupDividerClass,
   navIconActiveClass,
   navIconButtonClass,
@@ -269,9 +268,6 @@ export function TopNav({ onLogoClick }: TopNavProps) {
                   }`}
                 />
               </button>
-              <div className="hidden md:block">
-                <ThemeToggle />
-              </div>
             </div>
 
             <div
