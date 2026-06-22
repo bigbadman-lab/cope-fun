@@ -26,7 +26,7 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`hidden shrink-0 border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:block ${
+      className={`relative z-10 hidden shrink-0 border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:block ${
         useFixedHomeFooter
           ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background lg:py-0"
           : "lg:flex lg:h-12 lg:items-center lg:py-0"
