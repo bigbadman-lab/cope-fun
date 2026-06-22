@@ -155,7 +155,7 @@ export function ProfilePage() {
   );
 
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
         <h1 className="pb-4 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           Profile

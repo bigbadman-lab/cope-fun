@@ -184,7 +184,7 @@ export function PublicProfilePage({ username }: PublicProfilePageProps) {
   const profile = getMockProfile(decodeURIComponent(username));
 
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
         {profile ? (
           <div className="space-y-4">

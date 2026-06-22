@@ -77,7 +77,7 @@ export function ManifestoPage() {
   }, [agentTurns, showClosing, showCta, started]);
 
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <div className="inner-page-content space-y-4">
         {!started && (
           <TransmissionStatus>Cope Engine initializing…</TransmissionStatus>

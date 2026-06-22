@@ -9,6 +9,7 @@ type InnerPageShellProps = {
   variant?: "scroll" | "room";
   mainClassName?: string;
   centerMain?: boolean;
+  topFade?: boolean;
 };
 
 export function InnerPageShell({
@@ -16,6 +17,7 @@ export function InnerPageShell({
   variant = "scroll",
   mainClassName = "",
   centerMain = false,
+  topFade = false,
 }: InnerPageShellProps) {
   const pathname = usePathname();
   const mainRef = useRef<HTMLElement>(null);
@@ -46,6 +48,12 @@ export function InnerPageShell({
   return (
     <div className="inner-page-shell">
       <TopNav />
+      {topFade && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-x-0 top-0 z-40 h-[calc(var(--nav-height)+3rem+env(safe-area-inset-top,0px))] bg-gradient-to-b from-background via-background/95 to-background/0"
+        />
+      )}
       <main ref={mainRef} className={mainClasses}>
         {children}
       </main>

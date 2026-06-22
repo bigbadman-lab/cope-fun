@@ -82,7 +82,7 @@ function AgentDossierCard({
 
 export function AgentsPage() {
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <div className="inner-page-content !pb-10">
         <header className="text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-500">

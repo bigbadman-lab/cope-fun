@@ -119,7 +119,7 @@ function CtaLinks() {
 
 export function HowMarketsWorkPage() {
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
         <header className="pb-4">
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">

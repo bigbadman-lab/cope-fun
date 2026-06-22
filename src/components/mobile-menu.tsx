@@ -17,6 +17,7 @@ const PRIMARY_LINKS = [
 
 const SECONDARY_LINKS = [
   { href: "/about", label: "About" },
+  { href: "/docs", label: "Docs" },
   { href: "/how-markets-work", label: "How Markets Work" },
   { href: "/manifesto", label: "Manifesto" },
   { href: "/contact", label: "Contact" },

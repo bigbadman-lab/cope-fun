@@ -100,7 +100,7 @@ export function ContactPage() {
 
 export function LegalPage() {
   return (
-    <InnerPageShell>
+    <InnerPageShell topFade>
       <article className="inner-page-content !py-8">
         <p className="mb-4 text-xs font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-500">
           Legal
