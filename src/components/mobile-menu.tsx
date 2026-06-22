@@ -51,6 +51,19 @@ function CloseIcon({ className }: { className?: string }) {
   );
 }
 
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.964 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
+  );
+}
+
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -214,7 +227,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           ))}
         </ul>
 
-        <div className="mt-8 px-3 pb-2">
+        <div className="mt-8 flex items-center justify-between gap-4 px-3 pb-2">
           <Link
             href="/"
             onClick={onClose}
@@ -228,6 +241,15 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               className="h-8 w-auto"
             />
           </Link>
+          <a
+            href="https://x.com/copefun"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Cope on X"
+            className="inline-flex min-h-11 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300"
+          >
+            <XIcon className="size-4" />
+          </a>
         </div>
       </nav>
     </div>
