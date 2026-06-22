@@ -397,7 +397,7 @@ export function HomePage() {
               >
                 <div className="flex flex-col items-center text-center">
                   <HeroMedia />
-                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl dark:text-zinc-50">
+                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-white drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)] sm:text-3xl">
                     What do you believe?
                   </h1>
                 </div>

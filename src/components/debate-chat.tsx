@@ -163,10 +163,21 @@ export function AgentTurnRow({ message, mode, reactions }: AgentTurnRowProps) {
   );
 }
 
-export function GroupFormationMessage({ animate = true }: { animate?: boolean }) {
+export function GroupFormationMessage({
+  animate = true,
+  variant = "default",
+}: {
+  animate?: boolean;
+  variant?: "default" | "homepage";
+}) {
+  const textClass =
+    variant === "homepage"
+      ? "text-white/70 drop-shadow-[0_1px_8px_rgb(0_0_0/0.2)]"
+      : "text-zinc-500 dark:text-zinc-600";
+
   return (
     <p
-      className={`py-1 text-center text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-600 ${
+      className={`py-1 text-center text-[11px] leading-relaxed ${textClass} ${
         animate ? "animate-join-in" : ""
       }`}
     >

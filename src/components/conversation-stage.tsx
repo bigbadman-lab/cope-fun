@@ -141,7 +141,7 @@ export function ConversationStage({
           style={{ paddingTop: BELIEF_TOP_IN_MAIN }}
         >
           <ChatMessageRow message={userMessage} animate={false} />
-          {showGroupFormation && <GroupFormationMessage />}
+          {showGroupFormation && <GroupFormationMessage variant="homepage" />}
           {agentMessages.map((message, index) => {
             const isComplete = index < visibleAgentCount;
             const isActive =
