@@ -9,7 +9,6 @@ import { navIconButtonClass } from "./theme-toggle";
 import {
   buildSearchIndex,
   searchConversations,
-  type SearchResult,
 } from "@/lib/conversation-search";
 import {
   formatConversationTime,

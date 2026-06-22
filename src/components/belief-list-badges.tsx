@@ -1,5 +1,6 @@
 import type { VoteChoice } from "@/lib/vote";
 import type { SavedConversation } from "@/lib/saved-chats";
+import { hasMockMarketForRoom } from "@/lib/mock-markets";
 
 type BeliefBadgesProps = {
   hasMarket?: boolean;
@@ -48,7 +49,7 @@ type BeliefListBadgesProps = {
 export function BeliefListBadges({ conversation }: BeliefListBadgesProps) {
   return (
     <BeliefBadges
-      hasMarket={conversation.market != null}
+      hasMarket={hasMockMarketForRoom(conversation.slug)}
       userVote={conversation.userVote ?? null}
     />
   );

@@ -10,11 +10,14 @@ import { navIconButtonClass } from "./theme-toggle";
 const PRIMARY_LINKS = [
   { href: "/", label: "Home" },
   { href: "/beliefs", label: "Beliefs" },
+  { href: "/markets", label: "Markets" },
+  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/agents", label: "Agents" },
 ] as const;
 
 const SECONDARY_LINKS = [
   { href: "/about", label: "About" },
+  { href: "/how-markets-work", label: "How Markets Work" },
   { href: "/manifesto", label: "Manifesto" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
@@ -109,14 +112,23 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
   useEffect(() => {
     if (open) {
-      setMounted(true);
-      const frame = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(frame);
+      let visibleFrame = 0;
+      const frame = requestAnimationFrame(() => {
+        setMounted(true);
+        visibleFrame = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(frame);
+        cancelAnimationFrame(visibleFrame);
+      };
     }
 
-    setVisible(false);
+    const frame = requestAnimationFrame(() => setVisible(false));
     const timer = window.setTimeout(() => setMounted(false), MENU_TRANSITION_MS);
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
   }, [open]);
 
   useEffect(() => {

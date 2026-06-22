@@ -18,9 +18,130 @@ import {
   subscribeWalletSession,
   WALLET_SESSION_SERVER_SNAPSHOT,
 } from "@/lib/wallet-session";
+import {
+  getMockProfile,
+  getMockProfilePath,
+  type MockProfile,
+  type MockProfileNote,
+  type MockProfilePosition,
+} from "@/lib/mock-profiles";
 import { ProfileAvatarEditor } from "./profile-avatar-editor";
 
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-zinc-200/70 bg-background/60 px-3 py-2.5 dark:border-white/[0.06] dark:bg-background/35">
+      <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function SideBadge({ side }: { side: "believe" | "cope" }) {
+  const isBelieve = side === "believe";
+
+  return (
+    <span
+      className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+        isBelieve
+          ? "border-emerald-300/50 bg-emerald-50/70 text-emerald-800 dark:border-emerald-900/35 dark:bg-emerald-950/15 dark:text-emerald-400/85"
+          : "border-rose-300/50 bg-rose-50/70 text-rose-800 dark:border-rose-900/35 dark:bg-rose-950/15 dark:text-rose-400/85"
+      }`}
+    >
+      {isBelieve ? "Believe" : "Cope"}
+    </span>
+  );
+}
+
+function PositionPreview({ position }: { position: MockProfilePosition }) {
+  return (
+    <div className="border-b border-zinc-200/60 py-3 first:pt-0 last:border-b-0 last:pb-0 dark:border-white/[0.06]">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="min-w-0 flex-1 text-sm font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+          {position.marketTitle}
+        </p>
+        <SideBadge side={position.side} />
+      </div>
+      <p className="mt-1 text-xs text-zinc-500">
+        {position.stakeAmount.toLocaleString()} credits · {position.status}
+      </p>
+    </div>
+  );
+}
+
+function NotePreview({ note }: { note: MockProfileNote }) {
+  return (
+    <div className="border-b border-zinc-200/60 py-3 first:pt-0 last:border-b-0 last:pb-0 dark:border-white/[0.06]">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="min-w-0 flex-1 text-sm font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+          {note.marketTitle}
+        </p>
+        <SideBadge side={note.side} />
+      </div>
+      <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {note.body}
+      </p>
+      <p className="mt-1 text-xs text-zinc-500">{note.createdAt}</p>
+    </div>
+  );
+}
+
+function SeasonPreview({ profile }: { profile: MockProfile }) {
+  return (
+    <section className="mb-6 rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            Season Preview
+          </h2>
+          <p className="mt-1 text-[12px] leading-relaxed text-zinc-500">
+            Local MVP reputation snapshot.
+          </p>
+        </div>
+        <Link
+          href={getMockProfilePath(profile.username)}
+          className="text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300"
+        >
+          Public profile
+        </Link>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <StatCard label="COPE Credits" value={profile.copeCredits.toLocaleString()} />
+        <StatCard label="Season Rank" value={`#${profile.seasonRank}`} />
+        <StatCard
+          label="Season Points"
+          value={profile.seasonPoints.toLocaleString()}
+        />
+        <StatCard label="Win Rate" value={`${profile.winRate}%`} />
+      </div>
+
+      <div className="mt-4">
+        <h3 className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-500">
+          Active Positions
+        </h3>
+        {profile.activePositions.slice(0, 2).map((position) => (
+          <PositionPreview key={position.id} position={position} />
+        ))}
+      </div>
+
+      <div className="mt-4">
+        <h3 className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-500">
+          Recent Conviction Notes
+        </h3>
+        {profile.recentConvictionNotes.slice(0, 2).map((note) => (
+          <NotePreview key={note.id} note={note} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function ProfilePage() {
+  const localProfile = getMockProfile("Alex");
   const wallet = useSyncExternalStore(
     subscribeWalletSession,
     getWalletSessionSnapshot,
@@ -70,6 +191,8 @@ export function ProfilePage() {
             </button>
           </div>
         )}
+
+        {wallet.connected && localProfile && <SeasonPreview profile={localProfile} />}
 
         {wallet.connected && (
           <section className="mb-6 rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">

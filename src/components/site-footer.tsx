@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { useHomepageFooterInFlow } from "./homepage-footer-context";
 
 const FOOTER_LINKS = [
-  { href: "/beliefs", label: "Beliefs" },
-  { href: "/agents", label: "Agents" },
+  { href: "/about", label: "About" },
   { href: "/manifesto", label: "Manifesto" },
+  { href: "/agents", label: "Agents" },
+  { href: "/how-markets-work", label: "How Markets Work" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
 ] as const;
@@ -31,7 +32,7 @@ export function SiteFooter() {
           : "lg:flex lg:h-12 lg:items-center lg:py-0"
       }`}
     >
-      <nav className="mx-auto flex w-full max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <nav className="mx-auto flex w-full max-w-lg flex-wrap items-center justify-center gap-x-4 gap-y-2">
         {FOOTER_LINKS.map((link) => (
           <Link
             key={link.href}

@@ -18,6 +18,7 @@ import {
   useWalletSession,
 } from "@/lib/wallet-session";
 import {
+  ThemeToggle,
   navGroupDividerClass,
   navIconActiveClass,
   navIconButtonClass,
@@ -28,6 +29,12 @@ import {
 type TopNavProps = {
   onLogoClick?: () => void;
 };
+
+const PRODUCT_LINKS = [
+  { href: "/beliefs", label: "Beliefs" },
+  { href: "/markets", label: "Markets" },
+  { href: "/leaderboard", label: "Leaderboard" },
+] as const;
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -43,25 +50,6 @@ function SearchIcon({ className }: { className?: string }) {
     >
       <circle cx="11" cy="11" r="6.5" />
       <path d="M20 20l-4.5-4.5" />
-    </svg>
-  );
-}
-
-function InfoIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5" />
-      <path d="M12 8h.01" />
     </svg>
   );
 }
@@ -170,8 +158,35 @@ function WalletNavButton() {
   );
 }
 
-function isAboutPath(pathname: string) {
-  return pathname === "/about" || pathname.startsWith("/about/");
+function isActiveProductPath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function ProductNavLinks({ pathname }: { pathname: string }) {
+  return (
+    <nav
+      aria-label="Product"
+      className="hidden items-center gap-1 rounded-xl border border-zinc-200/60 bg-background/55 px-1 py-1 backdrop-blur-sm md:flex dark:border-white/[0.06] dark:bg-background/35"
+    >
+      {PRODUCT_LINKS.map((link) => {
+        const active = isActiveProductPath(pathname, link.href);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            aria-current={active ? "page" : undefined}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              active
+                ? "bg-zinc-900/[0.06] text-zinc-900 dark:bg-white/[0.07] dark:text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            }`}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 }
 
 export function TopNav({ onLogoClick }: TopNavProps) {
@@ -183,7 +198,6 @@ export function TopNav({ onLogoClick }: TopNavProps) {
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
-  const aboutActive = isAboutPath(pathname);
   const profileActive = pathname === "/profile";
 
   const getRoomSnapshot = useCallback(
@@ -216,17 +230,18 @@ export function TopNav({ onLogoClick }: TopNavProps) {
   }, [onLogoClick]);
 
   useEffect(() => {
-    setMenuOpen(false);
+    const frame = requestAnimationFrame(() => setMenuOpen(false));
+    return () => cancelAnimationFrame(frame);
   }, [pathname]);
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 bg-transparent pt-[env(safe-area-inset-top,0px)]">
-        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-4">
+        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-4 md:grid md:grid-cols-[1fr_auto_1fr]">
           <Link
             href="/"
             onClick={handleLogoClick}
-            className="shrink-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
+            className="justify-self-start rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
             <Image
               src="/logotext.png"
@@ -238,19 +253,10 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             />
           </Link>
 
-          <div className="flex items-center gap-0.5">
-            <div className="flex items-center gap-0.5">
-              <Link
-                href="/about"
-                aria-label="About"
-                aria-current={aboutActive ? "page" : undefined}
-                className={`${navIconButtonClass} hidden md:inline-flex ${
-                  aboutActive ? navIconActiveClass : ""
-                }`}
-              >
-                <InfoIcon className={navIconClass} />
-              </Link>
+          <ProductNavLinks pathname={pathname} />
 
+          <div className="flex items-center gap-0.5 justify-self-end">
+            <div className="flex items-center gap-0.5">
               <button
                 type="button"
                 onClick={handleOpenSearch}
@@ -263,6 +269,9 @@ export function TopNav({ onLogoClick }: TopNavProps) {
                   }`}
                 />
               </button>
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
             </div>
 
             <div
