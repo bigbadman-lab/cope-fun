@@ -34,6 +34,13 @@ import type {
 const SAVE_CONFIRM_MS = 700;
 const VALIDATION_ERROR_MESSAGE =
   "The Cope Engine couldn’t test that input. Try again.";
+const PROCESSING_STATUS_LINES = [
+  "The belief is entering the room…",
+  "Assumptions detected…",
+  "Agents are taking positions…",
+  "The debate is opening…",
+] as const;
+const PROCESSING_STATUS_INTERVAL_MS = 1100;
 
 export type Phase =
   | "idle"
@@ -85,6 +92,35 @@ function buildFallbackAgentMessages(belief: string): ChatMessage[] {
     author: r.author,
     text: r.text(belief),
   }));
+}
+
+function BeliefProcessingStatus() {
+  const [statusIndex, setStatusIndex] = useState(0);
+  const status = PROCESSING_STATUS_LINES[statusIndex];
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setStatusIndex((current) => (current + 1) % PROCESSING_STATUS_LINES.length);
+    }, PROCESSING_STATUS_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className="mb-2 flex min-h-5 items-center justify-center gap-2 text-center text-[11px] text-white/75 drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)]"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="size-1.5 rounded-full bg-cope-orange/85 animate-pulse" />
+      <span
+        key={status}
+        className="animate-message-in"
+      >
+        {status}
+      </span>
+    </div>
+  );
 }
 
 export function HomePage() {
@@ -505,34 +541,41 @@ export function HomePage() {
                     transitionDuration: `${MOVE_DURATION_MS}ms`,
                   }}
                 >
-                  <ChatMessageRow message={userMessage} />
+                  <ChatMessageRow message={userMessage} animate={false} />
                 </div>
               )}
 
-              {isGuestBlocked ? (
-                <GuestBeliefGate />
-              ) : (
-                <BeliefInput
-                  ref={heroInputRef}
-                  value={belief}
-                  onChange={handleBeliefChange}
-                  onSubmit={handleSubmit}
-                  disabled={isPostSubmit || isValidatingBelief}
-                  compact={isPostSubmit}
-                  animateExamples={phase === "idle"}
-                  helperText={
-                    isValidatingBelief ? "Cope Engine is testing…" : undefined
-                  }
-                />
-              )}
-              {validationMessage && phase === "idle" && !isGuestBlocked && (
-                <p
-                  className="mt-3 rounded-xl border border-zinc-200/70 bg-background/70 px-3 py-2 text-center text-[13px] leading-relaxed text-zinc-700 shadow-sm backdrop-blur-sm dark:border-white/[0.07] dark:bg-background/50 dark:text-zinc-300"
-                  role="alert"
-                >
-                  {validationMessage}
-                </p>
-              )}
+              <div
+                className={`transition-[opacity,filter,transform] duration-300 ease-out ${
+                  phase === "idle"
+                    ? "scale-100 opacity-100 blur-0"
+                    : "pointer-events-none scale-[0.98] opacity-0 blur-sm"
+                }`}
+              >
+                {isGuestBlocked ? (
+                  <GuestBeliefGate />
+                ) : (
+                  <>
+                    {isValidatingBelief && <BeliefProcessingStatus />}
+                    <BeliefInput
+                      ref={heroInputRef}
+                      value={belief}
+                      onChange={handleBeliefChange}
+                      onSubmit={handleSubmit}
+                      disabled={isPostSubmit || isValidatingBelief}
+                      animateExamples={phase === "idle"}
+                    />
+                  </>
+                )}
+                {validationMessage && phase === "idle" && !isGuestBlocked && (
+                  <p
+                    className="mt-3 rounded-xl border border-zinc-200/70 bg-background/70 px-3 py-2 text-center text-[13px] leading-relaxed text-zinc-700 shadow-sm backdrop-blur-sm dark:border-white/[0.07] dark:bg-background/50 dark:text-zinc-300"
+                    role="alert"
+                  >
+                    {validationMessage}
+                  </p>
+                )}
+              </div>
               {phase === "idle" && !isGuestBlocked && (
                 <RecentConversationsPreview />
               )}

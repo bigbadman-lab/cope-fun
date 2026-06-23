@@ -1,17 +1,17 @@
 type Range = readonly [number, number];
 
 const TYPING_RANGES: Record<string, Range> = {
-  "Cope Engine": [350, 550],
-  Mason: [600, 900],
-  Victor: [1200, 1800],
-  Logan: [500, 800],
-  Theo: [1500, 2200],
+  "Cope Engine": [700, 950],
+  Mason: [1500, 2100],
+  Victor: [2100, 3000],
+  Logan: [1400, 2000],
+  Theo: [2400, 3400],
 };
 
-const DEFAULT_TYPING_RANGE: Range = [700, 1000];
-const GAP_BETWEEN_AGENTS_RANGE: Range = [120, 950];
+const DEFAULT_TYPING_RANGE: Range = [1500, 2200];
+const GAP_BETWEEN_AGENTS_RANGE: Range = [550, 1250];
 const TYPING_FADE_OUT_MS = 250;
-const CTA_AFTER_LAST_MESSAGE_MS = 400;
+const CTA_AFTER_LAST_MESSAGE_MS = 650;
 
 function randomInRange([min, max]: Range): number {
   return Math.floor(min + Math.random() * (max - min + 1));
