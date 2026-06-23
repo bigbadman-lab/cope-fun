@@ -6,17 +6,25 @@ export const MAX_ROOM_ATTENTION = 5;
 
 const RESPONDING_AGENTS = AGENT_PROFILES.map((profile) => profile.name);
 
-const TYPING_MS: Record<string, number> = {
-  Mason: 750,
-  Victor: 1100,
-  Logan: 650,
-  Theo: 1300,
+type TimingRange = readonly [number, number];
+
+const INITIAL_AGENT_TYPING_DELAY_RANGE: TimingRange = [700, 950];
+
+const AGENT_TYPING_RANGES: Record<string, TimingRange> = {
+  Mason: [1500, 2100],
+  Victor: [1800, 2400],
+  Logan: [1400, 2000],
+  Theo: [1900, 2400],
 };
 
-const DEFAULT_TYPING_MS = 900;
-const GAP_BETWEEN_AGENTS_MS = 280;
+const DEFAULT_TYPING_RANGE: TimingRange = [1500, 2200];
+const GAP_BETWEEN_AGENTS_RANGE: TimingRange = [800, 1150];
 const MIN_FOLLOW_UP_LENGTH = 3;
 const MAX_FOLLOW_UP_LENGTH = 500;
+
+function randomInRange([min, max]: TimingRange): number {
+  return Math.floor(min + Math.random() * (max - min + 1));
+}
 
 function hashString(value: string): number {
   let hash = 0;
@@ -113,9 +121,13 @@ export function createFollowUpAgentMessage(
 }
 
 export function getAgentTypingDelayMs(agent: string): number {
-  return TYPING_MS[agent] ?? DEFAULT_TYPING_MS;
+  return randomInRange(AGENT_TYPING_RANGES[agent] ?? DEFAULT_TYPING_RANGE);
+}
+
+export function getInitialFollowUpTypingDelayMs(): number {
+  return randomInRange(INITIAL_AGENT_TYPING_DELAY_RANGE);
 }
 
 export function getGapBetweenAgentsMs(): number {
-  return GAP_BETWEEN_AGENTS_MS;
+  return randomInRange(GAP_BETWEEN_AGENTS_RANGE);
 }

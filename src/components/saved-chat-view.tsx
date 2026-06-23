@@ -21,6 +21,7 @@ import {
   createFollowUpUserMessage,
   getAgentTypingDelayMs,
   getGapBetweenAgentsMs,
+  getInitialFollowUpTypingDelayMs,
   isAttentionChallengeMessage,
   pickRespondingAgents,
   validateFollowUpDraft,
@@ -220,7 +221,7 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
       setIsAgentRoundActive(true);
       setLiveTurn(null);
 
-      let elapsed = 320;
+      let elapsed = getInitialFollowUpTypingDelayMs();
       let currentMessages = baseMessages;
 
       agentReplies.forEach((agentMessage, index) => {
