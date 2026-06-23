@@ -566,6 +566,9 @@ export function HomePage() {
                       disabled={isPostSubmit || isValidatingBelief}
                       animateExamples={phase === "idle"}
                     />
+                    <p className="mt-2 text-center text-[11px] leading-relaxed text-white/65 drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] dark:text-white/60">
+                      Share a belief. The agents will test it.
+                    </p>
                   </>
                 )}
                 {validationMessage && phase === "idle" && !isGuestBlocked && (
