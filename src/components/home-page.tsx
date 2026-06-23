@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BeliefInput } from "./belief-input";
 import { ConversationStage } from "./conversation-stage";
@@ -26,8 +26,14 @@ import {
   seedVoteCounts,
   type VoteChoice,
 } from "@/lib/vote";
+import type {
+  BeliefValidationResult,
+  DebateGenerationResult,
+} from "@/lib/cope-engine";
 
 const SAVE_CONFIRM_MS = 700;
+const VALIDATION_ERROR_MESSAGE =
+  "The Cope Engine couldn’t test that input. Try again.";
 
 export type Phase =
   | "idle"
@@ -73,7 +79,7 @@ const BELIEF_SETTLED_PAUSE_MS = 500;
 const AGENT_START_AFTER_INPUT_MS = 450;
 const GROUP_FORMATION_PAUSE_MS = 600;
 
-function buildAgentMessages(belief: string): ChatMessage[] {
+function buildFallbackAgentMessages(belief: string): ChatMessage[] {
   return RESPONSES.map((r, i) => ({
     id: `msg-${i}`,
     author: r.author,
@@ -85,6 +91,7 @@ export function HomePage() {
   const [belief, setBelief] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [lockedBelief, setLockedBelief] = useState("");
+  const [agentMessages, setAgentMessages] = useState<ChatMessage[]>([]);
   const [visibleAgentCount, setVisibleAgentCount] = useState(0);
   const [showGroupFormation, setShowGroupFormation] = useState(false);
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
@@ -92,6 +99,8 @@ export function HomePage() {
   const [showCta, setShowCta] = useState(false);
   const [chatSaved, setChatSaved] = useState(false);
   const [saveToastVisible, setSaveToastVisible] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [isValidatingBelief, setIsValidatingBelief] = useState(false);
   const [believeCount, setBelieveCount] = useState(0);
   const [copeCount, setCopeCount] = useState(0);
   const [userVote, setUserVote] = useState<VoteChoice | null>(null);
@@ -109,10 +118,6 @@ export function HomePage() {
   const heroInputRef = useRef<HTMLTextAreaElement>(null);
   const agentsScheduledRef = useRef(false);
 
-  const agentMessages = useMemo(
-    () => (lockedBelief ? buildAgentMessages(lockedBelief) : []),
-    [lockedBelief],
-  );
   const isPostSubmit = phase !== "idle";
   const isDetaching =
     phase === "belief-created" || phase === "belief-moving";
@@ -139,12 +144,12 @@ export function HomePage() {
   }, []);
 
   const scheduleAgentMessages = useCallback(() => {
-    if (agentsScheduledRef.current) return;
+    if (agentsScheduledRef.current || agentMessages.length === 0) return;
     agentsScheduledRef.current = true;
     clearTimeouts();
 
     const { turns, ctaDelayMs } = buildDebateTurnTimings(
-      RESPONSES.map((r) => r.author),
+      agentMessages.map((message) => message.author),
     );
 
     turns.forEach((turn, i) => {
@@ -173,7 +178,7 @@ export function HomePage() {
       setShowCta(true);
     }, ctaDelayMs);
     timeoutsRef.current.push(cta);
-  }, [clearTimeouts]);
+  }, [agentMessages, clearTimeouts]);
 
   const beginDebating = useCallback(() => {
     setPhase("debating");
@@ -199,12 +204,15 @@ export function HomePage() {
     setBelief("");
     setPhase("idle");
     setLockedBelief("");
+    setAgentMessages([]);
     setVisibleAgentCount(0);
     setShowGroupFormation(false);
     setTypingAgent(null);
     setTypingFadingOut(false);
     setShowCta(false);
     setChatSaved(false);
+    setValidationMessage(null);
+    setIsValidatingBelief(false);
     setBelieveCount(0);
     setCopeCount(0);
     setUserVote(null);
@@ -279,22 +287,106 @@ export function HomePage() {
     setPhase("belief-settled");
   }
 
-  function handleSubmit() {
+  const handleBeliefChange = useCallback((value: string) => {
+    setBelief(value);
+    if (validationMessage) setValidationMessage(null);
+  }, [validationMessage]);
+
+  async function validateBeliefInput(rawBelief: string): Promise<BeliefValidationResult> {
+    const response = await fetch("/api/beliefs/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ belief: rawBelief }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Belief validation failed.");
+    }
+
+    return (await response.json()) as BeliefValidationResult;
+  }
+
+  async function generateDebateMessages(
+    rawBelief: string,
+    validation: BeliefValidationResult,
+  ): Promise<ChatMessage[]> {
+    const response = await fetch("/api/debate/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ belief: rawBelief, validation }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Debate generation failed.");
+    }
+
+    const result = (await response.json()) as DebateGenerationResult;
+    if (!result.ok || result.messages.length === 0) {
+      throw new Error(result.error || "Debate generation failed.");
+    }
+
+    return result.messages;
+  }
+
+  async function handleSubmit() {
     const trimmed = belief.trim();
-    if (!trimmed || isPostSubmit) return;
+    if (!trimmed || isPostSubmit || isValidatingBelief) return;
+
+    setIsValidatingBelief(true);
+    setValidationMessage(null);
+
+    let validation: BeliefValidationResult;
+    try {
+      validation = await validateBeliefInput(trimmed);
+    } catch {
+      setValidationMessage(VALIDATION_ERROR_MESSAGE);
+      setIsValidatingBelief(false);
+      return;
+    }
+
+    if (!validation.ok) {
+      setValidationMessage(validation.message || VALIDATION_ERROR_MESSAGE);
+      setIsValidatingBelief(false);
+      return;
+    }
+
+    const acceptedBelief = validation.normalizedBelief.trim() || trimmed;
 
     const session = getWalletSessionSnapshot();
     if (!session.connected) {
-      if (!canGuestCreateBelief()) return;
+      if (!canGuestCreateBelief()) {
+        setIsValidatingBelief(false);
+        return;
+      }
+    }
+
+    let nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
+    try {
+      nextAgentMessages = await generateDebateMessages(acceptedBelief, validation);
+    } catch {
+      nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
+    }
+
+    if (!session.connected) {
       recordGuestBeliefCreated();
     }
 
-    const seeded = seedVoteCounts(trimmed);
-    setLockedBelief(trimmed);
+    const seeded = seedVoteCounts(acceptedBelief);
+    setBelief(acceptedBelief);
+    setLockedBelief(acceptedBelief);
+    setAgentMessages(nextAgentMessages);
+    setVisibleAgentCount(0);
+    setShowGroupFormation(false);
+    setTypingAgent(null);
+    setTypingFadingOut(false);
+    setShowCta(false);
+    agentsScheduledRef.current = false;
     setBelieveCount(seeded.believeCount);
     setCopeCount(seeded.copeCount);
     setUserVote(null);
     setMoveOffsetPx(0);
+    setValidationMessage(null);
+    setIsValidatingBelief(false);
     setPhase("belief-created");
   }
 
@@ -423,12 +515,23 @@ export function HomePage() {
                 <BeliefInput
                   ref={heroInputRef}
                   value={belief}
-                  onChange={setBelief}
+                  onChange={handleBeliefChange}
                   onSubmit={handleSubmit}
-                  disabled={isPostSubmit}
+                  disabled={isPostSubmit || isValidatingBelief}
                   compact={isPostSubmit}
                   animateExamples={phase === "idle"}
+                  helperText={
+                    isValidatingBelief ? "Cope Engine is testing…" : undefined
+                  }
                 />
+              )}
+              {validationMessage && phase === "idle" && !isGuestBlocked && (
+                <p
+                  className="mt-3 rounded-xl border border-zinc-200/70 bg-background/70 px-3 py-2 text-center text-[13px] leading-relaxed text-zinc-700 shadow-sm backdrop-blur-sm dark:border-white/[0.07] dark:bg-background/50 dark:text-zinc-300"
+                  role="alert"
+                >
+                  {validationMessage}
+                </p>
               )}
               {phase === "idle" && !isGuestBlocked && (
                 <RecentConversationsPreview />
