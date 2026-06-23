@@ -1,4 +1,5 @@
 import { RoomPage } from "@/components/room-page";
+import { getBeliefRoomBySlug } from "@/lib/db/rooms";
 
 type RoomProps = {
   params: Promise<{ slug: string }>;
@@ -6,5 +7,6 @@ type RoomProps = {
 
 export default async function Room({ params }: RoomProps) {
   const { slug } = await params;
-  return <RoomPage slug={slug} />;
+  const conversation = await getBeliefRoomBySlug(slug);
+  return <RoomPage slug={slug} initialConversation={conversation} />;
 }

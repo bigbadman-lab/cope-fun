@@ -8,13 +8,15 @@ import {
   getSavedConversationSnapshotBySlug,
   SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
   subscribeSavedChats,
+  type SavedConversation,
 } from "@/lib/saved-chats";
 
 type RoomPageProps = {
   slug: string;
+  initialConversation?: SavedConversation | null;
 };
 
-export function RoomPage({ slug }: RoomPageProps) {
+export function RoomPage({ slug, initialConversation = null }: RoomPageProps) {
   const isClient = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -31,6 +33,14 @@ export function RoomPage({ slug }: RoomPageProps) {
     getSnapshot,
     () => SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
   );
+
+  if (initialConversation) {
+    return (
+      <InnerPageShell variant="room">
+        <SavedChatView conversation={initialConversation} />
+      </InnerPageShell>
+    );
+  }
 
   if (!isClient) {
     return <InnerPageShell variant="room" />;

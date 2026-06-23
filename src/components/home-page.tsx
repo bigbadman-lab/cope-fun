@@ -12,6 +12,7 @@ import { useSetHomepageFooterInFlow } from "./homepage-footer-context";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { GuestBeliefGate } from "./guest-belief-gate";
+import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
 import { buildDebateTurnTimings } from "@/lib/debate-timing";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/lib/guest-usage";
 import { saveConversation } from "@/lib/saved-chats";
 import { getWalletSessionSnapshot, useWalletSession } from "@/lib/wallet-session";
+import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
 import {
   applyVoteChange,
   seedVoteCounts,
@@ -41,6 +43,12 @@ const PROCESSING_STATUS_LINES = [
   "The debate is opening…",
 ] as const;
 const PROCESSING_STATUS_INTERVAL_MS = 1100;
+
+type SaveRoomResponse = {
+  ok: boolean;
+  slug?: string;
+  error?: string;
+};
 
 export type Phase =
   | "idle"
@@ -439,26 +447,55 @@ export function HomePage() {
     [believeCount, copeCount, userVote],
   );
 
-  const handleSaveChat = useCallback(() => {
+  const handleSaveChat = useCallback(async () => {
     if (!lockedBelief || chatSaved) return;
+
+    const messages: ChatMessage[] = [
+      {
+        id: "user",
+        author: USER_DISPLAY_NAME,
+        text: lockedBelief,
+        isUser: true,
+      },
+      ...agentMessages,
+    ];
+
+    setChatSaved(true);
+
+    try {
+      const response = await fetch("/api/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          anonymousToken: getAnonymousSessionToken(),
+          belief: lockedBelief,
+          messages,
+          attentionRemaining: MAX_ROOM_ATTENTION,
+        }),
+      });
+
+      if (!response.ok) throw new Error("DB room save failed.");
+
+      const result = (await response.json()) as SaveRoomResponse;
+      if (!result.ok || !result.slug) {
+        throw new Error(result.error || "DB room save failed.");
+      }
+
+      setSaveToastVisible(true);
+      setTimeout(() => router.push(`/room/${result.slug}`), SAVE_CONFIRM_MS);
+      return;
+    } catch {
+      // Preserve the existing local-only room flow if DB persistence fails.
+    }
 
     const saved = saveConversation({
       belief: lockedBelief,
-      messages: [
-        {
-          id: "user",
-          author: USER_DISPLAY_NAME,
-          text: lockedBelief,
-          isUser: true,
-        },
-        ...agentMessages,
-      ],
+      messages,
       userVote,
       believeCount,
       copeCount,
     });
 
-    setChatSaved(true);
     setSaveToastVisible(true);
     setTimeout(() => router.push(`/room/${saved.slug}`), SAVE_CONFIRM_MS);
   }, [
