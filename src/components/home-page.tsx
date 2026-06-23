@@ -535,9 +535,10 @@ export function HomePage() {
                 <div
                   ref={beliefRef}
                   onTransitionEnd={handleBeliefTransitionEnd}
-                  className="mb-4 will-change-transform transition-transform ease-in-out"
+                  className="relative left-1/2 mb-4 will-change-transform transition-transform ease-in-out"
                   style={{
-                    transform: `translateY(${moveOffsetPx}px)`,
+                    width: "min(28rem, calc(100vw - 2rem))",
+                    transform: `translate3d(-50%, ${moveOffsetPx}px, 0)`,
                     transitionDuration: `${MOVE_DURATION_MS}ms`,
                   }}
                 >
