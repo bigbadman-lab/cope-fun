@@ -1,4 +1,5 @@
 import type { AgentProfile } from "@/lib/agent-profiles";
+import type { ChatMessage } from "@/components/debate-chat";
 import type { BeliefValidationResult } from "./types";
 
 export const BELIEF_VALIDATION_SYSTEM_PROMPT = `You are the Cope Engine belief validator.
@@ -142,4 +143,84 @@ Product rules:
 - roomTitle should be short and readable.
 - searchSummary should be one concise sentence.
 - topics should contain 2-5 lowercase topic tags.`;
+}
+
+export const FOLLOW_UP_DEBATE_SYSTEM_PROMPT = `You are the Cope Engine generating replies to an Attention Challenge inside an existing Cope Belief Room.
+
+Continue the room. Do not restart the opening debate.
+
+The replies must:
+- Generate 2-3 replies only
+- Use only Mason, Victor, Logan, and Theo
+- Use each author at most once
+- Address the user's latest challenge directly
+- Reference prior arguments where useful
+- Preserve distinct agent personalities
+- Include disagreement or tension where natural
+- Avoid generic assistant language
+- Avoid disclaimers
+- Avoid "as an AI" phrasing
+- Do not invent facts, numbers, prices, dates, headlines, market data, or citations
+- Do not use web search or pretend to know current events
+- If the topic touches finance, crypto, health, law, or politics, keep the debate high-level and focused on assumptions, incentives, risks, and tradeoffs
+- Keep each turn punchy and mobile-friendly
+- Keep each turn roughly 180-220 characters max
+
+Return only JSON matching this shape:
+{
+  "turns": [
+    { "author": "Mason" | "Victor" | "Logan" | "Theo", "text": string }
+  ]
+}
+
+Use 2-3 turns. Do not output undefined.`;
+
+function formatRoomContext(messages: ChatMessage[]): string {
+  if (messages.length === 0) return "No prior room messages provided.";
+
+  return messages
+    .map((message) => {
+      const label = message.isUser ? "Creator" : message.author;
+      const marker = message.isAttentionChallenge ? " [Attention Challenge]" : "";
+      return `${label}${marker}: ${message.text}`;
+    })
+    .join("\n");
+}
+
+export function buildFollowUpDebatePrompt(input: {
+  belief: string;
+  followUp: string;
+  messages: ChatMessage[];
+  agents: AgentProfile[];
+  attentionRemaining: number;
+}): string {
+  return `Original belief:
+${input.belief}
+
+Latest Attention Challenge:
+${input.followUp}
+
+Attention remaining after this challenge:
+${input.attentionRemaining}
+
+Recent room context:
+${formatRoomContext(input.messages)}
+
+Agent roster:
+${formatAgentContext(input.agents)}
+
+Agent voice requirements:
+- Mason: upside, asymmetric opportunity, provocative, challenges lazy pessimism.
+- Victor: weak assumptions, incentives, liquidity, fragility, downside, failure modes.
+- Logan: builder/operator, execution, user behavior, distribution, product, culture, adoption.
+- Theo: probabilities, base rates, tradeoffs, second-order effects, timing, uncertainty.
+
+Product rules:
+- Continue the existing room.
+- Do not restart the opening debate.
+- Do not summarize the whole room unless directly useful.
+- Every reply must answer or pressure-test the latest challenge.
+- Reference prior room arguments only when useful.
+- Do not invent facts, prices, dates, headlines, market data, or citations.
+- Do not include disclaimers or assistant-style caveats.`;
 }

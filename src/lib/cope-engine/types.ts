@@ -36,3 +36,12 @@ export type DebateGenerationResult = {
   topics?: string[];
   error?: string;
 };
+
+export type FollowUpGenerationResult = {
+  ok: boolean;
+  belief: string;
+  followUp: string;
+  messages: ChatMessage[];
+  agents: AgentSlug[];
+  error?: string;
+};

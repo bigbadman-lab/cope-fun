@@ -23,6 +23,7 @@ import {
   getGapBetweenAgentsMs,
   isAttentionChallengeMessage,
   pickRespondingAgents,
+  validateFollowUpDraft,
 } from "@/lib/room-follow-up";
 import {
   applyVoteChange,
@@ -45,9 +46,19 @@ type LiveAgentTurn = {
   text: string;
 };
 
+type FollowUpApiResponse = {
+  ok: boolean;
+  belief: string;
+  followUp: string;
+  messages: ChatMessage[];
+  agents: string[];
+  error?: string;
+};
+
 export function SavedChatView({ conversation: initialConversation }: SavedChatViewProps) {
   const [conversation, setConversation] = useState(initialConversation);
   const [followUpDraft, setFollowUpDraft] = useState("");
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
   const roundTimersRef = useRef<number[]>([]);
@@ -154,21 +165,70 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
     scrollToEnd();
   }, [messages.length, liveTurn, scrollToEnd]);
 
-  const runAgentRound = useCallback(
-    (followUpText: string, baseMessages: ChatMessage[]) => {
-      const agents = pickRespondingAgents(followUpText);
+  const getFallbackFollowUpReplies = useCallback(
+    (followUpText: string): ChatMessage[] =>
+      pickRespondingAgents(followUpText).map((agent, index) =>
+        createFollowUpAgentMessage(
+          agent,
+          buildFollowUpResponse(agent, belief, followUpText),
+          index,
+        ),
+      ),
+    [belief],
+  );
+
+  const getFollowUpReplies = useCallback(
+    async (
+      followUpText: string,
+      baseMessages: ChatMessage[],
+      nextAttention: number,
+    ): Promise<ChatMessage[]> => {
+      try {
+        const response = await fetch("/api/debate/follow-up", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            belief,
+            followUp: followUpText,
+            messages: baseMessages,
+            attentionRemaining: nextAttention,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Follow-up request failed.");
+
+        const result = (await response.json()) as FollowUpApiResponse;
+        if (result.ok && result.messages.length >= 2) {
+          return result.messages.slice(0, 3);
+        }
+      } catch {
+        // Fall through to deterministic templates so the room flow never breaks.
+      }
+
+      return getFallbackFollowUpReplies(followUpText);
+    },
+    [belief, getFallbackFollowUpReplies],
+  );
+
+  const animateAgentReplies = useCallback(
+    (agentReplies: ChatMessage[], baseMessages: ChatMessage[]) => {
+      if (agentReplies.length === 0) {
+        setIsAgentRoundActive(false);
+        return;
+      }
+
       setIsAgentRoundActive(true);
       setLiveTurn(null);
 
       let elapsed = 320;
       let currentMessages = baseMessages;
 
-      agents.forEach((agent, index) => {
+      agentReplies.forEach((agentMessage, index) => {
+        const agent = agentMessage.author;
         const typingStart = elapsed;
         const typingDuration = getAgentTypingDelayMs(agent);
         const typingFadeMs = typingStart + typingDuration - TYPING_FADE_OUT_MS;
         const messageAt = typingStart + typingDuration;
-        const responseText = buildFollowUpResponse(agent, belief, followUpText);
 
         scheduleRoundTimer(() => {
           setLiveTurn({ author: agent, mode: "typing", text: "" });
@@ -179,11 +239,6 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
         }, typingFadeMs);
 
         scheduleRoundTimer(() => {
-          const agentMessage = createFollowUpAgentMessage(
-            agent,
-            responseText,
-            index,
-          );
           currentMessages = [...currentMessages, agentMessage];
           const updated = updateSavedConversation(conversation.slug, {
             messages: currentMessages,
@@ -191,7 +246,7 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
           if (updated) setConversation(updated);
           setLiveTurn(null);
 
-          if (index === agents.length - 1) {
+          if (index === agentReplies.length - 1) {
             setIsAgentRoundActive(false);
           }
         }, messageAt);
@@ -199,12 +254,38 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
         elapsed = messageAt + getGapBetweenAgentsMs();
       });
     },
-    [belief, conversation.slug, scheduleRoundTimer],
+    [conversation.slug, scheduleRoundTimer],
+  );
+
+  const runAgentRound = useCallback(
+    async (
+      followUpText: string,
+      baseMessages: ChatMessage[],
+      nextAttention: number,
+    ) => {
+      setIsAgentRoundActive(true);
+      setLiveTurn(null);
+
+      const agentReplies = await getFollowUpReplies(
+        followUpText,
+        baseMessages,
+        nextAttention,
+      );
+
+      animateAgentReplies(agentReplies, baseMessages);
+    },
+    [animateAgentReplies, getFollowUpReplies],
   );
 
   const handleFollowUpSubmit = useCallback(() => {
     const text = followUpDraft.trim();
-    if (!text || !canSendFollowUp) return;
+    if (!canSendFollowUp) return;
+
+    const invalidMessage = validateFollowUpDraft(text);
+    if (invalidMessage) {
+      setFollowUpError(invalidMessage);
+      return;
+    }
 
     const userMessage = createFollowUpUserMessage(text, messages.length);
     const nextMessages = [...messages, userMessage];
@@ -218,7 +299,8 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
 
     setConversation(updated);
     setFollowUpDraft("");
-    runAgentRound(text, nextMessages);
+    setFollowUpError(null);
+    runAgentRound(text, nextMessages, nextAttention);
   }, [
     attentionRemaining,
     canSendFollowUp,
@@ -300,13 +382,16 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
           {isCreator && attentionRemaining > 0 ? (
             <BeliefInput
               value={followUpDraft}
-              onChange={setFollowUpDraft}
+              onChange={(value) => {
+                setFollowUpDraft(value);
+                if (followUpError) setFollowUpError(null);
+              }}
               onSubmit={handleFollowUpSubmit}
               disabled={isAgentRoundActive}
               compact
               placeholder="Challenge the debate…"
               submitAriaLabel="Send follow-up"
-              helperText="Uses 1 Attention"
+              helperText={followUpError ?? "Uses 1 Attention"}
             />
           ) : isCreator ? (
             <RoomConclusionPanel />

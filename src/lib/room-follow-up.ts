@@ -15,6 +15,8 @@ const TYPING_MS: Record<string, number> = {
 
 const DEFAULT_TYPING_MS = 900;
 const GAP_BETWEEN_AGENTS_MS = 280;
+const MIN_FOLLOW_UP_LENGTH = 3;
+const MAX_FOLLOW_UP_LENGTH = 500;
 
 function hashString(value: string): number {
   let hash = 0;
@@ -62,6 +64,24 @@ export function buildFollowUpResponse(
 ): string {
   const builder = RESPONSE_BUILDERS[agent];
   return builder ? builder(belief, followUp) : `Still not convinced by "${clip(followUp)}".`;
+}
+
+export function validateFollowUpDraft(text: string): string | null {
+  const trimmed = text.trim();
+  if (!trimmed) return "Add a challenge before spending Attention.";
+  if (trimmed.length < MIN_FOLLOW_UP_LENGTH) {
+    return "Challenge is too short. Add a little more context.";
+  }
+  if (trimmed.length > MAX_FOLLOW_UP_LENGTH) {
+    return "Challenge is too long. Keep it under 500 characters.";
+  }
+  if (/^(.)\1{9,}$/i.test(trimmed.replace(/\s+/g, ""))) {
+    return "That looks like spam. Try a real challenge.";
+  }
+  if (/https?:\/\/\S+/i.test(trimmed) && trimmed.split(/\s+/).length <= 2) {
+    return "Add your own challenge, not just a link.";
+  }
+  return null;
 }
 
 export function createFollowUpUserMessage(text: string, index: number): ChatMessage {
