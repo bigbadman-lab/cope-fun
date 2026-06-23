@@ -3,7 +3,6 @@ import type { ChatMessage } from "@/components/debate-chat";
 
 import type { VoteChoice } from "@/lib/vote";
 import type { MarketSnapshot } from "@/lib/market";
-import { seedMarketData, shouldAttachMarket } from "@/lib/market";
 
 import { getRoomCreatorSessionId } from "@/lib/room-creator";
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
@@ -173,16 +172,6 @@ export function saveConversation(input: {
   believeCount?: number;
   copeCount?: number;
 }): SavedConversation {
-  const believeCount = input.believeCount ?? 0;
-  const copeCount = input.copeCount ?? 0;
-  const hasVote = input.userVote != null;
-  const market =
-    hasVote &&
-    believeCount + copeCount > 0 &&
-    shouldAttachMarket(input.belief)
-      ? seedMarketData(input.belief, believeCount, copeCount)
-      : undefined;
-
   const conversation: SavedConversation = {
     id: crypto.randomUUID(),
     slug: createConversationSlug(input.belief),
@@ -195,7 +184,6 @@ export function saveConversation(input: {
     userVote: input.userVote ?? null,
     believeCount: input.believeCount,
     copeCount: input.copeCount,
-    market,
   };
 
   writeAll([conversation, ...readAll()]);

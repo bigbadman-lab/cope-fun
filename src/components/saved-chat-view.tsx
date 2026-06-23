@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
-import { MarketCard } from "./market-card";
 import { PinnedBelief } from "./pinned-belief";
 import { RoomConclusionPanel, RoomVisitorPanel } from "./room-bottom-panel";
 import {
@@ -15,7 +14,6 @@ import {
 } from "./debate-chat";
 import { useMessageReactions } from "@/hooks/use-message-reactions";
 import { TYPING_FADE_OUT_MS } from "@/lib/debate-timing";
-import { getMockMarketForRoom } from "@/lib/mock-markets";
 import { isRoomCreator } from "@/lib/room-creator";
 import {
   buildFollowUpResponse,
@@ -143,12 +141,6 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
     [getCounts, getUserReaction, react, isShaking],
   );
 
-  const market = useMemo(
-    () => getMockMarketForRoom(conversation.slug),
-    [conversation.slug],
-  );
-  const hasMarket = market != null;
-
   const scheduleRoundTimer = useCallback((fn: () => void, delay: number) => {
     const timer = window.setTimeout(fn, delay);
     roundTimersRef.current.push(timer);
@@ -258,8 +250,6 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
         <div ref={debateBodyRef} className="room-debate-body">
           <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
             <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
-              {market && <MarketCard market={market} />}
-
               <GroupFormationMessage animate={false} />
 
               {threadMessages.map((message) =>
@@ -291,15 +281,13 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
                 />
               )}
 
-              {!hasMarket && (
-                <BelieveCopeVote
-                  believeCount={localBelieveCount}
-                  copeCount={localCopeCount}
-                  userVote={localUserVote}
-                  onVote={handleVote}
-                  variant="room"
-                />
-              )}
+              <BelieveCopeVote
+                believeCount={localBelieveCount}
+                copeCount={localCopeCount}
+                userVote={localUserVote}
+                onVote={handleVote}
+                variant="room"
+              />
 
               <div ref={scrollEndRef} aria-hidden className="h-1" />
             </div>

@@ -1,5 +1,4 @@
 import { USER_DISPLAY_NAME } from "@/components/avatar-placeholder";
-import { hasMockMarketForRoom } from "@/lib/mock-markets";
 import type { SavedConversation } from "@/lib/saved-chats";
 import type { VoteChoice } from "@/lib/vote";
 
@@ -36,15 +35,13 @@ export function buildSearchIndex(
   conversations: SavedConversation[],
 ): SearchResult[] {
   return conversations.map((conversation) => {
-    const hasMarket = hasMockMarketForRoom(conversation.slug);
+    const hasMarket = false;
     const voteTokens =
       conversation.userVote === "believe"
         ? "voted believe"
         : conversation.userVote === "cope"
           ? "voted cope"
           : "";
-
-    const marketTokens = hasMarket ? "market live market" : "";
 
     const messageText = conversation.messages
       .map((message) => `${message.author} ${message.text}`)
@@ -54,7 +51,6 @@ export function buildSearchIndex(
       [
         conversation.belief,
         conversation.slug,
-        marketTokens,
         voteTokens,
         messageText,
       ].join(" "),
