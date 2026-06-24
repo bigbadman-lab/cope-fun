@@ -31,6 +31,7 @@ import {
   seedVoteCounts,
   type VoteChoice,
 } from "@/lib/vote";
+import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import {
   claimRoomCreatorIfUnassigned,
   updateSavedConversation,
@@ -39,6 +40,15 @@ import {
 
 type SavedChatViewProps = {
   conversation: SavedConversation;
+  dbBacked?: boolean;
+};
+
+type RoomVoteApiResponse = {
+  ok: boolean;
+  believeCount?: number;
+  copeCount?: number;
+  userVote?: VoteChoice | null;
+  error?: string;
 };
 
 type LiveAgentTurn = {
@@ -56,7 +66,10 @@ type FollowUpApiResponse = {
   error?: string;
 };
 
-export function SavedChatView({ conversation: initialConversation }: SavedChatViewProps) {
+export function SavedChatView({
+  conversation: initialConversation,
+  dbBacked = false,
+}: SavedChatViewProps) {
   const [conversation, setConversation] = useState(initialConversation);
   const [followUpDraft, setFollowUpDraft] = useState("");
   const [followUpError, setFollowUpError] = useState<string | null>(null);
@@ -101,18 +114,86 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
   }, []);
 
   const seededCounts = useMemo(() => seedVoteCounts(belief), [belief]);
-  const initialBelieveCount =
-    conversation.believeCount ?? seededCounts.believeCount;
-  const initialCopeCount = conversation.copeCount ?? seededCounts.copeCount;
+  const initialBelieveCount = dbBacked
+    ? (conversation.believeCount ?? 0)
+    : (conversation.believeCount ?? seededCounts.believeCount);
+  const initialCopeCount = dbBacked
+    ? (conversation.copeCount ?? 0)
+    : (conversation.copeCount ?? seededCounts.copeCount);
 
   const [localBelieveCount, setLocalBelieveCount] = useState(initialBelieveCount);
   const [localCopeCount, setLocalCopeCount] = useState(initialCopeCount);
   const [localUserVote, setLocalUserVote] = useState<VoteChoice | null>(
-    conversation.userVote ?? null,
+    dbBacked ? null : (conversation.userVote ?? null),
   );
+  const [isVotePending, setIsVotePending] = useState(false);
+
+  useEffect(() => {
+    if (!dbBacked) return;
+
+    let cancelled = false;
+
+    async function loadVoteState() {
+      try {
+        const token = getAnonymousSessionToken();
+        const response = await fetch(
+          `/api/rooms/${encodeURIComponent(conversation.slug)}/vote?anonymousToken=${encodeURIComponent(token)}`,
+        );
+        if (!response.ok || cancelled) return;
+
+        const result = (await response.json()) as RoomVoteApiResponse;
+        if (!result.ok || cancelled) return;
+
+        setLocalBelieveCount(result.believeCount ?? 0);
+        setLocalCopeCount(result.copeCount ?? 0);
+        setLocalUserVote(result.userVote ?? null);
+      } catch {
+        // Keep server-rendered totals if hydration fails.
+      }
+    }
+
+    void loadVoteState();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversation.slug, dbBacked]);
 
   const handleVote = useCallback(
-    (choice: VoteChoice) => {
+    async (choice: VoteChoice) => {
+      if (dbBacked) {
+        if (isVotePending || localUserVote === choice) return;
+
+        setIsVotePending(true);
+        try {
+          const response = await fetch(
+            `/api/rooms/${encodeURIComponent(conversation.slug)}/vote`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                vote: choice,
+                anonymousToken: getAnonymousSessionToken(),
+              }),
+            },
+          );
+
+          if (!response.ok) return;
+
+          const result = (await response.json()) as RoomVoteApiResponse;
+          if (!result.ok) return;
+
+          setLocalBelieveCount(result.believeCount ?? 0);
+          setLocalCopeCount(result.copeCount ?? 0);
+          setLocalUserVote(result.userVote ?? null);
+        } catch {
+          // Leave current state unchanged on failure.
+        } finally {
+          setIsVotePending(false);
+        }
+        return;
+      }
+
       const next = applyVoteChange(
         {
           believeCount: localBelieveCount,
@@ -125,7 +206,14 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
       setLocalCopeCount(next.copeCount);
       setLocalUserVote(next.userVote);
     },
-    [localBelieveCount, localCopeCount, localUserVote],
+    [
+      conversation.slug,
+      dbBacked,
+      isVotePending,
+      localBelieveCount,
+      localCopeCount,
+      localUserVote,
+    ],
   );
 
   const beliefMessage = messages.find((message) => message.isUser);
@@ -138,19 +226,17 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
     [agentMessages],
   );
 
-  const { getCounts, getUserReaction, react, isShaking } = useMessageReactions(
-    conversation.slug,
-    agentMessageIds,
-  );
+  const { getCounts, getUserReaction, react, isShaking, isPending } =
+    useMessageReactions(conversation.slug, agentMessageIds, { dbBacked });
 
   const getReactionProps = useCallback(
     (messageId: string): MessageReactionProps => ({
       counts: getCounts(messageId),
       userReaction: getUserReaction(messageId),
-      onReact: (reaction) => react(messageId, reaction),
+      onReact: isPending(messageId) ? () => {} : (reaction) => react(messageId, reaction),
       copeShake: isShaking(messageId),
     }),
-    [getCounts, getUserReaction, react, isShaking],
+    [getCounts, getUserReaction, isPending, react, isShaking],
   );
 
   const scheduleRoundTimer = useCallback((fn: () => void, delay: number) => {
@@ -368,7 +454,7 @@ export function SavedChatView({ conversation: initialConversation }: SavedChatVi
                 believeCount={localBelieveCount}
                 copeCount={localCopeCount}
                 userVote={localUserVote}
-                onVote={handleVote}
+                onVote={isVotePending ? undefined : handleVote}
                 variant="room"
               />
 

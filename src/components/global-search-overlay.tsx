@@ -1,25 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSyncExternalStore } from "react";
-import { ParticipantAvatarStack } from "./avatar-placeholder";
-import { BeliefBadges } from "./belief-list-badges";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { formatConversationTime } from "@/lib/saved-chats";
+import {
+  formatSearchChallengeSummary,
+  formatSearchVoteSummary,
+  type RoomSearchResult,
+  type SearchApiResponse,
+} from "@/lib/room-search";
 import { navIconButtonClass } from "./theme-toggle";
-import {
-  buildSearchIndex,
-  searchConversations,
-} from "@/lib/conversation-search";
-import {
-  formatConversationTime,
-  getSavedChatsSnapshot,
-  SAVED_CHATS_SERVER_SNAPSHOT,
-  subscribeSavedChats,
-} from "@/lib/saved-chats";
 
 type GlobalSearchOverlayProps = {
   onClose: () => void;
 };
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 function CloseIcon({ className }: { className?: string }) {
   return (
@@ -41,34 +37,59 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
-
-  const conversations = useSyncExternalStore(
-    subscribeSavedChats,
-    getSavedChatsSnapshot,
-    () => SAVED_CHATS_SERVER_SNAPSHOT,
-  );
-
-  const participantsBySlug = useMemo(
-    () => new Map(conversations.map((item) => [item.slug, item.participants])),
-    [conversations],
-  );
-
-  const searchIndex = useMemo(
-    () => buildSearchIndex(conversations),
-    [conversations],
-  );
-
-  const results = useMemo(
-    () => searchConversations(searchIndex, query),
-    [searchIndex, query],
-  );
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [results, setResults] = useState<RoomSearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const trimmedQuery = query.trim();
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(trimmedQuery);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [trimmedQuery]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function runSearch() {
+      setIsLoading(true);
+
+      try {
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(debouncedQuery)}`,
+        );
+        if (!response.ok || cancelled) return;
+
+        const payload = (await response.json()) as SearchApiResponse;
+        if (!payload.ok || cancelled) return;
+
+        setResults(payload.results ?? []);
+        setHasLoaded(true);
+      } catch {
+        if (!cancelled) {
+          setResults([]);
+          setHasLoaded(true);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    void runSearch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
+
   const openResult = useCallback(
-    (slug: string) => {
+    (url: string) => {
       onClose();
-      router.push(`/room/${slug}`);
+      router.push(url);
     },
     [onClose, router],
   );
@@ -85,15 +106,23 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
         return;
       }
 
-      if (event.key === "Enter" && results.length > 0) {
+      if (event.key === "Enter" && results.length > 0 && !isLoading) {
         event.preventDefault();
-        openResult(results[0].slug);
+        openResult(results[0].url);
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [results, onClose, openResult]);
+  }, [results, onClose, openResult, isLoading]);
+
+  const showRecentHeading = !trimmedQuery && results.length > 0;
+  const isDebouncing = trimmedQuery !== debouncedQuery;
+  const showLoading = isLoading || isDebouncing;
+  const showEmpty =
+    hasLoaded && !showLoading && results.length === 0 && trimmedQuery.length > 0;
+  const showNoBeliefsYet =
+    hasLoaded && !showLoading && results.length === 0 && trimmedQuery.length === 0;
 
   return (
     <div
@@ -116,7 +145,7 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
               enterKeyHint="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search beliefs, agents, markets..."
+              placeholder="Search beliefs..."
               className="min-h-11 min-w-0 flex-1 bg-transparent text-base text-zinc-900 outline-none placeholder:text-zinc-500 sm:min-h-0 sm:text-sm dark:text-zinc-100 dark:placeholder:text-zinc-600"
             />
             <button
@@ -134,59 +163,62 @@ export function GlobalSearchOverlay({ onClose }: GlobalSearchOverlayProps) {
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2 sm:max-h-none">
-          {!trimmedQuery && results.length > 0 && (
+          {showRecentHeading && (
             <p className="px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-600">
               Recent beliefs
             </p>
           )}
 
-          {results.length === 0 ? (
+          {showLoading && (
             <p className="px-2 py-8 text-center text-sm text-zinc-500">
-              {conversations.length === 0
-                ? "No saved beliefs yet."
-                : trimmedQuery
-                  ? "No beliefs found."
-                  : "No saved beliefs yet."}
+              Searching...
             </p>
-          ) : (
-            <ul>
-              {results.map((result) => {
-                const participants = participantsBySlug.get(result.slug) ?? [];
+          )}
 
-                return (
-                  <li
-                    key={result.id}
-                    className="flex min-h-[64px] items-center gap-3 rounded-xl px-1 sm:min-h-0 sm:rounded-lg"
+          {showNoBeliefsYet && (
+            <p className="px-2 py-8 text-center text-sm text-zinc-500">
+              No saved beliefs yet.
+            </p>
+          )}
+
+          {showEmpty && (
+            <p className="px-2 py-8 text-center text-sm text-zinc-500">
+              No beliefs found.
+            </p>
+          )}
+
+          {!showLoading && results.length > 0 && (
+            <ul>
+              {results.map((result) => (
+                <li
+                  key={result.id}
+                  className="flex min-h-[64px] items-center gap-3 rounded-xl px-1 sm:min-h-0 sm:rounded-lg"
+                >
+                  <button
+                    type="button"
+                    onClick={() => openResult(result.url)}
+                    className="min-w-0 flex-1 rounded-xl px-2 py-3 text-left transition-colors active:bg-zinc-950/[0.05] sm:rounded-lg sm:px-2 sm:py-2.5 sm:hover:bg-zinc-950/[0.04] dark:active:bg-white/[0.05] dark:sm:hover:bg-white/[0.03]"
                   >
-                    {participants.length > 0 && (
-                      <ParticipantAvatarStack participants={participants} />
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="truncate text-[15px] font-medium text-zinc-900 sm:text-sm dark:text-zinc-100">
+                        {result.belief}
+                      </p>
+                      <span className="shrink-0 text-[11px] text-zinc-500">
+                        {formatConversationTime(result.createdAt)}
+                      </span>
+                    </div>
+                    {result.searchSummary && (
+                      <p className="mt-0.5 truncate text-sm text-zinc-500 sm:text-xs">
+                        {result.searchSummary}
+                      </p>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => openResult(result.slug)}
-                      className="min-w-0 flex-1 rounded-xl px-2 py-3 text-left transition-colors active:bg-zinc-950/[0.05] sm:rounded-lg sm:px-2 sm:py-2.5 sm:hover:bg-zinc-950/[0.04] dark:active:bg-white/[0.05] dark:sm:hover:bg-white/[0.03]"
-                    >
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="truncate text-[15px] font-medium text-zinc-900 sm:text-sm dark:text-zinc-100">
-                          {result.belief}
-                        </p>
-                        <span className="shrink-0 text-[11px] text-zinc-500">
-                          {formatConversationTime(result.createdAt)}
-                        </span>
-                      </div>
-                      {result.preview && (
-                        <p className="mt-0.5 truncate text-sm text-zinc-500 sm:text-xs">
-                          {result.preview}
-                        </p>
-                      )}
-                      <BeliefBadges
-                        hasMarket={result.hasMarket}
-                        userVote={result.userVote}
-                      />
-                    </button>
-                  </li>
-                );
-              })}
+                    <p className="mt-0.5 text-xs text-zinc-500 sm:text-[11px]">
+                      {formatSearchChallengeSummary(result.challengeCount)} ·{" "}
+                      {formatSearchVoteSummary(result)}
+                    </p>
+                  </button>
+                </li>
+              ))}
             </ul>
           )}
         </div>

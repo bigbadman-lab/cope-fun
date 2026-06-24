@@ -37,7 +37,11 @@ export function RoomPage({ slug, initialConversation = null }: RoomPageProps) {
   if (initialConversation) {
     return (
       <InnerPageShell variant="room">
-        <SavedChatView conversation={initialConversation} />
+        <SavedChatView
+          key={slug}
+          conversation={initialConversation}
+          dbBacked
+        />
       </InnerPageShell>
     );
   }
@@ -62,7 +66,7 @@ export function RoomPage({ slug, initialConversation = null }: RoomPageProps) {
 
   return (
     <InnerPageShell variant="room">
-      <SavedChatView conversation={conversation} />
+      <SavedChatView key={slug} conversation={conversation} />
     </InnerPageShell>
   );
 }

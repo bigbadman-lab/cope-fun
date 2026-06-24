@@ -5,7 +5,7 @@ export function HomepageBackgroundVideo() {
       aria-hidden
     >
       <div
-        className="absolute inset-0 scale-[1.02] bg-[url('/backgrounds/green1.jpg')] bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 scale-[1.02] bg-[url('/backgrounds/sky1.jpg')] bg-cover bg-center bg-no-repeat"
       />
       <div
         className="absolute inset-0 bg-black/15 dark:bg-black/55"

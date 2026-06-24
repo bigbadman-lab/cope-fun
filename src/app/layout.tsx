@@ -5,6 +5,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { HomepageFooterProvider } from "@/components/homepage-footer-context";
 import { GlobalSearchProvider } from "@/components/global-search-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import {
+  DEFAULT_SITE_DESCRIPTION,
+  SITE_URL,
+} from "@/lib/room-og/copy";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,9 +21,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Optional: set NEXT_PUBLIC_SITE_URL locally and in production (e.g. https://cope.fun).
 export const metadata: Metadata = {
-  title: "cope.fun",
-  description: "Enter a belief. Watch it argue.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "cope.fun",
+    template: "%s | Cope",
+  },
+  description: DEFAULT_SITE_DESCRIPTION,
+  openGraph: {
+    siteName: "Cope",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@copefun",
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,11 +1,14 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
+import { cache } from "react";
 import type { ChatMessage } from "@/components/debate-chat";
 import type { AgentSlug } from "@/lib/agent-profiles";
 import { AGENT_PROFILES } from "@/lib/agent-profiles";
 import type { SavedConversation } from "@/lib/saved-chats";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getOrCreateAnonymousSession } from "./anonymous-session";
+import { getRoomVoteTotals } from "./votes";
+import { buildRoomSearchSummary } from "./room-search";
 
 const USER_DISPLAY_NAME = "You";
 const ENGINE_AUTHOR = "Cope Engine";
@@ -25,6 +28,8 @@ type BeliefRoomRow = {
   attention_remaining: number;
   max_attention: number;
   challenge_count: number;
+  room_title: string | null;
+  search_summary: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -143,6 +148,7 @@ function toChatMessage(message: BeliefRoomMessageRow): ChatMessage {
 function toSavedConversation(
   room: BeliefRoomRow,
   messageRows: BeliefRoomMessageRow[],
+  voteTotals: { believeCount: number; copeCount: number },
 ): SavedConversation {
   const messages = [...messageRows]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -161,6 +167,8 @@ function toSavedConversation(
       Math.min(room.max_attention || MAX_ROOM_ATTENTION, room.attention_remaining),
     ),
     userVote: null,
+    believeCount: voteTotals.believeCount,
+    copeCount: voteTotals.copeCount,
   };
 }
 
@@ -183,6 +191,7 @@ async function insertRoom(input: {
         attention_remaining: input.attentionRemaining,
         max_attention: MAX_ROOM_ATTENTION,
         challenge_count: 0,
+        room_title: input.belief,
         metadata: {},
       })
       .select("*")
@@ -230,13 +239,25 @@ export async function createBeliefRoom({
     throw new Error("Could not create belief room messages.");
   }
 
+  const searchSummary = buildRoomSearchSummary(messages);
+  if (searchSummary) {
+    await supabase
+      .from("belief_rooms")
+      .update({ search_summary: searchSummary })
+      .eq("id", room.id);
+  }
+
   return {
     slug: room.slug,
-    room: toSavedConversation(room, insertedMessages as BeliefRoomMessageRow[]),
+    room: toSavedConversation(
+      room,
+      insertedMessages as BeliefRoomMessageRow[],
+      { believeCount: 0, copeCount: 0 },
+    ),
   };
 }
 
-export async function getBeliefRoomBySlug(
+async function fetchBeliefRoomBySlug(
   slug: string,
 ): Promise<SavedConversation | null> {
   try {
@@ -258,11 +279,16 @@ export async function getBeliefRoomBySlug(
 
     if (messagesError || !messages) return null;
 
+    const voteTotals = await getRoomVoteTotals(room.id);
+
     return toSavedConversation(
       room as BeliefRoomRow,
       messages as BeliefRoomMessageRow[],
+      voteTotals,
     );
   } catch {
     return null;
   }
 }
+
+export const getBeliefRoomBySlug = cache(fetchBeliefRoomBySlug);
