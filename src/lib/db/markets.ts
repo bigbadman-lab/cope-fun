@@ -195,7 +195,7 @@ export async function getPublicMarkets(): Promise<{
 
 export async function getRoomMarketBySlug(
   slug: string,
-  anonymousSessionId?: string | null,
+  viewer?: { userId?: string | null; anonymousSessionId?: string | null },
 ): Promise<RoomMarketView | null> {
   const supabase = createSupabaseServiceClient();
   const { data, error } = await supabase
@@ -253,14 +253,27 @@ export async function getRoomMarketBySlug(
   const base = toPublicMarket(market, room) as PublicMarket;
 
   let userPosition: MarketPositionView | null = null;
-  if (anonymousSessionId) {
+  if (viewer?.userId) {
     const { data: position } = await supabase
       .from("belief_market_positions")
       .select(
         "id, side, stake_credits, payout_credits, is_winner, settled_at",
       )
       .eq("market_id", market.id)
-      .eq("anonymous_session_id", anonymousSessionId)
+      .eq("user_id", viewer.userId)
+      .maybeSingle();
+
+    if (position) {
+      userPosition = toPositionView(position as PositionRow);
+    }
+  } else if (viewer?.anonymousSessionId) {
+    const { data: position } = await supabase
+      .from("belief_market_positions")
+      .select(
+        "id, side, stake_credits, payout_credits, is_winner, settled_at",
+      )
+      .eq("market_id", market.id)
+      .eq("anonymous_session_id", viewer.anonymousSessionId)
       .maybeSingle();
 
     if (position) {

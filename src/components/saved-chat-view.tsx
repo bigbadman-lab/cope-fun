@@ -32,6 +32,7 @@ import {
   seedVoteCounts,
   type VoteChoice,
 } from "@/lib/vote";
+import { useAppAuth } from "@/hooks/use-app-auth";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import { readRateLimitMessage } from "@/lib/rate-limit/client";
 import {
@@ -94,6 +95,7 @@ export function SavedChatView({
   const [roomMarket, setRoomMarket] = useState<RoomMarketView | null>(
     initialMarket,
   );
+  const { ready, authenticated, authFetch } = useAppAuth();
   const [followUpDraft, setFollowUpDraft] = useState("");
   const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
@@ -166,9 +168,12 @@ export function SavedChatView({
     async function loadRoomMarket() {
       try {
         const token = getAnonymousSessionToken();
-        const response = await fetch(
-          `/api/rooms/${encodeURIComponent(conversation.slug)}/market?anonymousToken=${encodeURIComponent(token)}`,
-        );
+        const url = authenticated
+          ? `/api/rooms/${encodeURIComponent(conversation.slug)}/market`
+          : `/api/rooms/${encodeURIComponent(conversation.slug)}/market?anonymousToken=${encodeURIComponent(token)}`;
+        const response = authenticated
+          ? await authFetch(url)
+          : await fetch(url);
         if (!response.ok || cancelled) return;
 
         const result = (await response.json()) as {
@@ -188,7 +193,7 @@ export function SavedChatView({
     return () => {
       cancelled = true;
     };
-  }, [conversation.slug, dbBacked]);
+  }, [conversation.slug, dbBacked, ready, authenticated, authFetch]);
 
   useEffect(() => {
     debateBodyRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });

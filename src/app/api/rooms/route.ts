@@ -1,5 +1,6 @@
 import { createBeliefRoom } from "@/lib/db/rooms";
 import type { ChatMessage } from "@/components/debate-chat";
+import { tryGetAppUserFromRequest } from "@/lib/auth/app-user";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 const USER_DISPLAY_NAME = "You";
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
         typeof body.attentionRemaining === "number"
           ? body.attentionRemaining
           : undefined,
+      createdByUserId: (await tryGetAppUserFromRequest(request))?.id ?? null,
     });
 
     return Response.json({ ok: true, slug: result.slug, room: result.room });

@@ -50,7 +50,7 @@ export type RoomMarketView = PublicMarket & {
 
 export type LeaderboardEntry = {
   rank: number;
-  anonymousSessionId: string;
+  userId: string;
   label: string;
   balanceCredits: number;
   totalWonCredits: number;

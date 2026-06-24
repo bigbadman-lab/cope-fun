@@ -22,7 +22,7 @@ import {
   useGuestBeliefUsage,
 } from "@/lib/guest-usage";
 import { saveConversation } from "@/lib/saved-chats";
-import { getWalletSessionSnapshot, useWalletSession } from "@/lib/wallet-session";
+import { useAppAuth } from "@/hooks/use-app-auth";
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
 import {
   applyVoteChange,
@@ -38,7 +38,7 @@ const SAVE_CONFIRM_MS = 700;
 const VALIDATION_ERROR_MESSAGE =
   "The Cope Engine couldn’t test that input. Try again.";
 const GUEST_LIMIT_MESSAGE =
-  "Connect wallet to keep testing ideas with the Cope Engine.";
+  "Sign in to keep testing ideas with the Cope Engine.";
 const PROCESSING_STATUS_LINES = [
   "The belief is entering the room…",
   "Assumptions detected…",
@@ -164,7 +164,7 @@ export function HomePage() {
   );
 
   const router = useRouter();
-  const wallet = useWalletSession();
+  const { authenticated, authFetch } = useAppAuth();
   const guestUsage = useGuestBeliefUsage();
 
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -184,7 +184,7 @@ export function HomePage() {
     phase === "debating" ||
     phase === "complete";
   const isGuestBlocked =
-    !wallet.connected && phase === "idle" && guestUsage.beliefCount >= 1;
+    !authenticated && phase === "idle" && guestUsage.beliefCount >= 1;
   const setHomepageFooterInFlow = useSetHomepageFooterInFlow();
 
   useEffect(() => {
@@ -462,11 +462,10 @@ export function HomePage() {
           : "";
       const acceptedBelief = normalizedBelief || trimmed;
 
-      const session = getWalletSessionSnapshot();
-      const guestQuotaAvailable = session.connected || canGuestCreateBelief();
+      const guestQuotaAvailable = authenticated || canGuestCreateBelief();
       logHomepageFlow("guest quota checked", {
         submitAttemptId,
-        walletConnected: session.connected,
+        authenticated,
         guestQuotaAvailable,
       });
       if (!guestQuotaAvailable) {
@@ -500,7 +499,7 @@ export function HomePage() {
         nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
       }
 
-      if (!session.connected) {
+      if (!authenticated) {
         recordGuestBeliefCreated();
       }
 
@@ -567,7 +566,7 @@ export function HomePage() {
     setChatSaved(true);
 
     try {
-      const response = await fetch("/api/rooms", {
+      const response = await authFetch("/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -617,6 +616,7 @@ export function HomePage() {
     userVote,
     believeCount,
     copeCount,
+    authFetch,
   ]);
 
   const userMessage: ChatMessage = {

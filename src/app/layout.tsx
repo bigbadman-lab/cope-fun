@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AppPrivyProvider } from "@/components/privy-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { HomepageFooterProvider } from "@/components/homepage-footer-context";
 import { GlobalSearchProvider } from "@/components/global-search-provider";
@@ -72,12 +73,14 @@ export default function RootLayout({
           {themeInitScript}
         </Script>
         <ThemeProvider>
-          <GlobalSearchProvider>
-            <HomepageFooterProvider>
-              <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-              <SiteFooter />
-            </HomepageFooterProvider>
-          </GlobalSearchProvider>
+          <AppPrivyProvider>
+            <GlobalSearchProvider>
+              <HomepageFooterProvider>
+                <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+                <SiteFooter />
+              </HomepageFooterProvider>
+            </GlobalSearchProvider>
+          </AppPrivyProvider>
         </ThemeProvider>
       </body>
     </html>

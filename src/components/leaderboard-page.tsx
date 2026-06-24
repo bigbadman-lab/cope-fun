@@ -104,7 +104,7 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
         ) : (
           <section className="w-full">
             {entries.map((entry) => (
-              <LeaderboardRow key={entry.anonymousSessionId} entry={entry} />
+              <LeaderboardRow key={entry.userId} entry={entry} />
             ))}
           </section>
         )}

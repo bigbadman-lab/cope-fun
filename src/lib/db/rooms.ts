@@ -69,6 +69,7 @@ export type CreateBeliefRoomInput = {
   belief: string;
   messages: ChatMessage[];
   attentionRemaining?: number;
+  createdByUserId?: string | null;
 };
 
 export type CreateBeliefRoomResult = {
@@ -177,6 +178,7 @@ async function insertRoom(input: {
   belief: string;
   anonymousSessionId: string;
   attentionRemaining: number;
+  createdByUserId?: string | null;
 }): Promise<BeliefRoomRow> {
   const supabase = createSupabaseServiceClient();
 
@@ -189,6 +191,7 @@ async function insertRoom(input: {
         normalized_belief: input.belief,
         status: "published",
         creator_anonymous_session_id: input.anonymousSessionId,
+        created_by_user_id: input.createdByUserId ?? null,
         attention_remaining: input.attentionRemaining,
         max_attention: MAX_ROOM_ATTENTION,
         challenge_count: 0,
@@ -212,6 +215,7 @@ export async function createBeliefRoom({
   belief,
   messages,
   attentionRemaining,
+  createdByUserId = null,
 }: CreateBeliefRoomInput): Promise<CreateBeliefRoomResult> {
   const anonymousSession = await getOrCreateAnonymousSession(anonymousToken);
   const safeAttentionRemaining =
@@ -223,6 +227,7 @@ export async function createBeliefRoom({
     belief: belief.trim(),
     anonymousSessionId: anonymousSession.id,
     attentionRemaining: safeAttentionRemaining,
+    createdByUserId,
   });
 
   const messageInserts = messages.map((message, index) =>

@@ -5,7 +5,7 @@ import {
   type MarketSide,
   type StakeAmount,
 } from "@/lib/markets/types";
-import { getOrCreateCreditAccount } from "./credits";
+import { getOrCreateCreditAccountForUser } from "./credits";
 
 export function isAllowedStakeAmount(value: number): value is StakeAmount {
   return (ALLOWED_STAKE_AMOUNTS as readonly number[]).includes(value);
@@ -16,9 +16,9 @@ type StakeRpcResult = {
   balance_credits: number;
 };
 
-export async function stakeOnMarket(input: {
+export async function stakeOnMarketForUser(input: {
   marketId: string;
-  anonymousToken: string;
+  userId: string;
   side: MarketSide;
   stakeCredits: StakeAmount;
 }) {
@@ -26,12 +26,12 @@ export async function stakeOnMarket(input: {
     throw new Error("Invalid stake amount.");
   }
 
-  const account = await getOrCreateCreditAccount(input.anonymousToken);
+  await getOrCreateCreditAccountForUser(input.userId);
   const supabase = createSupabaseServiceClient();
 
-  const { data, error } = await supabase.rpc("stake_on_market", {
+  const { data, error } = await supabase.rpc("stake_on_market_for_user", {
     p_market_id: input.marketId,
-    p_session_id: account.anonymousSessionId,
+    p_user_id: input.userId,
     p_side: input.side,
     p_stake_credits: input.stakeCredits,
   });

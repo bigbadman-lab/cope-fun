@@ -4,10 +4,12 @@ import { getOrCreateAnonymousSession } from "./anonymous-session";
 import type { CreditAccountView } from "@/lib/markets/types";
 
 const INITIAL_CREDIT_GRANT = 1000;
+const INITIAL_SEASON_GRANT_REASON = "initial_season_grant";
 
 type CreditAccountRow = {
   id: string;
-  anonymous_session_id: string;
+  anonymous_session_id: string | null;
+  user_id: string | null;
   balance_credits: number;
   season_points: number;
   total_staked_credits: number;
@@ -57,7 +59,7 @@ export async function getOrCreateCreditAccount(
 
   const { data: created, error: createError } = await supabase
     .from("cope_credit_accounts")
-    .insert({ anonymous_session_id: session.id })
+    .insert({ anonymous_session_id: session.id, balance_credits: 0 })
     .select("*")
     .single();
 
@@ -87,22 +89,113 @@ export async function getOrCreateCreditAccount(
     throw new Error("Could not create credit account.");
   }
 
+  return {
+    id: created.id,
+    anonymousSessionId: session.id,
+    ...toCreditAccountView(created as CreditAccountRow),
+  };
+}
+
+export async function getOrCreateCreditAccountForUser(
+  userId: string,
+): Promise<CreditAccountView & { id: string; userId: string }> {
+  const supabase = createSupabaseServiceClient();
+
+  const { data: existing, error: existingError } = await supabase
+    .from("cope_credit_accounts")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existingError) {
+    throw new Error("Could not load credit account.");
+  }
+
+  if (existing) {
+    return {
+      id: existing.id,
+      userId,
+      ...toCreditAccountView(existing as CreditAccountRow),
+    };
+  }
+
+  const { data: created, error: createError } = await supabase
+    .from("cope_credit_accounts")
+    .insert({
+      user_id: userId,
+      balance_credits: INITIAL_CREDIT_GRANT,
+    })
+    .select("*")
+    .single();
+
+  if (createError) {
+    if (createError.code === "23505") {
+      const { data: raced, error: racedError } = await supabase
+        .from("cope_credit_accounts")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (racedError || !raced) {
+        throw new Error("Could not create credit account.");
+      }
+
+      return {
+        id: raced.id,
+        userId,
+        ...toCreditAccountView(raced as CreditAccountRow),
+      };
+    }
+
+    throw new Error("Could not create credit account.");
+  }
+
+  if (!created) {
+    throw new Error("Could not create credit account.");
+  }
+
   const { error: ledgerError } = await supabase
     .from("cope_credit_ledger_entries")
     .insert({
-      anonymous_session_id: session.id,
+      user_id: userId,
       delta_credits: INITIAL_CREDIT_GRANT,
-      reason: "initial season credit grant",
+      reason: INITIAL_SEASON_GRANT_REASON,
     });
 
   if (ledgerError) {
+    if (ledgerError.code === "23505") {
+      return {
+        id: created.id,
+        userId,
+        ...toCreditAccountView(created as CreditAccountRow),
+      };
+    }
+
     throw new Error("Could not record initial credit grant.");
   }
 
   return {
     id: created.id,
-    anonymousSessionId: session.id,
+    userId,
     ...toCreditAccountView(created as CreditAccountRow),
+  };
+}
+
+export async function getCreditAccountForUser(
+  userId: string,
+): Promise<(CreditAccountView & { id: string }) | null> {
+  const supabase = createSupabaseServiceClient();
+  const { data, error } = await supabase
+    .from("cope_credit_accounts")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    ...toCreditAccountView(data as CreditAccountRow),
   };
 }
 

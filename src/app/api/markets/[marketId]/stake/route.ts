@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
-import { isAllowedStakeAmount, stakeOnMarket } from "@/lib/db/market-staking";
+import { isAllowedStakeAmount, stakeOnMarketForUser } from "@/lib/db/market-staking";
+import {
+  isUnauthorizedError,
+  requireAppUser,
+  unauthorizedResponse,
+} from "@/lib/auth/require-app-user";
 import type { MarketSide } from "@/lib/markets/types";
 
 type StakeRequest = {
-  anonymousToken?: unknown;
   side?: unknown;
   stakeCredits?: unknown;
 };
@@ -18,18 +22,9 @@ type RouteContext = {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
+    const appUser = await requireAppUser(request);
     const { marketId } = await context.params;
     const body = (await request.json()) as StakeRequest;
-
-    const anonymousToken =
-      typeof body.anonymousToken === "string" ? body.anonymousToken.trim() : "";
-
-    if (!anonymousToken) {
-      return NextResponse.json(
-        { ok: false, error: "Anonymous session required." },
-        { status: 401 },
-      );
-    }
 
     if (!isMarketSide(body.side)) {
       return NextResponse.json(
@@ -49,15 +44,19 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
-    const result = await stakeOnMarket({
+    const result = await stakeOnMarketForUser({
       marketId,
-      anonymousToken,
+      userId: appUser.id,
       side: body.side,
       stakeCredits: body.stakeCredits,
     });
 
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return unauthorizedResponse(error.message);
+    }
+
     const message =
       error instanceof Error ? error.message : "Could not place stake.";
     return NextResponse.json({ ok: false, error: message }, { status: 400 });

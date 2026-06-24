@@ -2,21 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { AuthNavButton } from "./auth-nav-button";
 import { useGlobalSearch } from "./global-search-provider";
 import { MobileMenu } from "./mobile-menu";
 import { RoomFollowButton } from "./room-follow-button";
 import { RoomShareButton } from "./room-share-button";
+import { useAppAuth } from "@/hooks/use-app-auth";
 import {
   getSavedConversationSnapshotBySlug,
   SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
   subscribeSavedChats,
 } from "@/lib/saved-chats";
-import {
-  connectMockWallet,
-  useWalletSession,
-} from "@/lib/wallet-session";
 import {
   navGroupDividerClass,
   navIconActiveClass,
@@ -53,25 +51,6 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
-function WalletIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M4 8.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5" />
-      <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H18a2 2 0 0 1 2 2v2.5H6.5A2.5 2.5 0 0 0 4 13v-4.5Z" />
-      <path d="M17 14.25h2.5" />
-    </svg>
-  );
-}
-
 function MenuIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -103,57 +82,6 @@ function ProfileIcon({ className }: { className?: string }) {
       <circle cx="12" cy="8" r="3.5" />
       <path d="M5.5 19.5c1.2-3 3.4-4.5 6.5-4.5s5.3 1.5 6.5 4.5" />
     </svg>
-  );
-}
-
-const WALLET_CONNECT_MS = 1200;
-
-function WalletNavButton() {
-  const router = useRouter();
-  const session = useWalletSession();
-  const [connecting, setConnecting] = useState(false);
-
-  const handleClick = useCallback(() => {
-    if (connecting) return;
-
-    if (session.connected) {
-      router.push("/profile");
-      return;
-    }
-
-    setConnecting(true);
-    window.setTimeout(() => {
-      connectMockWallet();
-      setConnecting(false);
-    }, WALLET_CONNECT_MS);
-  }, [connecting, router, session.connected]);
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      aria-label={session.connected ? "View profile" : "Connect wallet"}
-      aria-busy={connecting}
-      className={`${navIconButtonClass} group relative hover:text-cope-orange dark:hover:text-cope-orange ${
-        connecting || session.connected ? navIconActiveClass : ""
-      }`}
-    >
-      <WalletIcon
-        className={`${navIconClass} transition-transform duration-200 ease-out group-hover:scale-105 ${
-          connecting ? "scale-95 animate-pulse" : ""
-        }`}
-      />
-      <span
-        aria-hidden
-        className={`absolute top-2 right-2 size-1.5 rounded-full bg-cope-orange transition-[transform,opacity] duration-300 ${
-          connecting
-            ? "scale-150 animate-ping opacity-100"
-            : session.connected
-              ? "scale-125 opacity-100"
-              : "animate-wallet-ready opacity-80 group-hover:scale-125 group-hover:opacity-100"
-        }`}
-      />
-    </button>
   );
 }
 
@@ -193,7 +121,7 @@ export function TopNav({ onLogoClick }: TopNavProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchPressed, setSearchPressed] = useState(false);
-  const wallet = useWalletSession();
+  const { authenticated } = useAppAuth();
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
@@ -270,13 +198,10 @@ export function TopNav({ onLogoClick }: TopNavProps) {
               </button>
             </div>
 
-            <div
-              className={navGroupDividerClass}
-              aria-hidden
-            />
+            <div className={navGroupDividerClass} aria-hidden />
 
-            <WalletNavButton />
-            {wallet.connected && (
+            <AuthNavButton />
+            {authenticated && (
               <Link
                 href="/profile"
                 aria-label="Profile"

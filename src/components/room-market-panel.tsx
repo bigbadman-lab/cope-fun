@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopeCreditsDisclaimer } from "./cope-credits-disclaimer";
 import { MarketStatusBadge } from "./market-status-badge";
-import { getAnonymousSessionToken } from "@/lib/anonymous-token";
+import { useAppAuth } from "@/hooks/use-app-auth";
 import {
   canStakeOnMarket,
   getMarketDisplayStatus,
@@ -32,6 +32,7 @@ function formatDateTime(value: string | null): string {
 }
 
 export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
+  const { ready, authenticated, login, authFetch } = useAppAuth();
   const [market, setMarket] = useState(initialMarket);
   const [account, setAccount] = useState<CreditAccountView | null>(null);
   const [selectedSide, setSelectedSide] = useState<MarketSide>("believe");
@@ -56,10 +57,12 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
   );
 
   const refreshAccount = useCallback(async () => {
-    const token = getAnonymousSessionToken();
-    const response = await fetch(
-      `/api/credits/account?anonymousToken=${encodeURIComponent(token)}`,
-    );
+    if (!authenticated) {
+      setAccount(null);
+      return;
+    }
+
+    const response = await authFetch("/api/credits/account");
     const payload = (await response.json()) as {
       ok: boolean;
       account?: CreditAccountView;
@@ -67,14 +70,20 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
     if (payload.ok && payload.account) {
       setAccount(payload.account);
     }
-  }, []);
+  }, [authenticated, authFetch]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
+      if (!ready) return;
+
       try {
-        await refreshAccount();
+        if (authenticated) {
+          await refreshAccount();
+        } else {
+          setAccount(null);
+        }
       } finally {
         if (!cancelled) {
           setIsLoadingAccount(false);
@@ -87,22 +96,21 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [refreshAccount]);
+  }, [ready, authenticated, refreshAccount]);
 
   async function handleStake() {
-    if (isStaking || market.userPosition || !stakingAllowed) return;
+    if (isStaking || market.userPosition || !stakingAllowed || !authenticated) return;
 
     setIsStaking(true);
     setError(null);
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/markets/${encodeURIComponent(market.id)}/stake`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            anonymousToken: getAnonymousSessionToken(),
             side: selectedSide,
             stakeCredits: selectedStake,
           }),
@@ -218,7 +226,22 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
           : ""}
       </p>
 
-      {stakingAllowed && !market.userPosition ? (
+      {stakingAllowed && !market.userPosition && !authenticated ? (
+        <div className="mt-4 space-y-3 border-t border-zinc-200/60 pt-4 dark:border-white/[0.06]">
+          <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Sign in to receive COPE Credits and enter this market.
+          </p>
+          <button
+            type="button"
+            onClick={() => login()}
+            className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-white"
+          >
+            Sign in
+          </button>
+        </div>
+      ) : null}
+
+      {stakingAllowed && authenticated && !market.userPosition ? (
         <div className="mt-4 space-y-3 border-t border-zinc-200/60 pt-4 dark:border-white/[0.06]">
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Stake COPE Credits before the market closes.
