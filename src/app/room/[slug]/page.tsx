@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RoomPage } from "@/components/room-page";
+import { ANALYTICS_EVENTS, trackEvent } from "@/lib/db/analytics";
 import { getBeliefRoomBySlug } from "@/lib/db/rooms";
 import {
   GENERIC_ROOM_TITLE,
@@ -51,5 +52,14 @@ export async function generateMetadata({ params }: RoomProps): Promise<Metadata>
 export default async function Room({ params }: RoomProps) {
   const { slug } = await params;
   const conversation = await getBeliefRoomBySlug(slug);
+
+  if (conversation) {
+    trackEvent({
+      eventName: ANALYTICS_EVENTS.roomViewed,
+      roomId: conversation.id,
+      metadata: { slug },
+    });
+  }
+
   return <RoomPage slug={slug} initialConversation={conversation} />;
 }

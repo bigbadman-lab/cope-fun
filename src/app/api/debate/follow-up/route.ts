@@ -3,12 +3,15 @@ import {
   type FollowUpGenerationResult,
 } from "@/lib/cope-engine";
 import type { ChatMessage } from "@/components/debate-chat";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
+import { getOptionalAnonymousToken } from "@/lib/rate-limit/request";
 
 type GenerateFollowUpRequest = {
   belief?: unknown;
   followUp?: unknown;
   messages?: unknown;
   attentionRemaining?: unknown;
+  anonymousToken?: unknown;
 };
 
 function isChatMessage(value: unknown): value is ChatMessage {
@@ -32,6 +35,13 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as GenerateFollowUpRequest;
+    const rateLimited = await enforceRateLimit({
+      request,
+      action: "debate_follow_up",
+      anonymousToken: getOptionalAnonymousToken(body),
+    });
+    if (rateLimited) return rateLimited;
+
     belief = typeof body.belief === "string" ? body.belief : "";
     followUp = typeof body.followUp === "string" ? body.followUp : "";
 

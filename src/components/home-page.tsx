@@ -13,6 +13,7 @@ import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { GuestBeliefGate } from "./guest-belief-gate";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
+import { throwIfRateLimited, readRateLimitMessage } from "@/lib/rate-limit/client";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
 import { buildDebateTurnTimings } from "@/lib/debate-timing";
 import {
@@ -151,6 +152,7 @@ export function HomePage() {
   const [showCta, setShowCta] = useState(false);
   const [chatSaved, setChatSaved] = useState(false);
   const [saveToastVisible, setSaveToastVisible] = useState(false);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [isValidatingBelief, setIsValidatingBelief] = useState(false);
   const [believeCount, setBelieveCount] = useState(0);
@@ -351,8 +353,13 @@ export function HomePage() {
     const response = await fetch("/api/beliefs/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ belief: rawBelief }),
+      body: JSON.stringify({
+        belief: rawBelief,
+        anonymousToken: getAnonymousSessionToken(),
+      }),
     });
+
+    await throwIfRateLimited(response);
 
     if (!response.ok) {
       throw new Error("Belief validation failed.");
@@ -368,8 +375,14 @@ export function HomePage() {
     const response = await fetch("/api/debate/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ belief: rawBelief, validation }),
+      body: JSON.stringify({
+        belief: rawBelief,
+        validation,
+        anonymousToken: getAnonymousSessionToken(),
+      }),
     });
+
+    await throwIfRateLimited(response);
 
     if (!response.ok) {
       throw new Error("Debate generation failed.");
@@ -416,9 +429,11 @@ export function HomePage() {
     try {
       logHomepageFlow("validation request start", { submitAttemptId });
       validation = await validateBeliefInput(trimmed);
-    } catch {
+    } catch (error) {
       logHomepageFlow("validation request failed", { submitAttemptId });
-      setValidationMessage(VALIDATION_ERROR_MESSAGE);
+      setValidationMessage(
+        error instanceof Error ? error.message : VALIDATION_ERROR_MESSAGE,
+      );
       setIsValidatingBelief(false);
       submitInFlightRef.current = false;
       return;
@@ -472,7 +487,13 @@ export function HomePage() {
           submitAttemptId,
           messageCount: nextAgentMessages.length,
         });
-      } catch {
+      } catch (error) {
+        if (error instanceof Error && error.message) {
+          setValidationMessage(error.message);
+          setIsValidatingBelief(false);
+          submitInFlightRef.current = false;
+          return;
+        }
         logHomepageFlow("opening debate failed; using fallback", {
           submitAttemptId,
         });
@@ -557,7 +578,14 @@ export function HomePage() {
         }),
       });
 
-      if (!response.ok) throw new Error("DB room save failed.");
+      if (!response.ok) {
+        if (response.status === 429) {
+          setChatSaved(false);
+          setSaveErrorMessage(await readRateLimitMessage(response));
+          return;
+        }
+        throw new Error("DB room save failed.");
+      }
 
       const result = (await response.json()) as SaveRoomResponse;
       if (!result.ok || !result.slug) {
@@ -716,6 +744,18 @@ export function HomePage() {
         >
           <p className="rounded-full border border-zinc-200/80 bg-background/95 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-background/95 dark:text-zinc-100">
             Room created
+          </p>
+        </div>
+      )}
+
+      {saveErrorMessage && (
+        <div
+          className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4"
+          role="alert"
+          aria-live="polite"
+        >
+          <p className="rounded-full border border-orange-200/80 bg-background/95 px-4 py-2 text-sm font-medium text-orange-800 shadow-lg backdrop-blur-sm dark:border-orange-400/20 dark:bg-background/95 dark:text-orange-100">
+            {saveErrorMessage}
           </p>
         </div>
       )}

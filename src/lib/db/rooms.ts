@@ -7,6 +7,7 @@ import { AGENT_PROFILES } from "@/lib/agent-profiles";
 import type { SavedConversation } from "@/lib/saved-chats";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getOrCreateAnonymousSession } from "./anonymous-session";
+import { ANALYTICS_EVENTS, trackEvent } from "./analytics";
 import { getRoomVoteTotals } from "./votes";
 import { buildRoomSearchSummary } from "./room-search";
 
@@ -247,6 +248,16 @@ export async function createBeliefRoom({
       .eq("id", room.id);
   }
 
+  trackEvent({
+    eventName: ANALYTICS_EVENTS.roomSaved,
+    anonymousSessionId: anonymousSession.id,
+    roomId: room.id,
+    metadata: {
+      slug: room.slug,
+      messageCount: messages.length,
+    },
+  });
+
   return {
     slug: room.slug,
     room: toSavedConversation(
@@ -257,7 +268,7 @@ export async function createBeliefRoom({
   };
 }
 
-async function fetchBeliefRoomBySlug(
+export async function loadBeliefRoomBySlug(
   slug: string,
 ): Promise<SavedConversation | null> {
   try {
@@ -291,4 +302,4 @@ async function fetchBeliefRoomBySlug(
   }
 }
 
-export const getBeliefRoomBySlug = cache(fetchBeliefRoomBySlug);
+export const getBeliefRoomBySlug = cache(loadBeliefRoomBySlug);

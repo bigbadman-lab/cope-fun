@@ -4,6 +4,12 @@ import {
   upsertRoomVote,
 } from "@/lib/db/votes";
 import type { VoteChoice } from "@/lib/vote";
+import {
+  ANALYTICS_EVENTS,
+  resolveAnonymousSessionIdFromToken,
+  trackEvent,
+} from "@/lib/db/analytics";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 type VoteRequest = {
   vote?: unknown;
@@ -79,6 +85,13 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
+    const rateLimited = await enforceRateLimit({
+      request,
+      action: "vote",
+      anonymousToken,
+    });
+    if (rateLimited) return rateLimited;
+
     const roomId = await getPublishedRoomIdBySlug(slug);
     if (!roomId) {
       return Response.json(
@@ -91,6 +104,13 @@ export async function POST(request: Request, context: RouteContext) {
       roomId,
       anonymousToken,
       vote,
+    });
+
+    trackEvent({
+      eventName: ANALYTICS_EVENTS.voteCast,
+      anonymousSessionId: await resolveAnonymousSessionIdFromToken(anonymousToken),
+      roomId,
+      metadata: { vote },
     });
 
     return Response.json({ ok: true, ...voteState });

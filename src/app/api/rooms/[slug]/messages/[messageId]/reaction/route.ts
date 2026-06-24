@@ -4,6 +4,12 @@ import {
   resolveRoomMessageId,
   upsertMessageReaction,
 } from "@/lib/db/reactions";
+import {
+  ANALYTICS_EVENTS,
+  resolveAnonymousSessionIdFromToken,
+  trackEvent,
+} from "@/lib/db/analytics";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 type ReactionRequest = {
   reaction?: unknown;
@@ -39,6 +45,13 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
+    const rateLimited = await enforceRateLimit({
+      request,
+      action: "reaction",
+      anonymousToken,
+    });
+    if (rateLimited) return rateLimited;
+
     const roomId = await getPublishedRoomIdBySlug(slug);
     if (!roomId) {
       return Response.json(
@@ -60,6 +73,13 @@ export async function POST(request: Request, context: RouteContext) {
       dbMessageId,
       anonymousToken,
       reaction,
+    });
+
+    trackEvent({
+      eventName: ANALYTICS_EVENTS.reactionAdded,
+      anonymousSessionId: await resolveAnonymousSessionIdFromToken(anonymousToken),
+      roomId,
+      metadata: { reaction },
     });
 
     return Response.json({ ok: true, ...result });

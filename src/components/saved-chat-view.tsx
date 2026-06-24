@@ -32,6 +32,7 @@ import {
   type VoteChoice,
 } from "@/lib/vote";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
+import { readRateLimitMessage } from "@/lib/rate-limit/client";
 import {
   claimRoomCreatorIfUnassigned,
   updateSavedConversation,
@@ -48,6 +49,21 @@ type RoomVoteApiResponse = {
   believeCount?: number;
   copeCount?: number;
   userVote?: VoteChoice | null;
+  error?: string;
+};
+
+type RoomCreatorApiResponse = {
+  ok: boolean;
+  isCreator?: boolean;
+  error?: string;
+};
+
+type RoomChallengeApiResponse = {
+  ok: boolean;
+  room?: SavedConversation;
+  agentReplies?: ChatMessage[];
+  agents?: string[];
+  attentionRemaining?: number;
   error?: string;
 };
 
@@ -75,13 +91,16 @@ export function SavedChatView({
   const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
+  const [isCreatorForViewer, setIsCreatorForViewer] = useState(false);
   const roundTimersRef = useRef<number[]>([]);
   const debateBodyRef = useRef<HTMLDivElement>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
   const belief = conversation.belief;
   const messages = conversation.messages;
-  const isCreator = isRoomCreator(conversation.creatorId);
+  const isCreator = dbBacked
+    ? isCreatorForViewer
+    : isRoomCreator(conversation.creatorId);
   const attentionRemaining = conversation.attentionRemaining;
   const canSendFollowUp =
     isCreator && attentionRemaining > 0 && !isAgentRoundActive;
@@ -94,13 +113,43 @@ export function SavedChatView({
   }, [initialConversation]);
 
   useEffect(() => {
+    if (dbBacked) return;
     if (initialConversation.creatorId) return;
     const frame = requestAnimationFrame(() => {
       const claimed = claimRoomCreatorIfUnassigned(initialConversation.slug);
       if (claimed) setConversation(claimed);
     });
     return () => cancelAnimationFrame(frame);
-  }, [initialConversation.slug, initialConversation.creatorId]);
+  }, [dbBacked, initialConversation.slug, initialConversation.creatorId]);
+
+  useEffect(() => {
+    if (!dbBacked) return;
+
+    let cancelled = false;
+
+    async function loadCreatorStatus() {
+      try {
+        const token = getAnonymousSessionToken();
+        const response = await fetch(
+          `/api/rooms/${encodeURIComponent(conversation.slug)}/creator?anonymousToken=${encodeURIComponent(token)}`,
+        );
+        if (!response.ok || cancelled) return;
+
+        const result = (await response.json()) as RoomCreatorApiResponse;
+        if (!result.ok || cancelled) return;
+
+        setIsCreatorForViewer(result.isCreator === true);
+      } catch {
+        // Keep visitor panel if hydration fails.
+      }
+    }
+
+    void loadCreatorStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversation.slug, dbBacked]);
 
   useEffect(() => {
     debateBodyRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -279,8 +328,11 @@ export function SavedChatView({
             followUp: followUpText,
             messages: baseMessages,
             attentionRemaining: nextAttention,
+            anonymousToken: getAnonymousSessionToken(),
           }),
         });
+
+        if (response.status === 429) return getFallbackFollowUpReplies(followUpText);
 
         if (!response.ok) throw new Error("Follow-up request failed.");
 
@@ -298,8 +350,13 @@ export function SavedChatView({
   );
 
   const animateAgentReplies = useCallback(
-    (agentReplies: ChatMessage[], baseMessages: ChatMessage[]) => {
+    (
+      agentReplies: ChatMessage[],
+      baseMessages: ChatMessage[],
+      finalConversation?: SavedConversation,
+    ) => {
       if (agentReplies.length === 0) {
+        if (finalConversation) setConversation(finalConversation);
         setIsAgentRoundActive(false);
         return;
       }
@@ -327,13 +384,21 @@ export function SavedChatView({
 
         scheduleRoundTimer(() => {
           currentMessages = [...currentMessages, agentMessage];
-          const updated = updateSavedConversation(conversation.slug, {
-            messages: currentMessages,
-          });
-          if (updated) setConversation(updated);
+          if (dbBacked) {
+            setConversation((previous) => ({
+              ...(finalConversation ?? previous),
+              messages: currentMessages,
+            }));
+          } else {
+            const updated = updateSavedConversation(conversation.slug, {
+              messages: currentMessages,
+            });
+            if (updated) setConversation(updated);
+          }
           setLiveTurn(null);
 
           if (index === agentReplies.length - 1) {
+            if (finalConversation) setConversation(finalConversation);
             setIsAgentRoundActive(false);
           }
         }, messageAt);
@@ -341,7 +406,7 @@ export function SavedChatView({
         elapsed = messageAt + getGapBetweenAgentsMs();
       });
     },
-    [conversation.slug, scheduleRoundTimer],
+    [conversation.slug, dbBacked, scheduleRoundTimer],
   );
 
   const runAgentRound = useCallback(
@@ -364,6 +429,68 @@ export function SavedChatView({
     [animateAgentReplies, getFollowUpReplies],
   );
 
+  const submitDbChallenge = useCallback(
+    async (text: string) => {
+      setIsAgentRoundActive(true);
+      setLiveTurn(null);
+
+      try {
+        const clientChallengeId = crypto.randomUUID();
+        const response = await fetch(
+          `/api/rooms/${encodeURIComponent(conversation.slug)}/challenge`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              anonymousToken: getAnonymousSessionToken(),
+              challengeText: text,
+              clientChallengeId,
+            }),
+          },
+        );
+
+        if (response.status === 429) {
+          setFollowUpError(await readRateLimitMessage(response));
+          setIsAgentRoundActive(false);
+          return;
+        }
+
+        const result = (await response.json()) as RoomChallengeApiResponse;
+
+        if (!response.ok || !result.ok || !result.room || !result.agentReplies) {
+          const errorMessage =
+            result.error ??
+            (response.status === 403
+              ? "Only the room creator can submit challenges."
+              : response.status === 409
+                ? "No attention remaining."
+                : "Could not submit challenge.");
+          setFollowUpError(errorMessage);
+          setIsAgentRoundActive(false);
+          return;
+        }
+
+        const agentReplies = result.agentReplies;
+        const baseMessages = result.room.messages.slice(
+          0,
+          result.room.messages.length - agentReplies.length,
+        );
+
+        setConversation({
+          ...result.room,
+          messages: baseMessages,
+        });
+        setFollowUpDraft("");
+        setFollowUpError(null);
+        animateAgentReplies(agentReplies, baseMessages, result.room);
+      } catch {
+        setFollowUpError("Could not submit challenge.");
+        setIsAgentRoundActive(false);
+      }
+    },
+    [animateAgentReplies, conversation.slug],
+  );
+
   const handleFollowUpSubmit = useCallback(() => {
     const text = followUpDraft.trim();
     if (!canSendFollowUp) return;
@@ -371,6 +498,11 @@ export function SavedChatView({
     const invalidMessage = validateFollowUpDraft(text);
     if (invalidMessage) {
       setFollowUpError(invalidMessage);
+      return;
+    }
+
+    if (dbBacked) {
+      void submitDbChallenge(text);
       return;
     }
 
@@ -392,9 +524,11 @@ export function SavedChatView({
     attentionRemaining,
     canSendFollowUp,
     conversation.slug,
+    dbBacked,
     followUpDraft,
     messages,
     runAgentRound,
+    submitDbChallenge,
   ]);
 
   const bottomPanelHeight = isCreator

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useHomepageFooterInFlow } from "./homepage-footer-context";
@@ -40,10 +41,10 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`relative z-10 hidden shrink-0 border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:block ${
+      className={`relative z-10 hidden shrink-0 overflow-hidden border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:flex md:flex-col md:items-center md:pt-8 md:pb-0 ${
         useFixedHomeFooter
-          ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:flex lg:h-12 lg:items-center lg:bg-background lg:py-0"
-          : "lg:flex lg:h-12 lg:items-center lg:py-0"
+          ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:bg-background"
+          : ""
       }`}
     >
       <nav className="mx-auto flex w-full max-w-lg flex-wrap items-center justify-center gap-x-4 gap-y-2">
@@ -66,6 +67,19 @@ export function SiteFooter() {
           <XIcon className="size-3.5" />
         </a>
       </nav>
+
+      <div className="mt-8 w-full overflow-hidden">
+        <div className="mx-auto h-[calc(min(560px,72vw)*0.92/3)] w-full max-w-[560px] overflow-hidden">
+          <Image
+            src="/copefooter.png"
+            alt="Cope"
+            width={750}
+            height={250}
+            className="h-auto w-full max-w-[560px] object-contain"
+            draggable={false}
+          />
+        </div>
+      </div>
     </footer>
   );
 }

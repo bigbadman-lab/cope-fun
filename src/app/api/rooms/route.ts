@@ -1,5 +1,6 @@
 import { createBeliefRoom } from "@/lib/db/rooms";
 import type { ChatMessage } from "@/components/debate-chat";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 const USER_DISPLAY_NAME = "You";
 const ENGINE_AUTHOR = "Cope Engine";
@@ -63,6 +64,13 @@ export async function POST(request: Request) {
       typeof body.anonymousToken === "string" ? body.anonymousToken.trim() : "";
     const belief = typeof body.belief === "string" ? body.belief.trim() : "";
     const messages = normalizeMessages(body.messages);
+
+    const rateLimited = await enforceRateLimit({
+      request,
+      action: "room_create",
+      anonymousToken,
+    });
+    if (rateLimited) return rateLimited;
 
     if (!anonymousToken) {
       return Response.json(
