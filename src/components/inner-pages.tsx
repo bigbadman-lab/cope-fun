@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { AnimatedConversation } from "./animated-conversation";
 import { AgentsPage } from "./agents-page";
+import { AvatarPlaceholder, USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { type ChatMessage } from "./debate-chat";
 import { ConversationPageLayout } from "./conversation-page-layout";
 import { InnerPageShell } from "./inner-page-shell";
-import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 
 const GUEST = (id: string, text: string): ChatMessage => ({
   id,
@@ -72,15 +72,57 @@ export { AgentsPage };
 
 const CONTACT_MESSAGES: ChatMessage[] = [
   GUEST("contact-1", "how do i contact cope?"),
-  AGENT(
-    "contact-2",
-    "Cope Engine",
-    "For partnerships, feedback or support:\n\nhello@cope.fun\n\n@copefun",
-  ),
 ];
 
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.964 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
+  );
+}
+
+function ContactCopeEngineMessage() {
+  return (
+    <div className="flex gap-2.5">
+      <AvatarPlaceholder name="Cope Engine" />
+      <div className="min-w-0 flex-1 pt-0.5">
+        <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          Cope Engine
+        </p>
+        <div className="space-y-4 whitespace-pre-line text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
+          <p>For partnerships, feedback or support:</p>
+          <p>hello@cope.fun</p>
+          <p className="flex flex-wrap items-center gap-2">
+            <span>DM us on x</span>
+            <a
+              href="https://x.com/copefun"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md text-zinc-700 transition-colors hover:text-zinc-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:text-zinc-300 dark:hover:text-zinc-50 dark:focus-visible:ring-zinc-500"
+              aria-label="DM Cope on X at @copefun"
+            >
+              <XIcon className="size-3.5" />
+              <span>@copefun</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ContactPage() {
-  return <ConversationPageLayout messages={CONTACT_MESSAGES} />;
+  return (
+    <ConversationPageLayout messages={CONTACT_MESSAGES}>
+      <ContactCopeEngineMessage />
+    </ConversationPageLayout>
+  );
 }
 
 export function LegalPage() {

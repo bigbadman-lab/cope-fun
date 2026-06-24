@@ -243,7 +243,7 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             className="justify-self-start rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
             <Image
-              src="/logotext.png"
+              src="/logotext3.png"
               alt="cope"
               width={313}
               height={94}

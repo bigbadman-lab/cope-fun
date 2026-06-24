@@ -226,31 +226,34 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               />
             </li>
           ))}
+          <li>
+            <a
+              href="https://x.com/copefun"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Cope on X"
+              className="flex min-h-11 w-full items-center rounded-xl px-3 text-zinc-500 transition-colors hover:text-zinc-800 active:bg-zinc-950/[0.05] dark:text-zinc-500 dark:hover:text-zinc-300 dark:active:bg-white/[0.05]"
+              onClick={onClose}
+            >
+              <XIcon className="size-4" />
+            </a>
+          </li>
         </ul>
 
-        <div className="mt-8 flex items-center justify-between gap-4 px-3 pb-2">
+        <div className="mt-4 flex flex-col items-start px-3 pb-2">
           <Link
             href="/"
             onClick={onClose}
             className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
             <Image
-              src="/logotext.png"
+              src="/logotext3.png"
               alt="cope"
               width={313}
               height={94}
               className="h-8 w-auto"
             />
           </Link>
-          <a
-            href="https://x.com/copefun"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Cope on X"
-            className="inline-flex min-h-11 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300"
-          >
-            <XIcon className="size-4" />
-          </a>
         </div>
       </nav>
     </div>
