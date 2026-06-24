@@ -120,7 +120,7 @@ export function MarketCard({ market }: MarketCardProps) {
             {market.title}
           </h2>
         </div>
-        <MarketStatusBadge status={market.status} />
+        <MarketStatusBadge dbStatus={market.status} closesAt={market.closesAt} />
       </div>
 
       <p className="mt-2 text-[12px] leading-relaxed text-zinc-600 dark:text-zinc-400">

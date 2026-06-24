@@ -1,5 +1,15 @@
 import { MarketsPage } from "@/components/markets-page";
+import { getPublicMarkets } from "@/lib/db/markets";
 
-export default function Markets() {
-  return <MarketsPage />;
+export default async function Markets() {
+  const { open, closed, resolved, voided } = await getPublicMarkets();
+
+  return (
+    <MarketsPage
+      open={open}
+      closed={closed}
+      resolved={resolved}
+      voided={voided}
+    />
+  );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { RoomPage } from "@/components/room-page";
 import { ANALYTICS_EVENTS, trackEvent } from "@/lib/db/analytics";
 import { getBeliefRoomBySlug } from "@/lib/db/rooms";
+import { getRoomMarketBySlug } from "@/lib/db/markets";
 import {
   GENERIC_ROOM_TITLE,
   ROOM_DESCRIPTION,
@@ -52,6 +53,7 @@ export async function generateMetadata({ params }: RoomProps): Promise<Metadata>
 export default async function Room({ params }: RoomProps) {
   const { slug } = await params;
   const conversation = await getBeliefRoomBySlug(slug);
+  const market = conversation ? await getRoomMarketBySlug(slug) : null;
 
   if (conversation) {
     trackEvent({
@@ -61,5 +63,11 @@ export default async function Room({ params }: RoomProps) {
     });
   }
 
-  return <RoomPage slug={slug} initialConversation={conversation} />;
+  return (
+    <RoomPage
+      slug={slug}
+      initialConversation={conversation}
+      initialMarket={market}
+    />
+  );
 }

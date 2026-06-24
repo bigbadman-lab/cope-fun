@@ -6,6 +6,7 @@ import {
 } from "@/lib/room-search";
 import { getVotePercentages } from "@/lib/vote";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { PUBLIC_ROOM_LISTING_FILTERS } from "./room-visibility";
 
 export { SEARCH_RESULT_LIMIT, type RoomSearchResult };
 
@@ -106,7 +107,8 @@ async function listRecentPublishedRooms(
     .select(
       "id, slug, belief, room_title, search_summary, created_at, challenge_count",
     )
-    .eq("status", "published")
+    .eq("status", PUBLIC_ROOM_LISTING_FILTERS.status)
+    .eq("is_hidden", PUBLIC_ROOM_LISTING_FILTERS.is_hidden)
     .order("created_at", { ascending: false })
     .limit(limit);
 

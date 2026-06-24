@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { PinnedBelief } from "./pinned-belief";
+import { RoomMarketPanel } from "./room-market-panel";
 import { RoomConclusionPanel, RoomVisitorPanel } from "./room-bottom-panel";
 import {
   AgentTurnRow,
@@ -38,10 +39,12 @@ import {
   updateSavedConversation,
   type SavedConversation,
 } from "@/lib/saved-chats";
+import type { RoomMarketView } from "@/lib/markets/types";
 
 type SavedChatViewProps = {
   conversation: SavedConversation;
   dbBacked?: boolean;
+  initialMarket?: RoomMarketView | null;
 };
 
 type RoomVoteApiResponse = {
@@ -85,8 +88,12 @@ type FollowUpApiResponse = {
 export function SavedChatView({
   conversation: initialConversation,
   dbBacked = false,
+  initialMarket = null,
 }: SavedChatViewProps) {
   const [conversation, setConversation] = useState(initialConversation);
+  const [roomMarket, setRoomMarket] = useState<RoomMarketView | null>(
+    initialMarket,
+  );
   const [followUpDraft, setFollowUpDraft] = useState("");
   const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
@@ -145,6 +152,38 @@ export function SavedChatView({
     }
 
     void loadCreatorStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversation.slug, dbBacked]);
+
+  useEffect(() => {
+    if (!dbBacked) return;
+
+    let cancelled = false;
+
+    async function loadRoomMarket() {
+      try {
+        const token = getAnonymousSessionToken();
+        const response = await fetch(
+          `/api/rooms/${encodeURIComponent(conversation.slug)}/market?anonymousToken=${encodeURIComponent(token)}`,
+        );
+        if (!response.ok || cancelled) return;
+
+        const result = (await response.json()) as {
+          ok: boolean;
+          market?: RoomMarketView | null;
+        };
+        if (!result.ok || cancelled) return;
+
+        setRoomMarket(result.market ?? null);
+      } catch {
+        // Keep server-provided market snapshot if refresh fails.
+      }
+    }
+
+    void loadRoomMarket();
 
     return () => {
       cancelled = true;
@@ -547,6 +586,9 @@ export function SavedChatView({
               attentionRemaining={attentionRemaining}
               isCreator={isCreator}
             />
+            {dbBacked && roomMarket ? (
+              <RoomMarketPanel initialMarket={roomMarket} />
+            ) : null}
           </div>
         </header>
 

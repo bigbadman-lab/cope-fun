@@ -1,6 +1,7 @@
 import "server-only";
 import { getVotePercentages } from "@/lib/vote";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { PUBLIC_ROOM_LISTING_FILTERS } from "./room-visibility";
 
 export const BELIEFS_PAGE_SIZE = 20;
 
@@ -69,7 +70,8 @@ export async function listBeliefRooms(input: {
   const { count, error: countError } = await supabase
     .from("belief_rooms")
     .select("*", { count: "exact", head: true })
-    .eq("status", "published");
+    .eq("status", PUBLIC_ROOM_LISTING_FILTERS.status)
+    .eq("is_hidden", PUBLIC_ROOM_LISTING_FILTERS.is_hidden);
 
   if (countError) {
     throw new Error("Could not load beliefs directory.");
@@ -93,7 +95,8 @@ export async function listBeliefRooms(input: {
   const { data: rooms, error: roomsError } = await supabase
     .from("belief_rooms")
     .select("id, slug, belief, created_at, challenge_count")
-    .eq("status", "published")
+    .eq("status", PUBLIC_ROOM_LISTING_FILTERS.status)
+    .eq("is_hidden", PUBLIC_ROOM_LISTING_FILTERS.is_hidden)
     .order("created_at", { ascending: false })
     .range(
       (safePage - 1) * pageSize,

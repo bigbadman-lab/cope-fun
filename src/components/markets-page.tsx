@@ -1,6 +1,13 @@
 import { InnerPageShell } from "./inner-page-shell";
 import { MarketListRow } from "./market-list-row";
-import { getMockMarkets } from "@/lib/mock-markets";
+import type { PublicMarket } from "@/lib/markets/types";
+
+type MarketsPageProps = {
+  open: PublicMarket[];
+  closed: PublicMarket[];
+  resolved: PublicMarket[];
+  voided: PublicMarket[];
+};
 
 function SeasonBanner() {
   return (
@@ -11,19 +18,53 @@ function SeasonBanner() {
             Season 1
           </p>
           <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            25,000,000 $COPE rewards
+            Stake COPE Credits on curated belief markets
           </p>
         </div>
         <p className="rounded-full border border-zinc-200/80 bg-background/70 px-2.5 py-1 text-[11px] font-medium text-zinc-500 dark:border-white/[0.08] dark:bg-background/40">
-          30 day competition
+          Admin-curated
         </p>
       </div>
     </section>
   );
 }
 
-export function MarketsPage() {
-  const markets = getMockMarkets();
+function MarketSection({
+  title,
+  description,
+  markets,
+}: {
+  title: string;
+  description: string;
+  markets: PublicMarket[];
+}) {
+  if (markets.length === 0) return null;
+
+  return (
+    <section className="mb-8">
+      <header className="mb-3">
+        <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          {title}
+        </h2>
+        <p className="mt-1 text-xs text-zinc-500">{description}</p>
+      </header>
+      <div className="w-full">
+        {markets.map((market) => (
+          <MarketListRow key={market.id} market={market} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function MarketsPage({
+  open,
+  closed,
+  resolved,
+  voided,
+}: MarketsPageProps) {
+  const hasMarkets =
+    open.length + closed.length + resolved.length + voided.length > 0;
 
   return (
     <InnerPageShell topFade>
@@ -39,7 +80,7 @@ export function MarketsPage() {
 
         <SeasonBanner />
 
-        {markets.length === 0 ? (
+        {!hasMarkets ? (
           <div className="py-16 text-center">
             <p className="text-base text-zinc-500">No active markets yet.</p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-500">
@@ -47,11 +88,28 @@ export function MarketsPage() {
             </p>
           </div>
         ) : (
-          <div className="w-full">
-            {markets.map((market) => (
-              <MarketListRow key={market.id} market={market} />
-            ))}
-          </div>
+          <>
+            <MarketSection
+              title="Open"
+              description="Markets accepting stakes."
+              markets={open}
+            />
+            <MarketSection
+              title="Closed / Awaiting Resolution"
+              description="Staking has ended, including markets past their close time awaiting admin action."
+              markets={closed}
+            />
+            <MarketSection
+              title="Resolved"
+              description="Settled markets with outcomes."
+              markets={resolved}
+            />
+            <MarketSection
+              title="Voided"
+              description="Markets voided with stakes refunded."
+              markets={voided}
+            />
+          </>
         )}
       </div>
     </InnerPageShell>

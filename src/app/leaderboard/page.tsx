@@ -1,5 +1,8 @@
 import { LeaderboardPage } from "@/components/leaderboard-page";
+import { getLeaderboardEntries } from "@/lib/db/leaderboard";
 
-export default function Leaderboard() {
-  return <LeaderboardPage />;
+export default async function Leaderboard() {
+  const entries = await getLeaderboardEntries();
+
+  return <LeaderboardPage entries={entries} />;
 }

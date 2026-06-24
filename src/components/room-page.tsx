@@ -10,13 +10,19 @@ import {
   subscribeSavedChats,
   type SavedConversation,
 } from "@/lib/saved-chats";
+import type { RoomMarketView } from "@/lib/markets/types";
 
 type RoomPageProps = {
   slug: string;
   initialConversation?: SavedConversation | null;
+  initialMarket?: RoomMarketView | null;
 };
 
-export function RoomPage({ slug, initialConversation = null }: RoomPageProps) {
+export function RoomPage({
+  slug,
+  initialConversation = null,
+  initialMarket = null,
+}: RoomPageProps) {
   const isClient = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -41,6 +47,7 @@ export function RoomPage({ slug, initialConversation = null }: RoomPageProps) {
           key={slug}
           conversation={initialConversation}
           dbBacked
+          initialMarket={initialMarket}
         />
       </InnerPageShell>
     );
