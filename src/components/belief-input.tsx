@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { useTypewriterExamples } from "@/hooks/use-typewriter-examples";
 
 type BeliefInputProps = {
@@ -31,19 +31,30 @@ export const BeliefInput = forwardRef<HTMLTextAreaElement, BeliefInputProps>(
     ref,
   ) {
     const [focused, setFocused] = useState(false);
+    const enterSubmitHandledRef = useRef(false);
     const showTypewriter =
       animateExamples && !disabled && !focused && value === "";
     const typewriterText = useTypewriterExamples(showTypewriter);
 
     function handleSubmit(e: React.FormEvent) {
       e.preventDefault();
+      if (enterSubmitHandledRef.current) {
+        enterSubmitHandledRef.current = false;
+        return;
+      }
       if (value.trim() && !disabled) onSubmit();
     }
 
     function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        if (value.trim() && !disabled) onSubmit();
+        if (value.trim() && !disabled) {
+          enterSubmitHandledRef.current = true;
+          onSubmit();
+          window.setTimeout(() => {
+            enterSubmitHandledRef.current = false;
+          }, 0);
+        }
       }
     }
 

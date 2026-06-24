@@ -36,6 +36,8 @@ import type {
 const SAVE_CONFIRM_MS = 700;
 const VALIDATION_ERROR_MESSAGE =
   "The Cope Engine couldn’t test that input. Try again.";
+const GUEST_LIMIT_MESSAGE =
+  "Connect wallet to keep testing ideas with the Cope Engine.";
 const PROCESSING_STATUS_LINES = [
   "The belief is entering the room…",
   "Assumptions detected…",
@@ -43,6 +45,7 @@ const PROCESSING_STATUS_LINES = [
   "The debate is opening…",
 ] as const;
 const PROCESSING_STATUS_INTERVAL_MS = 1100;
+const DEBUG_HOMEPAGE_FLOW = process.env.NODE_ENV !== "production";
 
 type SaveRoomResponse = {
   ok: boolean;
@@ -59,6 +62,11 @@ export type Phase =
   | "agents-joining"
   | "debating"
   | "complete";
+
+function logHomepageFlow(message: string, data?: Record<string, unknown>) {
+  if (!DEBUG_HOMEPAGE_FLOW) return;
+  console.info(`[Homepage belief flow] ${message}`, data ?? {});
+}
 
 const RESPONSES: { author: string; text: (belief: string) => string }[] = [
   {
@@ -161,6 +169,8 @@ export function HomePage() {
   const beliefRef = useRef<HTMLDivElement>(null);
   const heroInputRef = useRef<HTMLTextAreaElement>(null);
   const agentsScheduledRef = useRef(false);
+  const submitInFlightRef = useRef(false);
+  const submitAttemptIdRef = useRef(0);
 
   const isPostSubmit = phase !== "idle";
   const isDetaching =
@@ -257,6 +267,7 @@ export function HomePage() {
     setChatSaved(false);
     setValidationMessage(null);
     setIsValidatingBelief(false);
+    submitInFlightRef.current = false;
     setBelieveCount(0);
     setCopeCount(0);
     setUserVote(null);
@@ -373,65 +384,137 @@ export function HomePage() {
   }
 
   async function handleSubmit() {
+    const submitAttemptId = submitAttemptIdRef.current + 1;
+    submitAttemptIdRef.current = submitAttemptId;
     const trimmed = belief.trim();
-    if (!trimmed || isPostSubmit || isValidatingBelief) return;
+    logHomepageFlow("submit started", {
+      submitAttemptId,
+      phase,
+      isPostSubmit,
+      isValidatingBelief,
+      submitInFlight: submitInFlightRef.current,
+      beliefLength: trimmed.length,
+    });
 
+    if (!trimmed || isPostSubmit || isValidatingBelief || submitInFlightRef.current) {
+      logHomepageFlow("submit ignored by guard", {
+        submitAttemptId,
+        hasBelief: Boolean(trimmed),
+        phase,
+        isPostSubmit,
+        isValidatingBelief,
+        submitInFlight: submitInFlightRef.current,
+      });
+      return;
+    }
+
+    submitInFlightRef.current = true;
     setIsValidatingBelief(true);
     setValidationMessage(null);
 
     let validation: BeliefValidationResult;
     try {
+      logHomepageFlow("validation request start", { submitAttemptId });
       validation = await validateBeliefInput(trimmed);
     } catch {
+      logHomepageFlow("validation request failed", { submitAttemptId });
       setValidationMessage(VALIDATION_ERROR_MESSAGE);
       setIsValidatingBelief(false);
+      submitInFlightRef.current = false;
       return;
     }
+
+    logHomepageFlow("validation returned", {
+      submitAttemptId,
+      ok: validation.ok,
+      reason: validation.reason,
+      message: validation.message,
+      isDebatable: validation.isDebatable,
+      hasNormalizedBelief: Boolean(validation.normalizedBelief?.trim()),
+    });
 
     if (!validation.ok) {
       setValidationMessage(validation.message || VALIDATION_ERROR_MESSAGE);
       setIsValidatingBelief(false);
+      submitInFlightRef.current = false;
       return;
     }
 
-    const acceptedBelief = validation.normalizedBelief.trim() || trimmed;
+    try {
+      const normalizedBelief =
+        typeof validation.normalizedBelief === "string"
+          ? validation.normalizedBelief.trim()
+          : "";
+      const acceptedBelief = normalizedBelief || trimmed;
 
-    const session = getWalletSessionSnapshot();
-    if (!session.connected) {
-      if (!canGuestCreateBelief()) {
+      const session = getWalletSessionSnapshot();
+      const guestQuotaAvailable = session.connected || canGuestCreateBelief();
+      logHomepageFlow("guest quota checked", {
+        submitAttemptId,
+        walletConnected: session.connected,
+        guestQuotaAvailable,
+      });
+      if (!guestQuotaAvailable) {
+        logHomepageFlow("guest quota blocked after validation", {
+          submitAttemptId,
+        });
+        setValidationMessage(GUEST_LIMIT_MESSAGE);
         setIsValidatingBelief(false);
+        submitInFlightRef.current = false;
         return;
       }
-    }
 
-    let nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
-    try {
-      nextAgentMessages = await generateDebateMessages(acceptedBelief, validation);
-    } catch {
-      nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
-    }
+      let nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
+      try {
+        logHomepageFlow("requesting opening debate", { submitAttemptId });
+        nextAgentMessages = await generateDebateMessages(acceptedBelief, validation);
+        logHomepageFlow("opening debate returned", {
+          submitAttemptId,
+          messageCount: nextAgentMessages.length,
+        });
+      } catch {
+        logHomepageFlow("opening debate failed; using fallback", {
+          submitAttemptId,
+        });
+        nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
+      }
 
-    if (!session.connected) {
-      recordGuestBeliefCreated();
-    }
+      if (!session.connected) {
+        recordGuestBeliefCreated();
+      }
 
-    const seeded = seedVoteCounts(acceptedBelief);
-    setBelief(acceptedBelief);
-    setLockedBelief(acceptedBelief);
-    setAgentMessages(nextAgentMessages);
-    setVisibleAgentCount(0);
-    setShowGroupFormation(false);
-    setTypingAgent(null);
-    setTypingFadingOut(false);
-    setShowCta(false);
-    agentsScheduledRef.current = false;
-    setBelieveCount(seeded.believeCount);
-    setCopeCount(seeded.copeCount);
-    setUserVote(null);
-    setMoveOffsetPx(0);
-    setValidationMessage(null);
-    setIsValidatingBelief(false);
-    setPhase("belief-created");
+      const seeded = seedVoteCounts(acceptedBelief);
+      setBelief(acceptedBelief);
+      setLockedBelief(acceptedBelief);
+      setAgentMessages(nextAgentMessages);
+      setVisibleAgentCount(0);
+      setShowGroupFormation(false);
+      setTypingAgent(null);
+      setTypingFadingOut(false);
+      setShowCta(false);
+      agentsScheduledRef.current = false;
+      setBelieveCount(seeded.believeCount);
+      setCopeCount(seeded.copeCount);
+      setUserVote(null);
+      setMoveOffsetPx(0);
+      setValidationMessage(null);
+      setIsValidatingBelief(false);
+      submitInFlightRef.current = false;
+      logHomepageFlow("starting debate transition", {
+        submitAttemptId,
+        phase: "belief-created",
+      });
+      setPhase("belief-created");
+    } catch (error) {
+      logHomepageFlow("post-validation flow failed", {
+        submitAttemptId,
+        errorName: error instanceof Error ? error.name : "unknown",
+        errorMessage: error instanceof Error ? error.message : "unknown",
+      });
+      setValidationMessage(VALIDATION_ERROR_MESSAGE);
+      setIsValidatingBelief(false);
+      submitInFlightRef.current = false;
+    }
   }
 
   const handleVote = useCallback(
@@ -603,18 +686,18 @@ export function HomePage() {
                       disabled={isPostSubmit || isValidatingBelief}
                       animateExamples={phase === "idle"}
                     />
-                    <p className="mt-2 text-center text-[11px] leading-relaxed text-white/65 drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] dark:text-white/60">
-                      Share a belief. The agents will test it.
+                    <p
+                      className={`mt-2 min-h-4 text-center text-[11px] leading-relaxed drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] ${
+                        validationMessage
+                          ? "text-orange-100/85"
+                          : "text-white/65 dark:text-white/60"
+                      }`}
+                      role={validationMessage ? "alert" : undefined}
+                    >
+                      {validationMessage ||
+                        "Share a belief. The agents will test it."}
                     </p>
                   </>
-                )}
-                {validationMessage && phase === "idle" && !isGuestBlocked && (
-                  <p
-                    className="mt-3 rounded-xl border border-zinc-200/70 bg-background/70 px-3 py-2 text-center text-[13px] leading-relaxed text-zinc-700 shadow-sm backdrop-blur-sm dark:border-white/[0.07] dark:bg-background/50 dark:text-zinc-300"
-                    role="alert"
-                  >
-                    {validationMessage}
-                  </p>
                 )}
               </div>
               {phase === "idle" && !isGuestBlocked && (
