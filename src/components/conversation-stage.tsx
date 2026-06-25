@@ -63,6 +63,7 @@ export function ConversationStage({
   onSaveChat,
   chatSaved,
 }: ConversationStageProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const [translateY, setTranslateY] = useState(0);
@@ -88,6 +89,25 @@ export function ConversationStage({
     }),
     [getCounts, getUserReaction, react, isShaking],
   );
+
+  useLayoutEffect(() => {
+    const dock = inputWrapperRef.current;
+    const scroll = scrollRef.current;
+    if (!dock || !scroll) return;
+
+    const syncComposerInsets = () => {
+      scroll.style.setProperty(
+        "--composer-dock-height",
+        `${dock.offsetHeight}px`,
+      );
+    };
+
+    syncComposerInsets();
+    const observer = new ResizeObserver(syncComposerInsets);
+    observer.observe(dock);
+
+    return () => observer.disconnect();
+  }, []);
 
   useLayoutEffect(() => {
     const inputWrapper = inputWrapperRef.current;
@@ -129,13 +149,16 @@ export function ConversationStage({
     }
     conversationEndRef.current?.scrollIntoView({
       behavior: "smooth",
-      block: "nearest",
+      block: "end",
     });
   }, [visibleAgentCount, showGroupFormation, typingAgent, typingFadingOut, showCta, userVote]);
 
   return (
     <div className="relative h-[calc(100dvh-3.5rem)] w-full">
-      <div className="absolute inset-0 overflow-y-auto px-4 pb-composer-scroll">
+      <div
+        ref={scrollRef}
+        className="absolute inset-0 overflow-y-auto overscroll-contain px-4 pb-composer-scroll"
+      >
         <div
           className="mx-auto w-full max-w-md space-y-4"
           style={{ paddingTop: BELIEF_TOP_IN_MAIN }}
@@ -174,13 +197,13 @@ export function ConversationStage({
               chatSaved={chatSaved}
             />
           )}
-          <div ref={conversationEndRef} aria-hidden />
+          <div ref={conversationEndRef} aria-hidden className="h-px shrink-0" />
         </div>
       </div>
 
       <div
         ref={inputWrapperRef}
-        className="fixed inset-x-0 bottom-composer z-50 px-4 will-change-transform"
+        className="fixed inset-x-0 bottom-composer z-50 will-change-transform"
         style={{
           transform: `translateY(${translateY}px)`,
           transition: isGliding
@@ -188,14 +211,20 @@ export function ConversationStage({
             : "none",
         }}
       >
-        <div className="mx-auto w-full max-w-md">
-          <BeliefInput
-            value={belief}
-            onChange={() => {}}
-            onSubmit={() => {}}
-            disabled
-            compact
-          />
+        <div
+          aria-hidden
+          className="conversation-composer-fade pointer-events-none absolute inset-x-0 bottom-full bg-gradient-to-t from-background via-background/90 to-transparent"
+        />
+        <div className="relative border-t border-zinc-200/80 bg-background px-4 pt-3 pb-3 shadow-[0_-10px_28px_-14px_rgba(0,0,0,0.45)] dark:border-white/5">
+          <div className="mx-auto w-full max-w-md">
+            <BeliefInput
+              value={belief}
+              onChange={() => {}}
+              onSubmit={() => {}}
+              disabled
+              compact
+            />
+          </div>
         </div>
       </div>
     </div>

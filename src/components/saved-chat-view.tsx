@@ -86,6 +86,32 @@ type FollowUpApiResponse = {
   error?: string;
 };
 
+type ChallengeProcessingStage = "submitting" | "responding";
+
+const CHALLENGE_PROCESSING_LABELS: Record<ChallengeProcessingStage, string> = {
+  submitting: "Sending challenge…",
+  responding: "Agents are reconsidering your challenge…",
+};
+
+function ChallengeProcessingStatus({
+  stage,
+}: {
+  stage: ChallengeProcessingStage;
+}) {
+  return (
+    <p
+      className="mb-2 flex min-h-5 items-center justify-center gap-2 text-center text-[11px] font-medium text-zinc-500 dark:text-zinc-400"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="size-1.5 shrink-0 rounded-full bg-cope-orange animate-pulse" />
+      <span key={stage} className="animate-message-in">
+        {CHALLENGE_PROCESSING_LABELS[stage]}
+      </span>
+    </p>
+  );
+}
+
 export function SavedChatView({
   conversation: initialConversation,
   dbBacked = false,
@@ -98,12 +124,14 @@ export function SavedChatView({
   const { ready, authenticated, authFetch } = useAppAuth();
   const [followUpDraft, setFollowUpDraft] = useState("");
   const [followUpError, setFollowUpError] = useState<string | null>(null);
+  const [isChallengeSubmitting, setIsChallengeSubmitting] = useState(false);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
   const [isCreatorForViewer, setIsCreatorForViewer] = useState(false);
   const roundTimersRef = useRef<number[]>([]);
   const debateBodyRef = useRef<HTMLDivElement>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
+  const followUpInputRef = useRef<HTMLTextAreaElement>(null);
 
   const belief = conversation.belief;
   const messages = conversation.messages;
@@ -112,7 +140,24 @@ export function SavedChatView({
     : isRoomCreator(conversation.creatorId);
   const attentionRemaining = conversation.attentionRemaining;
   const canSendFollowUp =
-    isCreator && attentionRemaining > 0 && !isAgentRoundActive;
+    isCreator &&
+    attentionRemaining > 0 &&
+    !isAgentRoundActive &&
+    !isChallengeSubmitting;
+  const challengeProcessingStage: ChallengeProcessingStage | null =
+    isChallengeSubmitting
+      ? "submitting"
+      : isAgentRoundActive
+        ? "responding"
+        : null;
+
+  const resetChallengeSubmit = useCallback(() => {
+    setIsChallengeSubmitting(false);
+    setIsAgentRoundActive(false);
+    requestAnimationFrame(() => {
+      followUpInputRef.current?.focus({ preventScroll: true });
+    });
+  }, []);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -459,23 +504,26 @@ export function SavedChatView({
       baseMessages: ChatMessage[],
       nextAttention: number,
     ) => {
-      setIsAgentRoundActive(true);
       setLiveTurn(null);
 
-      const agentReplies = await getFollowUpReplies(
-        followUpText,
-        baseMessages,
-        nextAttention,
-      );
-
-      animateAgentReplies(agentReplies, baseMessages);
+      try {
+        const agentReplies = await getFollowUpReplies(
+          followUpText,
+          baseMessages,
+          nextAttention,
+        );
+        setIsChallengeSubmitting(false);
+        animateAgentReplies(agentReplies, baseMessages);
+      } catch {
+        setFollowUpError("Could not submit challenge.");
+        resetChallengeSubmit();
+      }
     },
-    [animateAgentReplies, getFollowUpReplies],
+    [animateAgentReplies, getFollowUpReplies, resetChallengeSubmit],
   );
 
   const submitDbChallenge = useCallback(
     async (text: string) => {
-      setIsAgentRoundActive(true);
       setLiveTurn(null);
 
       try {
@@ -495,7 +543,7 @@ export function SavedChatView({
 
         if (response.status === 429) {
           setFollowUpError(await readRateLimitMessage(response));
-          setIsAgentRoundActive(false);
+          resetChallengeSubmit();
           return;
         }
 
@@ -510,7 +558,7 @@ export function SavedChatView({
                 ? "No attention remaining."
                 : "Could not submit challenge.");
           setFollowUpError(errorMessage);
-          setIsAgentRoundActive(false);
+          resetChallengeSubmit();
           return;
         }
 
@@ -526,13 +574,14 @@ export function SavedChatView({
         });
         setFollowUpDraft("");
         setFollowUpError(null);
+        setIsChallengeSubmitting(false);
         animateAgentReplies(agentReplies, baseMessages, result.room);
       } catch {
         setFollowUpError("Could not submit challenge.");
-        setIsAgentRoundActive(false);
+        resetChallengeSubmit();
       }
     },
-    [animateAgentReplies, conversation.slug],
+    [animateAgentReplies, conversation.slug, resetChallengeSubmit],
   );
 
   const handleFollowUpSubmit = useCallback(() => {
@@ -544,6 +593,9 @@ export function SavedChatView({
       setFollowUpError(invalidMessage);
       return;
     }
+
+    setIsChallengeSubmitting(true);
+    setFollowUpError(null);
 
     if (dbBacked) {
       void submitDbChallenge(text);
@@ -558,12 +610,14 @@ export function SavedChatView({
       messages: nextMessages,
       attentionRemaining: nextAttention,
     });
-    if (!updated) return;
+    if (!updated) {
+      setIsChallengeSubmitting(false);
+      return;
+    }
 
     setConversation(updated);
     setFollowUpDraft("");
-    setFollowUpError(null);
-    runAgentRound(text, nextMessages, nextAttention);
+    void runAgentRound(text, nextMessages, nextAttention);
   }, [
     attentionRemaining,
     canSendFollowUp,
@@ -648,19 +702,30 @@ export function SavedChatView({
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
         <div className="relative mx-auto w-full max-w-md">
           {isCreator && attentionRemaining > 0 ? (
-            <BeliefInput
-              value={followUpDraft}
-              onChange={(value) => {
-                setFollowUpDraft(value);
-                if (followUpError) setFollowUpError(null);
-              }}
-              onSubmit={handleFollowUpSubmit}
-              disabled={isAgentRoundActive}
-              compact
-              placeholder="Challenge the debate…"
-              submitAriaLabel="Send follow-up"
-              helperText={followUpError ?? "Uses 1 Attention"}
-            />
+            <>
+              {challengeProcessingStage ? (
+                <ChallengeProcessingStatus stage={challengeProcessingStage} />
+              ) : null}
+              <BeliefInput
+                ref={followUpInputRef}
+                value={followUpDraft}
+                onChange={(value) => {
+                  setFollowUpDraft(value);
+                  if (followUpError) setFollowUpError(null);
+                }}
+                onSubmit={handleFollowUpSubmit}
+                disabled={isChallengeSubmitting || isAgentRoundActive}
+                isProcessing={isChallengeSubmitting}
+                compact
+                placeholder="Challenge the debate…"
+                submitAriaLabel="Send follow-up"
+                processingAriaLabel="Submitting challenge"
+                helperText={
+                  followUpError ??
+                  (challengeProcessingStage ? undefined : "Uses 1 Attention")
+                }
+              />
+            </>
           ) : isCreator ? (
             <RoomConclusionPanel />
           ) : (

@@ -119,6 +119,13 @@ async function listRecentPublishedRooms(
   return data as BeliefRoomSearchRow[];
 }
 
+export async function getRecentPublishedBeliefs(
+  limit = 3,
+): Promise<RoomSearchResult[]> {
+  const safeLimit = Math.max(1, Math.min(limit, 10));
+  return attachVoteTotals(await listRecentPublishedRooms(safeLimit));
+}
+
 export async function searchBeliefRooms(
   rawQuery: string,
   limit = SEARCH_RESULT_LIMIT,

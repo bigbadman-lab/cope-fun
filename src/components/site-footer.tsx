@@ -33,19 +33,19 @@ export function SiteFooter() {
   const isHomepage = pathname === "/";
   const isRoomPage = pathname.startsWith("/room");
   const homepageFooterInFlow = useHomepageFooterInFlow();
-  const useFixedHomeFooter = isHomepage && !homepageFooterInFlow;
 
   if (isRoomPage) {
     return null;
   }
 
+  // Homepage debate is full-viewport; hide footer so it never overlaps messages.
+  if (isHomepage && !homepageFooterInFlow) {
+    return null;
+  }
+
   return (
     <footer
-      className={`relative z-10 hidden shrink-0 overflow-hidden border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:flex md:flex-col md:items-center md:pt-8 md:pb-0 ${
-        useFixedHomeFooter
-          ? "lg:pointer-events-auto lg:fixed lg:bottom-0 lg:left-0 lg:right-0 lg:z-40 lg:bg-background"
-          : ""
-      }`}
+      className="relative z-10 hidden shrink-0 overflow-hidden border-t border-zinc-200/80 bg-background px-4 py-6 dark:border-white/5 md:flex md:flex-col md:items-center md:pt-8 md:pb-0"
     >
       <nav className="mx-auto flex w-full max-w-lg flex-wrap items-center justify-center gap-x-4 gap-y-2">
         {FOOTER_LINKS.map((link) => (

@@ -21,7 +21,12 @@ import {
   recordGuestBeliefCreated,
   useGuestBeliefUsage,
 } from "@/lib/guest-usage";
-import { saveConversation } from "@/lib/saved-chats";
+import { saveConversation, type SavedConversation } from "@/lib/saved-chats";
+import {
+  prependRecentBelief,
+  recentBeliefFromSavedRoom,
+  refetchRecentBeliefs,
+} from "@/lib/recent-beliefs";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
 import {
@@ -29,6 +34,7 @@ import {
   seedVoteCounts,
   type VoteChoice,
 } from "@/lib/vote";
+import type { RoomSearchResult } from "@/lib/room-search";
 import type {
   BeliefValidationResult,
   DebateGenerationResult,
@@ -39,19 +45,28 @@ const VALIDATION_ERROR_MESSAGE =
   "The Cope Engine couldn’t test that input. Try again.";
 const GUEST_LIMIT_MESSAGE =
   "Sign in to keep testing ideas with the Cope Engine.";
-const PROCESSING_STATUS_LINES = [
-  "The belief is entering the room…",
-  "Assumptions detected…",
-  "Agents are taking positions…",
-  "The debate is opening…",
-] as const;
-const PROCESSING_STATUS_INTERVAL_MS = 1100;
 const DEBUG_HOMEPAGE_FLOW = process.env.NODE_ENV !== "production";
+
+type SubmitStage = "idle" | "validating" | "generating" | "opening";
+
+const SUBMIT_STAGE_LABELS: Record<
+  Exclude<SubmitStage, "idle">,
+  string
+> = {
+  validating: "Checking belief…",
+  generating: "Agents taking positions…",
+  opening: "Opening the room…",
+};
 
 type SaveRoomResponse = {
   ok: boolean;
   slug?: string;
+  room?: SavedConversation;
   error?: string;
+};
+
+type HomePageProps = {
+  initialRecentBeliefs?: RoomSearchResult[];
 };
 
 export type Phase =
@@ -97,7 +112,7 @@ const RESPONSES: { author: string; text: (belief: string) => string }[] = [
   },
 ];
 
-const BELIEF_PAUSE_MS = 1500;
+const BELIEF_PAUSE_MS = 300;
 const MOVE_DURATION_MS = 900;
 const BELIEF_SETTLED_PAUSE_MS = 500;
 const AGENT_START_AFTER_INPUT_MS = 450;
@@ -111,36 +126,30 @@ function buildFallbackAgentMessages(belief: string): ChatMessage[] {
   }));
 }
 
-function BeliefProcessingStatus() {
-  const [statusIndex, setStatusIndex] = useState(0);
-  const status = PROCESSING_STATUS_LINES[statusIndex];
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setStatusIndex((current) => (current + 1) % PROCESSING_STATUS_LINES.length);
-    }, PROCESSING_STATUS_INTERVAL_MS);
-
-    return () => window.clearInterval(interval);
-  }, []);
+function BeliefProcessingStatus({
+  stage,
+}: {
+  stage: Exclude<SubmitStage, "idle">;
+}) {
+  const label = SUBMIT_STAGE_LABELS[stage];
 
   return (
     <div
-      className="mb-2 flex min-h-5 items-center justify-center gap-2 text-center text-[11px] text-white/75 drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)]"
+      className="mb-3 flex min-h-6 items-center justify-center gap-2 text-center text-xs font-medium text-white/90 drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)]"
       role="status"
       aria-live="polite"
     >
-      <span className="size-1.5 rounded-full bg-cope-orange/85 animate-pulse" />
-      <span
-        key={status}
-        className="animate-message-in"
-      >
-        {status}
+      <span className="size-1.5 shrink-0 rounded-full bg-cope-orange animate-pulse" />
+      <span key={stage} className="animate-message-in">
+        {label}
       </span>
     </div>
   );
 }
 
-export function HomePage() {
+export function HomePage({
+  initialRecentBeliefs = [],
+}: HomePageProps) {
   const [belief, setBelief] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [lockedBelief, setLockedBelief] = useState("");
@@ -154,7 +163,7 @@ export function HomePage() {
   const [saveToastVisible, setSaveToastVisible] = useState(false);
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
-  const [isValidatingBelief, setIsValidatingBelief] = useState(false);
+  const [submitStage, setSubmitStage] = useState<SubmitStage>("idle");
   const [believeCount, setBelieveCount] = useState(0);
   const [copeCount, setCopeCount] = useState(0);
   const [userVote, setUserVote] = useState<VoteChoice | null>(null);
@@ -185,13 +194,33 @@ export function HomePage() {
     phase === "complete";
   const isGuestBlocked =
     !authenticated && phase === "idle" && guestUsage.beliefCount >= 1;
+  const isSubmitProcessing = submitStage !== "idle";
   const setHomepageFooterInFlow = useSetHomepageFooterInFlow();
+
+  const resetSubmitFlow = useCallback(() => {
+    setSubmitStage("idle");
+    submitInFlightRef.current = false;
+    requestAnimationFrame(() => {
+      heroInputRef.current?.focus({ preventScroll: true });
+    });
+  }, []);
 
   useEffect(() => {
     if (!setHomepageFooterInFlow) return;
 
-    setHomepageFooterInFlow(phase === "idle");
-    return () => setHomepageFooterInFlow(true);
+    const debateActive = phase !== "idle";
+    setHomepageFooterInFlow(!debateActive);
+
+    if (debateActive) {
+      document.documentElement.classList.add("homepage-debate-active");
+    } else {
+      document.documentElement.classList.remove("homepage-debate-active");
+    }
+
+    return () => {
+      setHomepageFooterInFlow(true);
+      document.documentElement.classList.remove("homepage-debate-active");
+    };
   }, [phase, setHomepageFooterInFlow]);
 
   const clearTimeouts = useCallback(() => {
@@ -268,7 +297,7 @@ export function HomePage() {
     setShowCta(false);
     setChatSaved(false);
     setValidationMessage(null);
-    setIsValidatingBelief(false);
+    setSubmitStage("idle");
     submitInFlightRef.current = false;
     setBelieveCount(0);
     setCopeCount(0);
@@ -404,25 +433,36 @@ export function HomePage() {
       submitAttemptId,
       phase,
       isPostSubmit,
-      isValidatingBelief,
+      submitStage,
       submitInFlight: submitInFlightRef.current,
       beliefLength: trimmed.length,
     });
 
-    if (!trimmed || isPostSubmit || isValidatingBelief || submitInFlightRef.current) {
+    if (
+      !trimmed ||
+      isPostSubmit ||
+      submitStage !== "idle" ||
+      submitInFlightRef.current
+    ) {
       logHomepageFlow("submit ignored by guard", {
         submitAttemptId,
         hasBelief: Boolean(trimmed),
         phase,
         isPostSubmit,
-        isValidatingBelief,
+        submitStage,
         submitInFlight: submitInFlightRef.current,
       });
       return;
     }
 
+    if (!authenticated && !canGuestCreateBelief()) {
+      logHomepageFlow("guest quota blocked before AI", { submitAttemptId });
+      setValidationMessage(GUEST_LIMIT_MESSAGE);
+      return;
+    }
+
     submitInFlightRef.current = true;
-    setIsValidatingBelief(true);
+    setSubmitStage("validating");
     setValidationMessage(null);
 
     let validation: BeliefValidationResult;
@@ -434,8 +474,7 @@ export function HomePage() {
       setValidationMessage(
         error instanceof Error ? error.message : VALIDATION_ERROR_MESSAGE,
       );
-      setIsValidatingBelief(false);
-      submitInFlightRef.current = false;
+      resetSubmitFlow();
       return;
     }
 
@@ -450,8 +489,7 @@ export function HomePage() {
 
     if (!validation.ok) {
       setValidationMessage(validation.message || VALIDATION_ERROR_MESSAGE);
-      setIsValidatingBelief(false);
-      submitInFlightRef.current = false;
+      resetSubmitFlow();
       return;
     }
 
@@ -462,21 +500,7 @@ export function HomePage() {
           : "";
       const acceptedBelief = normalizedBelief || trimmed;
 
-      const guestQuotaAvailable = authenticated || canGuestCreateBelief();
-      logHomepageFlow("guest quota checked", {
-        submitAttemptId,
-        authenticated,
-        guestQuotaAvailable,
-      });
-      if (!guestQuotaAvailable) {
-        logHomepageFlow("guest quota blocked after validation", {
-          submitAttemptId,
-        });
-        setValidationMessage(GUEST_LIMIT_MESSAGE);
-        setIsValidatingBelief(false);
-        submitInFlightRef.current = false;
-        return;
-      }
+      setSubmitStage("generating");
 
       let nextAgentMessages = buildFallbackAgentMessages(acceptedBelief);
       try {
@@ -489,8 +513,7 @@ export function HomePage() {
       } catch (error) {
         if (error instanceof Error && error.message) {
           setValidationMessage(error.message);
-          setIsValidatingBelief(false);
-          submitInFlightRef.current = false;
+          resetSubmitFlow();
           return;
         }
         logHomepageFlow("opening debate failed; using fallback", {
@@ -518,7 +541,7 @@ export function HomePage() {
       setUserVote(null);
       setMoveOffsetPx(0);
       setValidationMessage(null);
-      setIsValidatingBelief(false);
+      setSubmitStage("opening");
       submitInFlightRef.current = false;
       logHomepageFlow("starting debate transition", {
         submitAttemptId,
@@ -532,8 +555,7 @@ export function HomePage() {
         errorMessage: error instanceof Error ? error.message : "unknown",
       });
       setValidationMessage(VALIDATION_ERROR_MESSAGE);
-      setIsValidatingBelief(false);
-      submitInFlightRef.current = false;
+      resetSubmitFlow();
     }
   }
 
@@ -589,6 +611,11 @@ export function HomePage() {
       const result = (await response.json()) as SaveRoomResponse;
       if (!result.ok || !result.slug) {
         throw new Error(result.error || "DB room save failed.");
+      }
+
+      if (result.room) {
+        prependRecentBelief(recentBeliefFromSavedRoom(result.room));
+        void refetchRecentBeliefs();
       }
 
       setSaveToastVisible(true);
@@ -679,6 +706,10 @@ export function HomePage() {
                 </div>
               </div>
 
+              {isDetaching && submitStage === "opening" && (
+                <BeliefProcessingStatus stage="opening" />
+              )}
+
               {isDetaching && (
                 <div
                   ref={beliefRef}
@@ -705,14 +736,18 @@ export function HomePage() {
                   <GuestBeliefGate />
                 ) : (
                   <>
-                    {isValidatingBelief && <BeliefProcessingStatus />}
+                    {(submitStage === "validating" ||
+                      submitStage === "generating") && (
+                      <BeliefProcessingStatus stage={submitStage} />
+                    )}
                     <BeliefInput
                       ref={heroInputRef}
                       value={belief}
                       onChange={handleBeliefChange}
                       onSubmit={handleSubmit}
-                      disabled={isPostSubmit || isValidatingBelief}
-                      animateExamples={phase === "idle"}
+                      disabled={isPostSubmit || isSubmitProcessing}
+                      isProcessing={isSubmitProcessing && phase === "idle"}
+                      animateExamples={phase === "idle" && !isSubmitProcessing}
                     />
                     <p
                       className={`mt-2 min-h-4 text-center text-[11px] leading-relaxed drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] ${
@@ -729,7 +764,9 @@ export function HomePage() {
                 )}
               </div>
               {phase === "idle" && !isGuestBlocked && (
-                <RecentConversationsPreview />
+                <RecentConversationsPreview
+                  initialBeliefs={initialRecentBeliefs}
+                />
               )}
           </div>
         )}

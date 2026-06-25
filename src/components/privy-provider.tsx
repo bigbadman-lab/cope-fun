@@ -1,6 +1,7 @@
 "use client";
 
 import { PrivyProvider } from "@privy-io/react-auth";
+import { AccountAvatarProvider } from "./account-avatar-provider";
 import { AuthSync } from "./auth-sync";
 
 type AppPrivyProviderProps = {
@@ -32,7 +33,7 @@ export function AppPrivyProvider({ children }: AppPrivyProviderProps) {
       }}
     >
       <AuthSync />
-      {children}
+      <AccountAvatarProvider>{children}</AccountAvatarProvider>
     </PrivyProvider>
   );
 }

@@ -9,7 +9,6 @@ import { useGlobalSearch } from "./global-search-provider";
 import { MobileMenu } from "./mobile-menu";
 import { RoomFollowButton } from "./room-follow-button";
 import { RoomShareButton } from "./room-share-button";
-import { useAppAuth } from "@/hooks/use-app-auth";
 import {
   getSavedConversationSnapshotBySlug,
   SAVED_CONVERSATION_NOT_FOUND_SNAPSHOT,
@@ -17,7 +16,6 @@ import {
 } from "@/lib/saved-chats";
 import {
   navGroupDividerClass,
-  navIconActiveClass,
   navIconButtonClass,
   navIconButtonPrimaryClass,
   navIconClass,
@@ -67,24 +65,6 @@ function MenuIcon({ className }: { className?: string }) {
   );
 }
 
-function ProfileIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5.5 19.5c1.2-3 3.4-4.5 6.5-4.5s5.3 1.5 6.5 4.5" />
-    </svg>
-  );
-}
-
 function isActiveProductPath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -121,11 +101,9 @@ export function TopNav({ onLogoClick }: TopNavProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchPressed, setSearchPressed] = useState(false);
-  const { authenticated } = useAppAuth();
   const roomSlug = pathname.startsWith("/room/")
     ? pathname.slice("/room/".length).split("/")[0]
     : null;
-  const profileActive = pathname === "/profile";
 
   const getRoomSnapshot = useCallback(
     () =>
@@ -201,18 +179,6 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             <div className={navGroupDividerClass} aria-hidden />
 
             <AuthNavButton />
-            {authenticated && (
-              <Link
-                href="/profile"
-                aria-label="Profile"
-                aria-current={profileActive ? "page" : undefined}
-                className={`${navIconButtonClass} hidden sm:inline-flex ${
-                  profileActive ? navIconActiveClass : ""
-                }`}
-              >
-                <ProfileIcon className={navIconClass} />
-              </Link>
-            )}
             {roomSlug && (
               <RoomFollowButton
                 slug={roomSlug}

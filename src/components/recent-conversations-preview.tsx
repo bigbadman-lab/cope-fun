@@ -1,26 +1,48 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { ConversationListRow } from "./conversation-list-row";
 import {
-  getSavedChatsSnapshot,
-  SAVED_CHATS_SERVER_SNAPSHOT,
-  subscribeSavedChats,
-} from "@/lib/saved-chats";
+  getHighlightedRecentBeliefId,
+  getRecentBeliefsSnapshot,
+  initializeRecentBeliefs,
+  RECENT_BELIEFS_SERVER_SNAPSHOT,
+  recentBeliefToConversation,
+  refetchRecentBeliefs,
+  subscribeRecentBeliefs,
+} from "@/lib/recent-beliefs";
+import type { RoomSearchResult } from "@/lib/room-search";
 
-const RECENT_LIMIT = 3;
+type RecentConversationsPreviewProps = {
+  initialBeliefs?: RoomSearchResult[];
+};
 
-export function RecentConversationsPreview() {
-  const conversations = useSyncExternalStore(
-    subscribeSavedChats,
-    getSavedChatsSnapshot,
-    () => SAVED_CHATS_SERVER_SNAPSHOT,
+export function RecentConversationsPreview({
+  initialBeliefs = [],
+}: RecentConversationsPreviewProps) {
+  const beliefs = useSyncExternalStore(
+    subscribeRecentBeliefs,
+    getRecentBeliefsSnapshot,
+    () => RECENT_BELIEFS_SERVER_SNAPSHOT,
+  );
+  const highlightedId = useSyncExternalStore(
+    subscribeRecentBeliefs,
+    getHighlightedRecentBeliefId,
+    () => null,
   );
 
-  const recent = conversations.slice(0, RECENT_LIMIT);
+  const initializedRef = useRef(false);
 
-  if (recent.length === 0) {
+  useEffect(() => {
+    if (!initializedRef.current) {
+      initializeRecentBeliefs(initialBeliefs);
+      initializedRef.current = true;
+    }
+    void refetchRecentBeliefs();
+  }, [initialBeliefs]);
+
+  if (beliefs.length === 0) {
     return (
       <p className="mt-10 text-center text-xs text-white/70">
         Saved beliefs will appear here.
@@ -42,12 +64,16 @@ export function RecentConversationsPreview() {
         </Link>
       </div>
       <div>
-        {recent.map((conversation) => (
-          <ConversationListRow
-            key={conversation.id}
-            conversation={conversation}
-            variant="homepage"
-          />
+        {beliefs.map((belief) => (
+          <div
+            key={belief.id}
+            className={belief.id === highlightedId ? "animate-message-in" : undefined}
+          >
+            <ConversationListRow
+              conversation={recentBeliefToConversation(belief)}
+              variant="homepage"
+            />
+          </div>
         ))}
       </div>
     </div>

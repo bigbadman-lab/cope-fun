@@ -17,7 +17,19 @@
   --nav-height: 3.5rem;
   --footer-height: 3rem;
   --composer-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  --composer-height: 4.75rem;
+  --composer-fade-height: 5rem;
+  --composer-scroll-gutter: 1.25rem;
+  --composer-dock-height: var(--composer-height);
+  --composer-scroll-padding: calc(
+    var(--composer-bottom) + var(--composer-dock-height) +
+      var(--composer-fade-height) + var(--composer-scroll-gutter)
+  );
   --belief-top-in-main: calc(14vh - var(--nav-height));
+}
+
+html.homepage-debate-active {
+  --composer-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .dark,
@@ -46,6 +58,10 @@
     --composer-bottom: calc(
       var(--footer-height) + 1rem + env(safe-area-inset-bottom, 0px)
     );
+  }
+
+  html.homepage-debate-active {
+    --composer-bottom: 0px;
   }
 
   .min-h-home-idle {
@@ -116,7 +132,12 @@ body {
   }
 
   .pb-composer-scroll {
-    padding-bottom: calc(var(--composer-bottom) + 5.5rem);
+    padding-bottom: var(--composer-scroll-padding);
+    scroll-padding-bottom: var(--composer-scroll-padding);
+  }
+
+  .conversation-composer-fade {
+    height: var(--composer-fade-height);
   }
 
   .min-h-home-idle {

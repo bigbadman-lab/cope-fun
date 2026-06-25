@@ -15,6 +15,9 @@ export type AppUser = {
   email: string | null;
   displayName: string | null;
   linkedAnonymousSessionId: string | null;
+  avatarColor: string | null;
+  avatarUrl: string | null;
+  avatarUpdatedAt: string | null;
 };
 
 type AppUserRow = {
@@ -24,6 +27,9 @@ type AppUserRow = {
   email: string | null;
   display_name: string | null;
   linked_anonymous_session_id: string | null;
+  avatar_color: string | null;
+  avatar_url: string | null;
+  avatar_updated_at: string | null;
 };
 
 function toAppUser(row: AppUserRow): AppUser {
@@ -34,6 +40,9 @@ function toAppUser(row: AppUserRow): AppUser {
     email: row.email,
     displayName: row.display_name,
     linkedAnonymousSessionId: row.linked_anonymous_session_id,
+    avatarColor: row.avatar_color,
+    avatarUrl: row.avatar_url,
+    avatarUpdatedAt: row.avatar_updated_at,
   };
 }
 

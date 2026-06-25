@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAppAuth } from "@/hooks/use-app-auth";
+import { AuthNavAffordance } from "./auth-nav-button";
 import { navIconButtonClass } from "./theme-toggle";
 
 const PRIMARY_LINKS = [
@@ -116,13 +116,10 @@ function MenuNavItem({
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const pathname = usePathname();
-  const { authenticated } = useAppAuth();
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
 
-  const primaryLinks: MenuLink[] = authenticated
-    ? [{ href: "/profile", label: "Profile" }, ...PRIMARY_LINKS]
-    : [...PRIMARY_LINKS];
+  const primaryLinks: MenuLink[] = [...PRIMARY_LINKS];
 
   useEffect(() => {
     if (open) {
@@ -200,6 +197,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-6">
+        <div className="mb-4">
+          <AuthNavAffordance variant="menu" onNavigate={onClose} />
+        </div>
+
         <ul className="space-y-1">
           {primaryLinks.map((link) => (
             <li key={link.href}>
