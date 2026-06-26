@@ -69,22 +69,29 @@ export function useMessageReactions(
     userReactions: {},
   });
   const [signInRequired, setSignInRequired] = useState(false);
+  const [reactionError, setReactionError] = useState<string | null>(null);
   const [shakeMessageId, setShakeMessageId] = useState<string | null>(null);
   const [pendingMessageId, setPendingMessageId] = useState<string | null>(null);
   const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const authFetchRef = useRef(authFetch);
 
   useEffect(() => {
-    if (!enabled) return;
+    authFetchRef.current = authFetch;
+  }, [authFetch]);
+
+  useEffect(() => {
+    if (!enabled || !authReady) return;
 
     let cancelled = false;
 
     async function loadReactions() {
       try {
         const url = `/api/rooms/${encodeURIComponent(roomSlug)}/reactions`;
-        const response =
-          authenticated && authFetch
-            ? await authFetch(url)
-            : await fetch(url);
+        const fetcher =
+          authenticated && authFetchRef.current
+            ? authFetchRef.current
+            : fetch;
+        const response = await fetcher(url);
 
         if (!response.ok || cancelled) return;
 
@@ -112,7 +119,7 @@ export function useMessageReactions(
     return () => {
       cancelled = true;
     };
-  }, [authenticated, authFetch, enabled, roomSlug]);
+  }, [authenticated, authReady, enabled, roomSlug]);
 
   useEffect(() => {
     return () => {
@@ -133,7 +140,7 @@ export function useMessageReactions(
     async (messageId: string, reaction: ReactionType) => {
       if (!enabled) return;
 
-      if (!authenticated || !authFetch) {
+      if (!authenticated || !authFetchRef.current) {
         setSignInRequired(true);
         return;
       }
@@ -149,6 +156,7 @@ export function useMessageReactions(
       );
 
       setSignInRequired(false);
+      setReactionError(null);
       setState((prev) => ({
         countsByMessage: {
           ...prev.countsByMessage,
@@ -167,7 +175,7 @@ export function useMessageReactions(
       setPendingMessageId(messageId);
 
       try {
-        const response = await authFetch(
+        const response = await authFetchRef.current!(
           `/api/rooms/${encodeURIComponent(roomSlug)}/messages/${encodeURIComponent(messageId)}/reaction`,
           {
             method: "POST",
@@ -175,6 +183,8 @@ export function useMessageReactions(
             body: JSON.stringify({ reaction }),
           },
         );
+
+        const result = (await response.json()) as MessageReactionApiResponse;
 
         if (response.status === 401) {
           setState((prev) => ({
@@ -191,7 +201,7 @@ export function useMessageReactions(
           return;
         }
 
-        if (!response.ok) {
+        if (!response.ok || !result.ok || !result.counts) {
           setState((prev) => ({
             countsByMessage: {
               ...prev.countsByMessage,
@@ -202,21 +212,7 @@ export function useMessageReactions(
               [messageId]: previousUserReaction,
             },
           }));
-          return;
-        }
-
-        const result = (await response.json()) as MessageReactionApiResponse;
-        if (!result.ok || !result.counts) {
-          setState((prev) => ({
-            countsByMessage: {
-              ...prev.countsByMessage,
-              [messageId]: previousCounts,
-            },
-            userReactions: {
-              ...prev.userReactions,
-              [messageId]: previousUserReaction,
-            },
-          }));
+          setReactionError(result.error ?? "Could not save reaction.");
           return;
         }
 
@@ -245,12 +241,12 @@ export function useMessageReactions(
             [messageId]: previousUserReaction,
           },
         }));
+        setReactionError("Could not save reaction.");
       } finally {
         setPendingMessageId(null);
       }
     },
     [
-      authFetch,
       authenticated,
       enabled,
       pendingMessageId,
@@ -295,10 +291,16 @@ export function useMessageReactions(
     else mode = "read-only";
   }
 
+  const clearReactionError = useCallback(() => {
+    setReactionError(null);
+  }, []);
+
   return {
     mode,
     signInRequired,
+    reactionError,
     clearSignInRequired,
+    clearReactionError,
     getCounts,
     getUserReaction,
     react,

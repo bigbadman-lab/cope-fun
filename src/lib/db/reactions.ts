@@ -202,7 +202,9 @@ export async function upsertMessageReaction(input: {
       });
 
     if (insertError) {
-      throw new Error("Could not save message reaction.");
+      throw new Error(
+        insertError.message || "Could not save message reaction.",
+      );
     }
   }
 

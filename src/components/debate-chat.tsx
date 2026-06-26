@@ -202,6 +202,7 @@ type DebateCTAProps = {
   onVote: (choice: VoteChoice) => void;
   onSaveChat?: () => void;
   chatSaved?: boolean;
+  isSavingChat?: boolean;
 };
 
 export function DebateCTA({
@@ -211,7 +212,14 @@ export function DebateCTA({
   onVote,
   onSaveChat,
   chatSaved = false,
+  isSavingChat = false,
 }: DebateCTAProps) {
+  const saveLabel = isSavingChat
+    ? "Saving…"
+    : chatSaved
+      ? "Saved to beliefs"
+      : "Save this chat";
+
   return (
     <div className="space-y-3">
       <BelieveCopeVote
@@ -227,9 +235,10 @@ export function DebateCTA({
             type="button"
             onClick={onSaveChat}
             className="min-h-11 rounded-lg px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-800 disabled:text-emerald-700 dark:text-zinc-500 dark:hover:text-zinc-200 dark:disabled:text-emerald-400/90"
-            disabled={chatSaved}
+            disabled={chatSaved || isSavingChat}
+            aria-busy={isSavingChat}
           >
-            {chatSaved ? "Saved to beliefs" : "Save this chat"}
+            {saveLabel}
           </button>
         </div>
       )}

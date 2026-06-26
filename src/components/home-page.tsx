@@ -40,7 +40,6 @@ import type {
   DebateGenerationResult,
 } from "@/lib/cope-engine";
 
-const SAVE_CONFIRM_MS = 700;
 const VALIDATION_ERROR_MESSAGE =
   "The Cope Engine couldn’t test that input. Try again.";
 const GUEST_LIMIT_MESSAGE =
@@ -160,7 +159,7 @@ export function HomePage({
   const [typingFadingOut, setTypingFadingOut] = useState(false);
   const [showCta, setShowCta] = useState(false);
   const [chatSaved, setChatSaved] = useState(false);
-  const [saveToastVisible, setSaveToastVisible] = useState(false);
+  const [isSavingChat, setIsSavingChat] = useState(false);
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [submitStage, setSubmitStage] = useState<SubmitStage>("idle");
@@ -296,6 +295,8 @@ export function HomePage({
     setTypingFadingOut(false);
     setShowCta(false);
     setChatSaved(false);
+    setIsSavingChat(false);
+    setSaveErrorMessage(null);
     setValidationMessage(null);
     setSubmitStage("idle");
     submitInFlightRef.current = false;
@@ -573,7 +574,7 @@ export function HomePage({
   );
 
   const handleSaveChat = useCallback(async () => {
-    if (!lockedBelief || chatSaved) return;
+    if (!lockedBelief || chatSaved || isSavingChat) return;
 
     const messages: ChatMessage[] = [
       {
@@ -585,7 +586,8 @@ export function HomePage({
       ...agentMessages,
     ];
 
-    setChatSaved(true);
+    setIsSavingChat(true);
+    setSaveErrorMessage(null);
 
     try {
       const response = await authFetch("/api/rooms", {
@@ -601,7 +603,7 @@ export function HomePage({
 
       if (!response.ok) {
         if (response.status === 429) {
-          setChatSaved(false);
+          setIsSavingChat(false);
           setSaveErrorMessage(await readRateLimitMessage(response));
           return;
         }
@@ -618,8 +620,8 @@ export function HomePage({
         void refetchRecentBeliefs();
       }
 
-      setSaveToastVisible(true);
-      setTimeout(() => router.push(`/room/${result.slug}`), SAVE_CONFIRM_MS);
+      setChatSaved(true);
+      router.push(`/room/${result.slug}`);
       return;
     } catch {
       // Preserve the existing local-only room flow if DB persistence fails.
@@ -633,11 +635,12 @@ export function HomePage({
       copeCount,
     });
 
-    setSaveToastVisible(true);
-    setTimeout(() => router.push(`/room/${saved.slug}`), SAVE_CONFIRM_MS);
+    setChatSaved(true);
+    router.push(`/room/${saved.slug}`);
   }, [
     lockedBelief,
     chatSaved,
+    isSavingChat,
     agentMessages,
     router,
     userVote,
@@ -688,6 +691,7 @@ export function HomePage({
             onVote={handleVote}
             onSaveChat={handleSaveChat}
             chatSaved={chatSaved}
+            isSavingChat={isSavingChat}
           />
         ) : (
           <div className="mx-auto flex w-full max-w-md min-h-home-idle flex-col justify-center px-4 py-8 pb-[calc(2rem+var(--scroll-bottom-inset))] md:pb-8">
@@ -772,18 +776,6 @@ export function HomePage({
         )}
         </main>
       </div>
-
-      {saveToastVisible && (
-        <div
-          className="pointer-events-none fixed inset-x-0 bottom-[calc(6rem+var(--mobile-bottom-nav-offset))] z-50 flex justify-center px-4 md:bottom-24"
-          role="status"
-          aria-live="polite"
-        >
-          <p className="rounded-full border border-zinc-200/80 bg-background/95 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-background/95 dark:text-zinc-100">
-            Room created
-          </p>
-        </div>
-      )}
 
       {saveErrorMessage && (
         <div

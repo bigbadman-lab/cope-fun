@@ -41,6 +41,7 @@ type ConversationStageProps = {
   onVote: (choice: VoteChoice) => void;
   onSaveChat?: () => void;
   chatSaved?: boolean;
+  isSavingChat?: boolean;
 };
 
 export function ConversationStage({
@@ -60,12 +61,14 @@ export function ConversationStage({
   onVote,
   onSaveChat,
   chatSaved,
+  isSavingChat,
 }: ConversationStageProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isGliding, setIsGliding] = useState(false);
+  const [composerChromeVisible, setComposerChromeVisible] = useState(false);
   const glideStartedRef = useRef(false);
 
   useLayoutEffect(() => {
@@ -108,6 +111,7 @@ export function ConversationStage({
 
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        setComposerChromeVisible(false);
         setIsGliding(true);
         setTranslateY(0);
       });
@@ -115,6 +119,25 @@ export function ConversationStage({
 
     return () => cancelAnimationFrame(raf);
   }, [inputGlideActive, composerStartCenterY]);
+
+  useEffect(() => {
+    if (!isGliding) return;
+
+    const timer = window.setTimeout(() => {
+      setIsGliding(false);
+      setComposerChromeVisible(true);
+    }, INPUT_SETTLE_MS + 40);
+
+    return () => window.clearTimeout(timer);
+  }, [isGliding]);
+
+  function handleComposerTransitionEnd(
+    e: React.TransitionEvent<HTMLDivElement>,
+  ) {
+    if (e.propertyName !== "transform" || !isGliding) return;
+    setIsGliding(false);
+    setComposerChromeVisible(true);
+  }
 
   useEffect(() => {
     if (
@@ -172,6 +195,7 @@ export function ConversationStage({
               onVote={onVote}
               onSaveChat={onSaveChat}
               chatSaved={chatSaved}
+              isSavingChat={isSavingChat}
             />
           )}
           <div ref={conversationEndRef} aria-hidden className="h-px shrink-0" />
@@ -187,12 +211,21 @@ export function ConversationStage({
             ? `transform ${INPUT_SETTLE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
             : "none",
         }}
+        onTransitionEnd={handleComposerTransitionEnd}
       >
         <div
           aria-hidden
-          className="conversation-composer-fade pointer-events-none absolute inset-x-0 bottom-full bg-gradient-to-t from-background via-background/90 to-transparent"
+          className={`conversation-composer-fade pointer-events-none absolute inset-x-0 bottom-full bg-gradient-to-t from-background via-background/90 to-transparent transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+            composerChromeVisible ? "opacity-100" : "opacity-0"
+          }`}
         />
-        <div className="relative border-t border-zinc-200/80 bg-background px-4 pt-3 pb-3 shadow-[0_-10px_28px_-14px_rgba(0,0,0,0.45)] dark:border-white/5">
+        <div
+          className={`relative px-4 pt-3 pb-3 transition-[opacity,box-shadow,border-color,background-color] duration-300 ease-out motion-reduce:transition-none ${
+            composerChromeVisible
+              ? "border-t border-zinc-200/80 bg-background opacity-100 shadow-[0_-10px_28px_-14px_rgba(0,0,0,0.45)] dark:border-white/5"
+              : "border-t border-transparent bg-transparent opacity-100 shadow-none"
+          }`}
+        >
           <div className="mx-auto w-full max-w-md">
             <BeliefInput
               value={belief}

@@ -362,6 +362,7 @@ export function SavedChatView({
   const {
     mode: reactionsMode,
     signInRequired: reactionsSignInRequired,
+    reactionError,
     clearSignInRequired,
     getCounts,
     getUserReaction,
@@ -688,6 +689,15 @@ export function SavedChatView({
           <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
             <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
               <GroupFormationMessage animate={false} />
+
+              {reactionError && (
+                <p
+                  className="text-center text-[11px] font-medium text-orange-700 dark:text-orange-300"
+                  role="alert"
+                >
+                  {reactionError}
+                </p>
+              )}
 
               {threadMessages.map((message) =>
                 message.isUser ? (
