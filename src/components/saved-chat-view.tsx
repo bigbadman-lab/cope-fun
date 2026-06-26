@@ -121,7 +121,7 @@ export function SavedChatView({
   const [roomMarket, setRoomMarket] = useState<RoomMarketView | null>(
     initialMarket,
   );
-  const { ready, authenticated, authFetch } = useAppAuth();
+  const { ready, authenticated, authFetch, login } = useAppAuth();
   const [followUpDraft, setFollowUpDraft] = useState("");
   const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [isChallengeSubmitting, setIsChallengeSubmitting] = useState(false);
@@ -358,23 +358,56 @@ export function SavedChatView({
   const threadMessages = messages.filter(
     (message) => !message.isUser || message.id !== beliefMessage?.id,
   );
-  const agentMessages = messages.filter((message) => !message.isUser);
-  const agentMessageIds = useMemo(
-    () => agentMessages.map((message) => message.id),
-    [agentMessages],
-  );
 
-  const { getCounts, getUserReaction, react, isShaking, isPending } =
-    useMessageReactions(conversation.slug, agentMessageIds, { dbBacked });
+  const {
+    mode: reactionsMode,
+    signInRequired: reactionsSignInRequired,
+    clearSignInRequired,
+    getCounts,
+    getUserReaction,
+    react,
+    isShaking,
+    isPending,
+  } = useMessageReactions(conversation.slug, {
+    enabled: dbBacked,
+    authenticated,
+    authReady: ready,
+    authFetch,
+  });
 
   const getReactionProps = useCallback(
-    (messageId: string): MessageReactionProps => ({
-      counts: getCounts(messageId),
-      userReaction: getUserReaction(messageId),
-      onReact: isPending(messageId) ? () => {} : (reaction) => react(messageId, reaction),
-      copeShake: isShaking(messageId),
-    }),
-    [getCounts, getUserReaction, isPending, react, isShaking],
+    (messageId: string): MessageReactionProps | undefined => {
+      if (!dbBacked) return undefined;
+
+      return {
+        counts: getCounts(messageId),
+        userReaction: getUserReaction(messageId),
+        onReact: isPending(messageId)
+          ? () => {}
+          : (reaction) => {
+              void react(messageId, reaction);
+            },
+        copeShake: isShaking(messageId),
+        interactive: reactionsMode === "interactive",
+        onSignInRequired: () => {
+          clearSignInRequired();
+          login();
+        },
+        showSignInHint: reactionsSignInRequired && reactionsMode === "read-only",
+      };
+    },
+    [
+      clearSignInRequired,
+      dbBacked,
+      getCounts,
+      getUserReaction,
+      isPending,
+      isShaking,
+      login,
+      react,
+      reactionsMode,
+      reactionsSignInRequired,
+    ],
   );
 
   const scheduleRoundTimer = useCallback((fn: () => void, delay: number) => {

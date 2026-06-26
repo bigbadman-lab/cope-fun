@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BeliefInput } from "./belief-input";
 import {
   AgentTurnRow,
@@ -8,9 +8,7 @@ import {
   DebateCTA,
   GroupFormationMessage,
   type ChatMessage,
-  type MessageReactionProps,
 } from "./debate-chat";
-import { useMessageReactions } from "@/hooks/use-message-reactions";
 import type { VoteChoice } from "@/lib/vote";
 import { BELIEF_TOP_IN_MAIN } from "@/lib/belief-layout";
 
@@ -69,26 +67,6 @@ export function ConversationStage({
   const [translateY, setTranslateY] = useState(0);
   const [isGliding, setIsGliding] = useState(false);
   const glideStartedRef = useRef(false);
-
-  const visibleAgentMessageIds = useMemo(
-    () =>
-      agentMessages.slice(0, visibleAgentCount).map((message) => message.id),
-    [agentMessages, visibleAgentCount],
-  );
-  const { getCounts, getUserReaction, react, isShaking } = useMessageReactions(
-    belief,
-    visibleAgentMessageIds,
-  );
-
-  const getReactionProps = useCallback(
-    (messageId: string): MessageReactionProps => ({
-      counts: getCounts(messageId),
-      userReaction: getUserReaction(messageId),
-      onReact: (reaction) => react(messageId, reaction),
-      copeShake: isShaking(messageId),
-    }),
-    [getCounts, getUserReaction, react, isShaking],
-  );
 
   useLayoutEffect(() => {
     const dock = inputWrapperRef.current;
@@ -183,7 +161,6 @@ export function ConversationStage({
                       ? "fading"
                       : "typing"
                 }
-                reactions={isComplete ? getReactionProps(message.id) : undefined}
               />
             );
           })}

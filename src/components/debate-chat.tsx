@@ -23,6 +23,9 @@ export type MessageReactionProps = {
   userReaction: ReactionType | null;
   onReact: (reaction: ReactionType) => void;
   copeShake?: boolean;
+  interactive?: boolean;
+  onSignInRequired?: () => void;
+  showSignInHint?: boolean;
 };
 
 export const GROUP_FORMATION_TEXT =
@@ -88,6 +91,9 @@ export function ChatMessageRow({
             counts={reactions.counts}
             currentUserReaction={reactions.userReaction}
             onReact={reactions.onReact}
+            interactive={reactions.interactive}
+            onSignInRequired={reactions.onSignInRequired}
+            showSignInHint={reactions.showSignInHint}
           />
         )}
       </div>
@@ -152,6 +158,9 @@ export function AgentTurnRow({ message, mode, reactions }: AgentTurnRowProps) {
                 counts={reactions.counts}
                 currentUserReaction={reactions.userReaction}
                 onReact={reactions.onReact}
+                interactive={reactions.interactive}
+                onSignInRequired={reactions.onSignInRequired}
+                showSignInHint={reactions.showSignInHint}
               />
             )}
           </>

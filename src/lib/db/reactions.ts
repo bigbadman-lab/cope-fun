@@ -5,7 +5,6 @@ import {
   type ReactionType,
 } from "@/lib/message-reactions";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
-import { getOrCreateAnonymousSession } from "./anonymous-session";
 
 const REACTION_TYPES = new Set<ReactionType>([
   "smart",
@@ -24,7 +23,8 @@ export type RoomMessageReactionsMap = Record<string, MessageReactionState>;
 type ReactionRow = {
   message_id: string;
   reaction: ReactionType;
-  anonymous_session_id: string;
+  user_id: string | null;
+  anonymous_session_id: string | null;
 };
 
 type MessageKeyRow = {
@@ -83,12 +83,12 @@ function getMessageKey(message: MessageKeyRow): string {
 export async function getMessageReactionState(
   roomId: string,
   dbMessageId: string,
-  anonymousSessionId?: string,
+  userId?: string | null,
 ): Promise<MessageReactionState> {
   const supabase = createSupabaseServiceClient();
   const { data, error } = await supabase
     .from("belief_room_message_reactions")
-    .select("reaction, anonymous_session_id")
+    .select("reaction, user_id, anonymous_session_id")
     .eq("room_id", roomId)
     .eq("message_id", dbMessageId);
 
@@ -99,19 +99,17 @@ export async function getMessageReactionState(
   const rows = data as ReactionRow[];
   const counts = aggregateCounts(rows.map((row) => row.reaction));
   const userReaction =
-    anonymousSessionId == null
+    userId == null
       ? null
-      : (rows.find((row) => row.anonymous_session_id === anonymousSessionId)
-          ?.reaction ?? null);
+      : (rows.find((row) => row.user_id === userId)?.reaction ?? null);
 
   return { counts, userReaction };
 }
 
 export async function getRoomMessageReactions(
   roomId: string,
-  anonymousToken: string,
+  userId?: string | null,
 ): Promise<RoomMessageReactionsMap> {
-  const session = await getOrCreateAnonymousSession(anonymousToken);
   const supabase = createSupabaseServiceClient();
 
   const { data: messages, error: messagesError } = await supabase
@@ -128,7 +126,7 @@ export async function getRoomMessageReactions(
 
   const { data: reactions, error: reactionsError } = await supabase
     .from("belief_room_message_reactions")
-    .select("message_id, reaction, anonymous_session_id")
+    .select("message_id, reaction, user_id, anonymous_session_id")
     .eq("room_id", roomId);
 
   if (reactionsError || !reactions) return {};
@@ -147,8 +145,9 @@ export async function getRoomMessageReactions(
     result[key] = {
       counts: aggregateCounts(rows.map((row) => row.reaction)),
       userReaction:
-        rows.find((row) => row.anonymous_session_id === session.id)?.reaction ??
-        null,
+        userId == null
+          ? null
+          : (rows.find((row) => row.user_id === userId)?.reaction ?? null),
     };
   }
 
@@ -158,17 +157,16 @@ export async function getRoomMessageReactions(
 export async function upsertMessageReaction(input: {
   roomId: string;
   dbMessageId: string;
-  anonymousToken: string;
+  userId: string;
   reaction: ReactionType;
 }): Promise<MessageReactionState> {
-  const session = await getOrCreateAnonymousSession(input.anonymousToken);
   const supabase = createSupabaseServiceClient();
 
   const { data: existing, error: existingError } = await supabase
     .from("belief_room_message_reactions")
     .select("id, reaction")
     .eq("message_id", input.dbMessageId)
-    .eq("anonymous_session_id", session.id)
+    .eq("user_id", input.userId)
     .maybeSingle();
 
   if (existingError) {
@@ -199,7 +197,7 @@ export async function upsertMessageReaction(input: {
       .insert({
         room_id: input.roomId,
         message_id: input.dbMessageId,
-        anonymous_session_id: session.id,
+        user_id: input.userId,
         reaction: input.reaction,
       });
 
@@ -208,9 +206,5 @@ export async function upsertMessageReaction(input: {
     }
   }
 
-  return getMessageReactionState(
-    input.roomId,
-    input.dbMessageId,
-    session.id,
-  );
+  return getMessageReactionState(input.roomId, input.dbMessageId, input.userId);
 }

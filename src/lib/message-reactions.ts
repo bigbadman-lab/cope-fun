@@ -20,29 +20,6 @@ export const EMPTY_REACTION_COUNTS: MessageReactionCounts = {
   cope: 0,
 };
 
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-export function seedMessageReactionCounts(
-  scopeKey: string,
-  messageId: string,
-): MessageReactionCounts {
-  const base = hashString(`${scopeKey}:${messageId}`);
-
-  return {
-    smart: base % 8,
-    convincing: (base >> 3) % 12,
-    not_sure: (base >> 6) % 5,
-    cope: (base >> 9) % 6,
-  };
-}
-
 export function applyReactionChange(
   counts: MessageReactionCounts,
   currentUserReaction: ReactionType | null,

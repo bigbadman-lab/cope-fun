@@ -1,24 +1,20 @@
+import {
+  isUnauthorizedError,
+  requireAppUser,
+  unauthorizedResponse,
+} from "@/lib/auth/require-app-user";
 import { getPublishedRoomIdBySlug } from "@/lib/db/votes";
 import {
   isReactionType,
   resolveRoomMessageId,
   upsertMessageReaction,
 } from "@/lib/db/reactions";
-import {
-  ANALYTICS_EVENTS,
-  resolveAnonymousSessionIdFromToken,
-  trackEvent,
-} from "@/lib/db/analytics";
+import { ANALYTICS_EVENTS, trackEvent } from "@/lib/db/analytics";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 type ReactionRequest = {
   reaction?: unknown;
-  anonymousToken?: unknown;
 };
-
-function getAnonymousToken(body: ReactionRequest): string {
-  return typeof body.anonymousToken === "string" ? body.anonymousToken.trim() : "";
-}
 
 type RouteContext = {
   params: Promise<{ slug: string; messageId: string }>;
@@ -28,15 +24,7 @@ export async function POST(request: Request, context: RouteContext) {
   try {
     const { slug, messageId } = await context.params;
     const body = (await request.json()) as ReactionRequest;
-    const anonymousToken = getAnonymousToken(body);
     const reaction = body.reaction;
-
-    if (!anonymousToken) {
-      return Response.json(
-        { ok: false, error: "Anonymous session token is required." },
-        { status: 400 },
-      );
-    }
 
     if (!isReactionType(reaction)) {
       return Response.json(
@@ -45,10 +33,11 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
+    const appUser = await requireAppUser(request);
+
     const rateLimited = await enforceRateLimit({
       request,
       action: "reaction",
-      anonymousToken,
     });
     if (rateLimited) return rateLimited;
 
@@ -71,19 +60,22 @@ export async function POST(request: Request, context: RouteContext) {
     const result = await upsertMessageReaction({
       roomId,
       dbMessageId,
-      anonymousToken,
+      userId: appUser.id,
       reaction,
     });
 
     trackEvent({
       eventName: ANALYTICS_EVENTS.reactionAdded,
-      anonymousSessionId: await resolveAnonymousSessionIdFromToken(anonymousToken),
       roomId,
-      metadata: { reaction },
+      metadata: { reaction, userId: appUser.id },
     });
 
     return Response.json({ ok: true, ...result });
-  } catch {
+  } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return unauthorizedResponse("Sign in to react to agent messages.");
+    }
+
     return Response.json(
       { ok: false, error: "Could not save message reaction." },
       { status: 500 },

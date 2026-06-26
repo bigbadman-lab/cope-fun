@@ -1,16 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import {
   applyReactionChange,
   EMPTY_REACTION_COUNTS,
-  seedMessageReactionCounts,
   type MessageReactionCounts,
   type ReactionType,
 } from "@/lib/message-reactions";
 
 const COPE_SHAKE_MS = 450;
+
+export type MessageReactionsMode =
+  | "disabled"
+  | "read-only"
+  | "interactive";
 
 type ReactionsState = {
   countsByMessage: Record<string, MessageReactionCounts>;
@@ -33,8 +36,17 @@ type RoomReactionsApiResponse = {
   error?: string;
 };
 
-type UseMessageReactionsOptions = {
-  dbBacked?: boolean;
+type AuthFetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) => Promise<Response>;
+
+export type UseMessageReactionsOptions = {
+  /** Load and display reactions for a persisted DB room. */
+  enabled?: boolean;
+  authenticated?: boolean;
+  authReady?: boolean;
+  authFetch?: AuthFetch;
 };
 
 function emptyCounts(): MessageReactionCounts {
@@ -42,30 +54,38 @@ function emptyCounts(): MessageReactionCounts {
 }
 
 export function useMessageReactions(
-  scopeKey: string,
-  messageIds: string[],
+  roomSlug: string,
   options: UseMessageReactionsOptions = {},
 ) {
-  const { dbBacked = false } = options;
+  const {
+    enabled = false,
+    authenticated = false,
+    authReady = true,
+    authFetch,
+  } = options;
+
   const [state, setState] = useState<ReactionsState>({
     countsByMessage: {},
     userReactions: {},
   });
+  const [signInRequired, setSignInRequired] = useState(false);
   const [shakeMessageId, setShakeMessageId] = useState<string | null>(null);
   const [pendingMessageId, setPendingMessageId] = useState<string | null>(null);
   const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!dbBacked) return;
+    if (!enabled) return;
 
     let cancelled = false;
 
     async function loadReactions() {
       try {
-        const token = getAnonymousSessionToken();
-        const response = await fetch(
-          `/api/rooms/${encodeURIComponent(scopeKey)}/reactions?anonymousToken=${encodeURIComponent(token)}`,
-        );
+        const url = `/api/rooms/${encodeURIComponent(roomSlug)}/reactions`;
+        const response =
+          authenticated && authFetch
+            ? await authFetch(url)
+            : await fetch(url);
+
         if (!response.ok || cancelled) return;
 
         const result = (await response.json()) as RoomReactionsApiResponse;
@@ -83,7 +103,7 @@ export function useMessageReactions(
 
         setState({ countsByMessage, userReactions });
       } catch {
-        // Keep empty reaction state if hydration fails.
+        // Keep zero counts if hydration fails.
       }
     }
 
@@ -92,7 +112,7 @@ export function useMessageReactions(
     return () => {
       cancelled = true;
     };
-  }, [dbBacked, scopeKey]);
+  }, [authenticated, authFetch, enabled, roomSlug]);
 
   useEffect(() => {
     return () => {
@@ -111,96 +131,148 @@ export function useMessageReactions(
 
   const react = useCallback(
     async (messageId: string, reaction: ReactionType) => {
-      if (dbBacked) {
-        if (pendingMessageId === messageId) return;
+      if (!enabled) return;
 
-        setPendingMessageId(messageId);
-        try {
-          const response = await fetch(
-            `/api/rooms/${encodeURIComponent(scopeKey)}/messages/${encodeURIComponent(messageId)}/reaction`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                reaction,
-                anonymousToken: getAnonymousSessionToken(),
-              }),
-            },
-          );
-
-          if (!response.ok) return;
-
-          const result = (await response.json()) as MessageReactionApiResponse;
-          if (!result.ok || !result.counts) return;
-
-          setState((prev) => ({
-            countsByMessage: {
-              ...prev.countsByMessage,
-              [messageId]: result.counts!,
-            },
-            userReactions: {
-              ...prev.userReactions,
-              [messageId]: result.userReaction ?? null,
-            },
-          }));
-
-          if (reaction === "cope" && result.userReaction === "cope") {
-            triggerCopeShake(messageId);
-          }
-        } catch {
-          // Leave current state unchanged on failure.
-        } finally {
-          setPendingMessageId(null);
-        }
+      if (!authenticated || !authFetch) {
+        setSignInRequired(true);
         return;
       }
 
-      setState((prev) => {
-        const currentCounts =
-          prev.countsByMessage[messageId] ??
-          seedMessageReactionCounts(scopeKey, messageId);
-        const currentUserReaction = prev.userReactions[messageId] ?? null;
-        const { counts, userReaction } = applyReactionChange(
-          currentCounts,
-          currentUserReaction,
-          reaction,
+      if (pendingMessageId === messageId) return;
+
+      const previousCounts = state.countsByMessage[messageId] ?? emptyCounts();
+      const previousUserReaction = state.userReactions[messageId] ?? null;
+      const optimistic = applyReactionChange(
+        previousCounts,
+        previousUserReaction,
+        reaction,
+      );
+
+      setSignInRequired(false);
+      setState((prev) => ({
+        countsByMessage: {
+          ...prev.countsByMessage,
+          [messageId]: optimistic.counts,
+        },
+        userReactions: {
+          ...prev.userReactions,
+          [messageId]: optimistic.userReaction,
+        },
+      }));
+
+      if (reaction === "cope" && optimistic.userReaction === "cope") {
+        triggerCopeShake(messageId);
+      }
+
+      setPendingMessageId(messageId);
+
+      try {
+        const response = await authFetch(
+          `/api/rooms/${encodeURIComponent(roomSlug)}/messages/${encodeURIComponent(messageId)}/reaction`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reaction }),
+          },
         );
 
-        if (reaction === "cope" && userReaction === "cope") {
-          triggerCopeShake(messageId);
+        if (response.status === 401) {
+          setState((prev) => ({
+            countsByMessage: {
+              ...prev.countsByMessage,
+              [messageId]: previousCounts,
+            },
+            userReactions: {
+              ...prev.userReactions,
+              [messageId]: previousUserReaction,
+            },
+          }));
+          setSignInRequired(true);
+          return;
         }
 
-        return {
+        if (!response.ok) {
+          setState((prev) => ({
+            countsByMessage: {
+              ...prev.countsByMessage,
+              [messageId]: previousCounts,
+            },
+            userReactions: {
+              ...prev.userReactions,
+              [messageId]: previousUserReaction,
+            },
+          }));
+          return;
+        }
+
+        const result = (await response.json()) as MessageReactionApiResponse;
+        if (!result.ok || !result.counts) {
+          setState((prev) => ({
+            countsByMessage: {
+              ...prev.countsByMessage,
+              [messageId]: previousCounts,
+            },
+            userReactions: {
+              ...prev.userReactions,
+              [messageId]: previousUserReaction,
+            },
+          }));
+          return;
+        }
+
+        setState((prev) => ({
           countsByMessage: {
             ...prev.countsByMessage,
-            [messageId]: counts,
+            [messageId]: result.counts!,
           },
           userReactions: {
             ...prev.userReactions,
-            [messageId]: userReaction,
+            [messageId]: result.userReaction ?? null,
           },
-        };
-      });
+        }));
+
+        if (reaction === "cope" && result.userReaction === "cope") {
+          triggerCopeShake(messageId);
+        }
+      } catch {
+        setState((prev) => ({
+          countsByMessage: {
+            ...prev.countsByMessage,
+            [messageId]: previousCounts,
+          },
+          userReactions: {
+            ...prev.userReactions,
+            [messageId]: previousUserReaction,
+          },
+        }));
+      } finally {
+        setPendingMessageId(null);
+      }
     },
-    [dbBacked, pendingMessageId, scopeKey, triggerCopeShake],
+    [
+      authFetch,
+      authenticated,
+      enabled,
+      pendingMessageId,
+      roomSlug,
+      state.countsByMessage,
+      state.userReactions,
+      triggerCopeShake,
+    ],
   );
 
   const getCounts = useCallback(
-    (messageId: string) => {
-      if (state.countsByMessage[messageId]) {
-        return state.countsByMessage[messageId];
-      }
-
-      return dbBacked
-        ? emptyCounts()
-        : seedMessageReactionCounts(scopeKey, messageId);
-    },
-    [dbBacked, scopeKey, state.countsByMessage],
+    (messageId: string) =>
+      enabled
+        ? (state.countsByMessage[messageId] ?? emptyCounts())
+        : emptyCounts(),
+    [enabled, state.countsByMessage],
   );
 
   const getUserReaction = useCallback(
-    (messageId: string) => state.userReactions[messageId] ?? null,
-    [state.userReactions],
+    (messageId: string) =>
+      enabled ? (state.userReactions[messageId] ?? null) : null,
+    [enabled, state.userReactions],
   );
 
   const isShaking = useCallback(
@@ -213,5 +285,24 @@ export function useMessageReactions(
     [pendingMessageId],
   );
 
-  return { getCounts, getUserReaction, react, isShaking, isPending };
+  const clearSignInRequired = useCallback(() => {
+    setSignInRequired(false);
+  }, []);
+
+  let mode: MessageReactionsMode = "disabled";
+  if (enabled) {
+    if (authenticated && authReady) mode = "interactive";
+    else mode = "read-only";
+  }
+
+  return {
+    mode,
+    signInRequired,
+    clearSignInRequired,
+    getCounts,
+    getUserReaction,
+    react,
+    isShaking,
+    isPending,
+  };
 }

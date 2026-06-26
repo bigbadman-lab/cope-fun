@@ -10,6 +10,14 @@ export class UnauthorizedError extends Error {
   }
 }
 
+export async function getOptionalAppUser(
+  request: Request,
+): Promise<AppUser | null> {
+  const auth = await verifyPrivyRequest(request);
+  if (!auth) return null;
+  return getOrCreateAppUser(auth);
+}
+
 export async function requireAppUser(request: Request): Promise<AppUser> {
   const auth = await verifyPrivyRequest(request);
   if (!auth) {
