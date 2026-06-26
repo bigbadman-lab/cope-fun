@@ -16,6 +16,9 @@
     0 0 14px -2px rgb(217 119 63 / 0.1);
   --nav-height: 3.5rem;
   --footer-height: 3rem;
+  --mobile-bottom-nav-height: 4rem;
+  --mobile-bottom-nav-offset: 0px;
+  --scroll-bottom-inset: env(safe-area-inset-bottom, 0px);
   --composer-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   --composer-height: 4.75rem;
   --composer-fade-height: 5rem;
@@ -50,6 +53,20 @@ html.homepage-debate-active {
 @supports (height: 100dvh) {
   :root {
     --belief-top-in-main: calc(14dvh - var(--nav-height));
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --mobile-bottom-nav-offset: calc(
+      var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
+    --scroll-bottom-inset: var(--mobile-bottom-nav-offset);
+    --composer-bottom: calc(1rem + var(--mobile-bottom-nav-offset));
+  }
+
+  html.homepage-debate-active {
+    --composer-bottom: var(--mobile-bottom-nav-offset);
   }
 }
 
@@ -131,6 +148,10 @@ body {
     bottom: var(--composer-bottom);
   }
 
+  .bottom-mobile-bottom-nav {
+    bottom: var(--mobile-bottom-nav-offset);
+  }
+
   .pb-composer-scroll {
     padding-bottom: var(--composer-scroll-padding);
     scroll-padding-bottom: var(--composer-scroll-padding);
@@ -160,7 +181,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(1rem + var(--scroll-bottom-inset));
   }
 
   .inner-page-content {

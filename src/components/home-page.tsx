@@ -690,7 +690,7 @@ export function HomePage({
             chatSaved={chatSaved}
           />
         ) : (
-          <div className="mx-auto flex w-full max-w-md min-h-home-idle flex-col justify-center px-4 py-8">
+          <div className="mx-auto flex w-full max-w-md min-h-home-idle flex-col justify-center px-4 py-8 pb-[calc(2rem+var(--scroll-bottom-inset))] md:pb-8">
             <div
                 className={`mb-6 transition-[opacity,filter,transform] duration-500 ease-out ${
                   phase === "idle"
@@ -775,7 +775,7 @@ export function HomePage({
 
       {saveToastVisible && (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4"
+          className="pointer-events-none fixed inset-x-0 bottom-[calc(6rem+var(--mobile-bottom-nav-offset))] z-50 flex justify-center px-4 md:bottom-24"
           role="status"
           aria-live="polite"
         >
@@ -787,7 +787,7 @@ export function HomePage({
 
       {saveErrorMessage && (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4"
+          className="pointer-events-none fixed inset-x-0 bottom-[calc(6rem+var(--mobile-bottom-nav-offset))] z-50 flex justify-center px-4 md:bottom-24"
           role="alert"
           aria-live="polite"
         >

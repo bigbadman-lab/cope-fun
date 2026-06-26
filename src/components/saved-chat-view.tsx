@@ -631,9 +631,9 @@ export function SavedChatView({
 
   const bottomPanelHeight = isCreator
     ? attentionRemaining > 0
-      ? "pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
-      : "pb-[calc(10rem+env(safe-area-inset-bottom,0px))]"
-    : "pb-[calc(11.5rem+env(safe-area-inset-bottom,0px))]";
+      ? "pb-[calc(9.5rem+var(--scroll-bottom-inset))]"
+      : "pb-[calc(10rem+var(--scroll-bottom-inset))]"
+    : "pb-[calc(11.5rem+var(--scroll-bottom-inset))]";
 
   return (
     <>
@@ -699,7 +699,7 @@ export function SavedChatView({
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
+      <div className="fixed inset-x-0 bottom-mobile-bottom-nav z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
         <div className="relative mx-auto w-full max-w-md">
           {isCreator && attentionRemaining > 0 ? (
             <>
