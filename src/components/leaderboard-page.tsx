@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
+import { LeaderboardQualificationHint } from "./leaderboard-qualification-hint";
+import {
+  LEADERBOARD_EMPTY_SUBTEXT,
+  LEADERBOARD_EMPTY_TITLE,
+} from "@/lib/leaderboard/eligibility";
 import { SEASON_1_AIRDROP_NOTE } from "@/lib/markets/display-status";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
@@ -84,15 +89,20 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
             Leaderboard
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            Ranked by total credits won in Season 1 markets.
+            Ranked by total credits won in Season 1 markets. Enter at least one
+            market to qualify.
           </p>
         </header>
 
+        <LeaderboardQualificationHint />
+
         {entries.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-base text-zinc-500">No rankings yet.</p>
+            <p className="text-base font-medium text-zinc-600 dark:text-zinc-400">
+              {LEADERBOARD_EMPTY_TITLE}
+            </p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-500">
-              Stake on markets to appear here after settlements.
+              {LEADERBOARD_EMPTY_SUBTEXT}
             </p>
             <Link
               href="/markets"

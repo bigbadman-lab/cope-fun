@@ -245,7 +245,11 @@ function ProfileErrorState({
 function SeasonHeroCard({ dashboard }: { dashboard: ProfileDashboard }) {
   const { user, season, account } = dashboard;
   const rankLabel =
-    season.rank !== null ? `#${season.rank}` : "Unranked";
+    season.isQualified && season.rank !== null
+      ? `#${season.rank}`
+      : season.isQualified
+        ? "Unranked"
+        : "—";
   const winRateLabel =
     account.winRate !== null ? `${account.winRate}%` : "—";
 
@@ -287,6 +291,18 @@ function SeasonHeroCard({ dashboard }: { dashboard: ProfileDashboard }) {
           </p>
         </div>
       </div>
+
+      {!season.isQualified && season.qualificationMessage && (
+        <p className="mt-4 rounded-lg border border-cope-orange/20 bg-cope-orange/[0.06] px-3 py-2.5 text-[13px] leading-relaxed text-zinc-700 dark:text-zinc-300">
+          {season.qualificationMessage}{" "}
+          <Link
+            href="/markets"
+            className="font-medium text-cope-orange hover:underline"
+          >
+            View markets
+          </Link>
+        </p>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <StatCard label="Season rank" value={rankLabel} />

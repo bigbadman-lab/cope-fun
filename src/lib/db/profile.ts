@@ -16,6 +16,11 @@ import type {
   ProfileSeasonSummary,
   ProfileUserSummary,
 } from "@/lib/profile/types";
+import {
+  isLeaderboardQualified,
+  LEADERBOARD_MIN_MARKETS_ENTERED,
+  LEADERBOARD_PROFILE_UNQUALIFIED_MESSAGE,
+} from "@/lib/leaderboard/eligibility";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { CreditAccountView } from "@/lib/markets/types";
 
@@ -25,6 +30,7 @@ type CreditAccountRankRow = {
   user_id: string;
   total_won_credits: number;
   markets_won: number;
+  markets_entered: number;
   created_at: string;
 };
 
@@ -212,16 +218,28 @@ function toPositionSummary(row: PositionJoinRow): ProfileMarketPositionSummary |
   };
 }
 
-export async function getUserLeaderboardRank(userId: string): Promise<{
+export async function getUserLeaderboardRank(
+  userId: string,
+  marketsEntered: number,
+): Promise<{
   rank: number | null;
   totalPlayers: number;
+  isQualified: boolean;
 }> {
+  const isQualified = isLeaderboardQualified(marketsEntered);
+
+  if (!isQualified) {
+    const totalPlayers = await countQualifiedLeaderboardPlayers();
+    return { rank: null, totalPlayers, isQualified: false };
+  }
+
   const supabase = createSupabaseServiceClient();
 
   const { data, error } = await supabase
     .from("cope_credit_accounts")
-    .select("user_id, total_won_credits, markets_won, created_at")
+    .select("user_id, total_won_credits, markets_won, markets_entered, created_at")
     .not("user_id", "is", null)
+    .gte("markets_entered", LEADERBOARD_MIN_MARKETS_ENTERED)
     .order("total_won_credits", { ascending: false })
     .order("markets_won", { ascending: false })
     .order("created_at", { ascending: true });
@@ -232,14 +250,29 @@ export async function getUserLeaderboardRank(userId: string): Promise<{
 
   const rows = data as CreditAccountRankRow[];
   const totalPlayers = rows.length;
-  const userRow = rows.find((row) => row.user_id === userId);
+  const index = rows.findIndex((row) => row.user_id === userId);
 
-  if (!userRow || userRow.total_won_credits <= 0) {
-    return { rank: null, totalPlayers };
+  return {
+    rank: index >= 0 ? index + 1 : null,
+    totalPlayers,
+    isQualified: true,
+  };
+}
+
+async function countQualifiedLeaderboardPlayers(): Promise<number> {
+  const supabase = createSupabaseServiceClient();
+
+  const { count, error } = await supabase
+    .from("cope_credit_accounts")
+    .select("user_id", { count: "exact", head: true })
+    .not("user_id", "is", null)
+    .gte("markets_entered", LEADERBOARD_MIN_MARKETS_ENTERED);
+
+  if (error) {
+    throw new Error("Could not load leaderboard rank.");
   }
 
-  const index = rows.findIndex((row) => row.user_id === userId);
-  return { rank: index >= 0 ? index + 1 : null, totalPlayers };
+  return count ?? 0;
 }
 
 export async function getUserMarketPositions(userId: string): Promise<{
@@ -355,16 +388,21 @@ export async function getAccountDashboard(
   user: AppUser,
   account: CreditAccountView,
 ): Promise<ProfileDashboard> {
-  const [{ rank, totalPlayers }, positions, createdRooms] = await Promise.all([
-    getUserLeaderboardRank(user.id),
-    getUserMarketPositions(user.id),
-    getUserCreatedBeliefRooms(user.id, user.linkedAnonymousSessionId),
-  ]);
+  const [{ rank, totalPlayers, isQualified }, positions, createdRooms] =
+    await Promise.all([
+      getUserLeaderboardRank(user.id, account.marketsEntered),
+      getUserMarketPositions(user.id),
+      getUserCreatedBeliefRooms(user.id, user.linkedAnonymousSessionId),
+    ]);
 
   const season: ProfileSeasonSummary = {
     name: "Season 1",
     rank,
     totalPlayers,
+    isQualified,
+    qualificationMessage: isQualified
+      ? null
+      : LEADERBOARD_PROFILE_UNQUALIFIED_MESSAGE,
     eligibilityNote: SEASON_1_AIRDROP_NOTE,
   };
 

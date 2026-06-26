@@ -18,6 +18,8 @@ export type ProfileSeasonSummary = {
   name: string;
   rank: number | null;
   totalPlayers: number;
+  isQualified: boolean;
+  qualificationMessage: string | null;
   eligibilityNote: string;
 };
 

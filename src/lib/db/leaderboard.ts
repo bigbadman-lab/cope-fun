@@ -1,5 +1,6 @@
 import "server-only";
 import { formatAppUserLabel } from "@/lib/auth/display-label";
+import { LEADERBOARD_MIN_MARKETS_ENTERED } from "@/lib/leaderboard/eligibility";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
@@ -46,6 +47,7 @@ export async function getLeaderboardEntries(): Promise<LeaderboardEntry[]> {
     `,
     )
     .not("user_id", "is", null)
+    .gte("markets_entered", LEADERBOARD_MIN_MARKETS_ENTERED)
     .order("total_won_credits", { ascending: false })
     .order("markets_won", { ascending: false })
     .limit(LEADERBOARD_LIMIT);
