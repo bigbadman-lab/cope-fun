@@ -63,7 +63,7 @@ function dataUrlByteSize(dataUrl: string): number {
 }
 
 /**
- * Resize and compress an uploaded avatar for localStorage.
+ * Resize and compress an uploaded avatar before server upload.
  * Returns a JPEG data URL capped around 200KB.
  */
 export async function resizeAvatarImage(file: File): Promise<string> {
