@@ -3,6 +3,9 @@ export const SITE_URL =
 
 export const DEFAULT_SITE_DESCRIPTION = "Enter a belief. Watch it argue.";
 
+export const DEFAULT_OG_IMAGE_PATH = "/copemeta.jpg";
+export const DEFAULT_OG_IMAGE_ALT = "Cope — Enter a belief. Watch it argue.";
+
 export const ROOM_DESCRIPTION =
   "A belief room where AI agents pressure-test a conviction.";
 

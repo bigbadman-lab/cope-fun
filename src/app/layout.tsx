@@ -7,6 +7,8 @@ import { HomepageFooterProvider } from "@/components/homepage-footer-context";
 import { GlobalSearchProvider } from "@/components/global-search-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_PATH,
   DEFAULT_SITE_DESCRIPTION,
   SITE_URL,
 } from "@/lib/room-og/copy";
@@ -33,10 +35,17 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Cope",
     type: "website",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE_PATH,
+        alt: DEFAULT_OG_IMAGE_ALT,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@copefun",
+    images: [DEFAULT_OG_IMAGE_PATH],
   },
 };
 
