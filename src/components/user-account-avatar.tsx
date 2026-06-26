@@ -6,35 +6,65 @@ import {
 } from "@/lib/profile/avatar-colors";
 import { getAccountInitials } from "@/lib/profile/account-initials";
 
-export type UserAccountAvatarSize = "xs" | "sm" | "md" | "lg";
+export type UserAccountAvatarSize =
+  | "xs"
+  | "sm"
+  | "md"
+  | "lg"
+  | "room"
+  | "room-mini";
 
 const SIZE_CLASSES: Record<
   UserAccountAvatarSize,
-  { container: string; text: string; dot: string; dotOffset: string }
+  {
+    container: string;
+    text: string;
+    dot: string;
+    dotOffset: string;
+    rounded: string;
+  }
 > = {
   xs: {
     container: "size-7",
     text: "text-[10px]",
     dot: "size-2",
     dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-full",
   },
   sm: {
     container: "size-8",
     text: "text-xs",
     dot: "size-2",
     dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-full",
   },
   md: {
     container: "size-10",
     text: "text-sm",
     dot: "size-2.5",
     dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-full",
   },
   lg: {
     container: "size-14",
     text: "text-base",
     dot: "size-2.5",
     dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-full",
+  },
+  room: {
+    container: "size-11 sm:size-[52px]",
+    text: "text-sm",
+    dot: "size-2.5",
+    dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-lg",
+  },
+  "room-mini": {
+    container: "size-7",
+    text: "text-[10px]",
+    dot: "size-2",
+    dotOffset: "-bottom-0.5 -right-0.5",
+    rounded: "rounded-md",
   },
 };
 
@@ -76,11 +106,11 @@ export function UserAccountAvatar({
           src={imageSrc ?? avatarPublicUrl}
           alt=""
           aria-hidden
-          className={`${sizeClass.container} rounded-full object-cover ring-1 ring-zinc-200/70 dark:ring-white/10`}
+          className={`${sizeClass.container} ${sizeClass.rounded} object-cover ring-1 ring-zinc-200/70 dark:ring-white/10`}
         />
       ) : (
         <span
-          className={`${sizeClass.container} flex items-center justify-center rounded-full font-semibold ${sizeClass.text}`}
+          className={`${sizeClass.container} flex items-center justify-center ${sizeClass.rounded} font-semibold ${sizeClass.text}`}
           style={{
             backgroundColor: preset?.background,
             color: preset?.foreground,

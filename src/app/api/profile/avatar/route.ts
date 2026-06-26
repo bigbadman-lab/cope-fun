@@ -5,10 +5,24 @@ import {
   unauthorizedResponse,
 } from "@/lib/auth/require-app-user";
 import {
+  removeAppUserAvatarPhoto,
   updateAppUserAvatarColor,
   uploadAppUserAvatarImage,
 } from "@/lib/db/user-avatar";
 import { resolveAvatarPublicUrl } from "@/lib/profile/avatar-upload";
+
+function avatarResponse(updated: {
+  avatarColor: string | null;
+  avatarUrl: string | null;
+  avatarUpdatedAt: string | null;
+}) {
+  return {
+    avatarColor: updated.avatarColor,
+    avatarUrl: updated.avatarUrl,
+    avatarPublicUrl: resolveAvatarPublicUrl(updated.avatarUrl),
+    avatarUpdatedAt: updated.avatarUpdatedAt,
+  };
+}
 
 export async function PATCH(request: Request) {
   try {
@@ -35,16 +49,24 @@ export async function PATCH(request: Request) {
 
       return NextResponse.json({
         ok: true,
-        avatar: {
-          avatarColor: updated.avatarColor,
-          avatarUrl: updated.avatarUrl,
-          avatarPublicUrl: resolveAvatarPublicUrl(updated.avatarUrl),
-          avatarUpdatedAt: updated.avatarUpdatedAt,
-        },
+        avatar: avatarResponse(updated),
       });
     }
 
-    const body = (await request.json()) as { avatar_color?: unknown };
+    const body = (await request.json()) as {
+      avatar_color?: unknown;
+      removePhoto?: unknown;
+    };
+
+    if (body.removePhoto === true) {
+      const updated = await removeAppUserAvatarPhoto(appUser.id);
+
+      return NextResponse.json({
+        ok: true,
+        avatar: avatarResponse(updated),
+      });
+    }
+
     const avatarColor =
       typeof body.avatar_color === "string" ? body.avatar_color.trim() : "";
 
@@ -59,12 +81,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      avatar: {
-        avatarColor: updated.avatarColor,
-        avatarUrl: updated.avatarUrl,
-        avatarPublicUrl: resolveAvatarPublicUrl(updated.avatarUrl),
-        avatarUpdatedAt: updated.avatarUpdatedAt,
-      },
+      avatar: avatarResponse(updated),
     });
   } catch (error) {
     if (isUnauthorizedError(error)) {

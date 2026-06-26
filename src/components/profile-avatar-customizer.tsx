@@ -157,6 +157,50 @@ export function ProfileAvatarCustomizer({
     [applyAvatarResponse, authFetch, saving],
   );
 
+  const handleRemovePhoto = useCallback(async () => {
+    if (saving || !user.avatarPublicUrl) return;
+
+    const confirmed = window.confirm(
+      "Remove your uploaded photo? Your preset avatar colour will be shown instead.",
+    );
+    if (!confirmed) return;
+
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const response = await authFetch("/api/profile/avatar", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ removePhoto: true }),
+      });
+      const payload = (await response.json()) as {
+        ok: boolean;
+        avatar?: {
+          avatarColor: string | null;
+          avatarUrl: string | null;
+          avatarPublicUrl: string | null;
+          avatarUpdatedAt: string | null;
+        };
+        error?: string;
+      };
+
+      if (!response.ok || !payload.ok || !payload.avatar) {
+        throw new Error(payload.error ?? "Could not remove avatar photo.");
+      }
+
+      applyAvatarResponse(payload.avatar);
+      setMessage("Photo removed.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not remove avatar photo.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }, [applyAvatarResponse, authFetch, saving, user.avatarPublicUrl]);
+
   return (
     <section className="mb-6 rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
       <div className="flex items-start justify-between gap-3">
@@ -228,6 +272,16 @@ export function ProfileAvatarCustomizer({
           {saving ? <SubmitButtonLoader /> : null}
           {saving ? "Saving…" : "Upload photo"}
         </button>
+        {user.avatarPublicUrl ? (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => void handleRemovePhoto()}
+            className="inline-flex min-h-10 items-center rounded-xl border border-rose-200/70 bg-background px-3.5 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50 disabled:opacity-60 dark:border-rose-900/30 dark:bg-background dark:text-rose-400 dark:hover:bg-rose-950/20"
+          >
+            Remove photo
+          </button>
+        ) : null}
         <p className="text-xs text-zinc-500">JPEG, PNG, or WebP · max 2MB</p>
       </div>
 

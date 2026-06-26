@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { getAgentProfilePath } from "@/lib/agent-profiles";
-import { ConnectedUserAvatarVisual } from "./user-avatar-visual";
+import { RoomYouAvatar } from "./room-you-avatar";
 
 export const USER_DISPLAY_NAME = "You";
 
@@ -106,8 +106,8 @@ export function MiniAvatar({
 
   if (name === USER_DISPLAY_NAME) {
     return (
-      <ConnectedUserAvatarVisual
-        size="mini"
+      <RoomYouAvatar
+        size="room-mini"
         className={`ring-2 ring-background ${className}`}
       />
     );
@@ -190,7 +190,7 @@ export function AvatarPlaceholder({
   const src = AGENT_AVATARS[name];
 
   if (name === USER_DISPLAY_NAME) {
-    return <ConnectedUserAvatarVisual size="md" />;
+    return <RoomYouAvatar size="room" />;
   }
 
   if (!src || imageFailed) {
