@@ -11,8 +11,14 @@ import { useAppAuth } from "@/hooks/use-app-auth";
 import {
   COPE_CREDITS_DISCLAIMER,
   getMarketDisplayStatusLabel,
-  SEASON_1_AIRDROP_NOTE,
 } from "@/lib/markets/display-status";
+import {
+  formatWalletAddress,
+  getCurrentSeason,
+  SEASON_ELIGIBILITY_NOTE,
+  SEASON_WALLET_PROFILE_COPY,
+  SEASON_WALLET_SIGNUP_COPY,
+} from "@/lib/seasons";
 import type {
   ProfileCreatedRoomSummary,
   ProfileDashboard,
@@ -194,11 +200,13 @@ function CreatedRoomRow({ room }: { room: ProfileCreatedRoomSummary }) {
 }
 
 function ProfileSignInPrompt({ onSignIn }: { onSignIn: () => void }) {
+  const currentSeason = getCurrentSeason();
+
   return (
     <div className="rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-5 dark:border-white/[0.07] dark:bg-surface/40">
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Sign in to track your COPE Credits, enter markets, view your Season 1
-        rank, and manage your beliefs.
+        Sign in to track your COPE Credits, enter markets, view your{" "}
+        {currentSeason.name} rank, and manage your beliefs.
       </p>
       <button
         type="button"
@@ -318,7 +326,7 @@ function SeasonHeroCard({ dashboard }: { dashboard: ProfileDashboard }) {
       </div>
 
       <p className="mt-4 text-[12px] leading-relaxed text-zinc-500">
-        {season.eligibilityNote || SEASON_1_AIRDROP_NOTE}
+        {season.eligibilityNote || SEASON_ELIGIBILITY_NOTE}
       </p>
       <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
         {COPE_CREDITS_DISCLAIMER}
@@ -352,6 +360,30 @@ function getAuthMethodLabel(
   if (walletAddress) return "Wallet";
   if (email) return "Email";
   return "Privy";
+}
+
+function SeasonWalletSection({ walletAddress }: { walletAddress: string | null }) {
+  return (
+    <ProfileSection title="Season wallet">
+      {walletAddress ? (
+        <>
+          <p className="font-mono text-sm text-zinc-900 dark:text-zinc-100">
+            {formatWalletAddress(walletAddress)}
+          </p>
+          <p className="mt-1 break-all font-mono text-[11px] text-zinc-500">
+            {walletAddress}
+          </p>
+          <p className="mt-3 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+            {SEASON_WALLET_PROFILE_COPY}
+          </p>
+        </>
+      ) : (
+        <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+          {SEASON_WALLET_SIGNUP_COPY}
+        </p>
+      )}
+    </ProfileSection>
+  );
 }
 
 function ProfileAccountSection({ user }: { user: ProfileUserSummary }) {
@@ -411,6 +443,8 @@ function ProfileDashboardView({
   return (
     <>
       <SeasonHeroCard dashboard={dashboard} />
+
+      <SeasonWalletSection walletAddress={dashboard.user.walletAddress} />
 
       <ProfileAvatarCustomizer user={dashboard.user} onUserUpdated={onUserUpdated} />
 
@@ -478,6 +512,7 @@ function ProfileDashboardView({
 export function ProfilePage() {
   const { ready, authenticated, login, authFetch } = useAppAuth();
   const { applyAvatarFromUser } = useAccountAvatar();
+  const currentSeason = getCurrentSeason();
   const [dashboard, setDashboard] = useState<ProfileDashboard | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -551,7 +586,7 @@ export function ProfilePage() {
             Profile
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            Your private Season 1 dashboard.
+            Your private {currentSeason.name} dashboard.
           </p>
         </header>
 

@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
+import {
+  formatSeasonDateRange,
+  formatSeasonSnapshotLabel,
+  getCurrentSeason,
+} from "@/lib/seasons";
 
 const STEPS = [
   {
@@ -76,23 +81,27 @@ function StepCard({
 }
 
 function SeasonCard() {
+  const currentSeason = getCurrentSeason();
+
   return (
     <section className="rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-3.5 dark:border-white/[0.07] dark:bg-surface/40">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-cope-orange">
-            Season 1
+            {currentSeason.name}
           </p>
           <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            25,000,000 $COPE rewards
+            Monthly leaderboard competition
           </p>
         </div>
         <p className="rounded-full border border-zinc-200/80 bg-background/70 px-2.5 py-1 text-[11px] font-medium text-zinc-500 dark:border-white/[0.08] dark:bg-background/40">
-          30 day competition
+          UTC schedule
         </p>
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        All Season 1 markets resolve during Season 1.
+        {formatSeasonDateRange(currentSeason)}. All {currentSeason.name} markets
+        resolve during {currentSeason.name}. {formatSeasonSnapshotLabel(currentSeason)}.
+        Eligible rewards you qualify for, if any, are sent to your assigned wallet.
       </p>
     </section>
   );

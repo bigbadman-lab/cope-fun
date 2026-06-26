@@ -1,4 +1,8 @@
 import type { MarketStatus } from "@/lib/markets/types";
+import {
+  getCopeCreditsDisclaimer,
+  SEASON_ELIGIBILITY_NOTE,
+} from "@/lib/seasons";
 
 export type MarketDisplayStatus =
   | "draft"
@@ -8,11 +12,12 @@ export type MarketDisplayStatus =
   | "resolved"
   | "voided";
 
-export const COPE_CREDITS_DISCLAIMER =
-  "COPE Credits are in-app points for Season 1. They are not real money, not transferable, and not withdrawable.";
+export const COPE_CREDITS_DISCLAIMER = getCopeCreditsDisclaimer();
 
-export const SEASON_1_AIRDROP_NOTE =
-  "Season 1 leaderboard may be used to determine eligibility for a future COPE token airdrop. Exact criteria and allocations are not guaranteed.";
+/** @deprecated Use SEASON_ELIGIBILITY_NOTE from @/lib/seasons */
+export const SEASON_1_AIRDROP_NOTE = SEASON_ELIGIBILITY_NOTE;
+
+export { SEASON_ELIGIBILITY_NOTE };
 
 export function getMarketDisplayStatus(
   dbStatus: MarketStatus,

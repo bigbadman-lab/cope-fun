@@ -1,5 +1,9 @@
 import { InnerPageShell } from "./inner-page-shell";
 import { MarketListRow } from "./market-list-row";
+import {
+  formatSeasonDateRange,
+  getCurrentSeason,
+} from "@/lib/seasons";
 import type { PublicMarket } from "@/lib/markets/types";
 
 type MarketsPageProps = {
@@ -10,15 +14,20 @@ type MarketsPageProps = {
 };
 
 function SeasonBanner() {
+  const currentSeason = getCurrentSeason();
+
   return (
     <section className="mb-5 rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-3.5 dark:border-white/[0.07] dark:bg-surface/40">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-cope-orange">
-            Season 1
+            {currentSeason.name}
           </p>
           <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             Stake COPE Credits on curated belief markets
+          </p>
+          <p className="mt-1 text-xs text-zinc-500">
+            {formatSeasonDateRange(currentSeason)}
           </p>
         </div>
         <p className="rounded-full border border-zinc-200/80 bg-background/70 px-2.5 py-1 text-[11px] font-medium text-zinc-500 dark:border-white/[0.08] dark:bg-background/40">

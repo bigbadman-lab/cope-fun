@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import {
+  getLeaderboardUnqualifiedHint,
   isLeaderboardQualified,
-  LEADERBOARD_UNQUALIFIED_HINT,
 } from "@/lib/leaderboard/eligibility";
 
 type ProfileMeResponse =
@@ -53,7 +53,7 @@ export function LeaderboardQualificationHint() {
   return (
     <div className="mb-4 rounded-xl border border-cope-orange/20 bg-cope-orange/[0.06] px-4 py-3">
       <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-        {LEADERBOARD_UNQUALIFIED_HINT}{" "}
+        {getLeaderboardUnqualifiedHint()}{" "}
         <Link
           href="/markets"
           className="font-medium text-cope-orange hover:underline"

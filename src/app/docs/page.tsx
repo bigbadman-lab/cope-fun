@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
 import { InnerPageShell } from "@/components/inner-page-shell";
+import {
+  getCurrentSeason,
+  SEASON_FAQ_BULLETS,
+  SEASON_OVERVIEW_COPY,
+} from "@/lib/seasons";
 
 const HERO_PILLS = ["Belief Rooms", "COPE Credits", "Future Markets"] as const;
 
@@ -55,11 +60,11 @@ const CORE_CARDS = [
   {
     label: "Competition",
     title: "Seasons",
-    copy: "Seasons create recurring windows for reputation, leaderboard status, and credit-based competition.",
+    copy: SEASON_OVERVIEW_COPY,
     bullets: [
-      "Competition can reset each season.",
-      "Profile history can persist.",
-      "Accuracy and contribution can matter.",
+      "Monthly leaderboard windows in UTC.",
+      "Enter a belief market to join the season leaderboard.",
+      "Final snapshot at season close; eligible rewards may follow.",
     ],
   },
   {
@@ -87,11 +92,12 @@ const LIFECYCLE_STEPS = [
 const SEASON_CARDS = [
   {
     title: "How users get COPE Credits",
-    copy: "Credits may come from starting balances, participation, accurate calls, referrals, high-quality rooms, and seasonal rewards.",
+    copy: "Credits may come from starting balances, participation, accurate calls, referrals, high-quality rooms, and seasonal rewards you qualify for, if applicable.",
   },
   {
     title: "How seasons work",
-    copy: "Seasons can reset competition while preserving profile history, creating recurring cycles of activity and status.",
+    copy: SEASON_OVERVIEW_COPY,
+    bullets: [...SEASON_FAQ_BULLETS],
   },
   {
     title: "How payouts work",
@@ -329,9 +335,39 @@ export default function DocsPage() {
                   <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                     {card.copy}
                   </p>
+                  {"bullets" in card && card.bullets ? (
+                    <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                      {card.bullets.map((bullet) => (
+                        <li key={bullet} className="flex gap-2">
+                          <span
+                            aria-hidden
+                            className="mt-2 size-1 shrink-0 rounded-full bg-cope-orange/70"
+                          />
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </article>
               ))}
             </div>
+            <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
+              {getCurrentSeason().name} runs{" "}
+              {new Date(getCurrentSeason().startAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                timeZone: "UTC",
+              })}{" "}
+              through{" "}
+              {new Date(getCurrentSeason().endAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                timeZone: "UTC",
+              })}{" "}
+              (UTC).
+            </p>
           </section>
 
           <section className="rounded-2xl border border-amber-300/50 bg-amber-50/70 p-5 dark:border-amber-900/40 dark:bg-amber-950/20">

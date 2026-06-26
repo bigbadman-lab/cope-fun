@@ -4,8 +4,8 @@ import type { AppUser } from "@/lib/auth/app-user";
 import {
   COPE_CREDITS_DISCLAIMER,
   getMarketDisplayStatus,
-  SEASON_1_AIRDROP_NOTE,
 } from "@/lib/markets/display-status";
+import { getCurrentSeason, SEASON_ELIGIBILITY_NOTE } from "@/lib/seasons";
 import { resolveAvatarPublicUrl } from "@/lib/profile/avatar-upload";
 import type { MarketSide, MarketStatus } from "@/lib/markets/types";
 import type {
@@ -19,7 +19,7 @@ import type {
 import {
   isLeaderboardQualified,
   LEADERBOARD_MIN_MARKETS_ENTERED,
-  LEADERBOARD_PROFILE_UNQUALIFIED_MESSAGE,
+  getLeaderboardProfileUnqualifiedMessage,
 } from "@/lib/leaderboard/eligibility";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { CreditAccountView } from "@/lib/markets/types";
@@ -395,15 +395,17 @@ export async function getAccountDashboard(
       getUserCreatedBeliefRooms(user.id, user.linkedAnonymousSessionId),
     ]);
 
+  const currentSeason = getCurrentSeason();
+
   const season: ProfileSeasonSummary = {
-    name: "Season 1",
+    name: currentSeason.name,
     rank,
     totalPlayers,
     isQualified,
     qualificationMessage: isQualified
       ? null
-      : LEADERBOARD_PROFILE_UNQUALIFIED_MESSAGE,
-    eligibilityNote: SEASON_1_AIRDROP_NOTE,
+      : getLeaderboardProfileUnqualifiedMessage(),
+    eligibilityNote: SEASON_ELIGIBILITY_NOTE,
   };
 
   return {

@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
 import { LeaderboardQualificationHint } from "./leaderboard-qualification-hint";
+import { SeasonExplainer } from "./season-explainer";
 import {
-  LEADERBOARD_EMPTY_SUBTEXT,
+  getLeaderboardEmptySubtext,
   LEADERBOARD_EMPTY_TITLE,
 } from "@/lib/leaderboard/eligibility";
-import { SEASON_1_AIRDROP_NOTE } from "@/lib/markets/display-status";
+import {
+  getCurrentSeason,
+  getSeasonLeaderboardTitle,
+  SEASON_ELIGIBILITY_NOTE,
+} from "@/lib/seasons";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
 type LeaderboardPageProps = {
@@ -63,36 +68,37 @@ function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
   );
 }
 
-function RewardsCard() {
+function RewardsNote({ seasonName }: { seasonName: string }) {
   return (
     <section className="mt-5 rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
       <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-        Season 1 rewards
+        {seasonName} rewards
       </h2>
       <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {SEASON_1_AIRDROP_NOTE} Rankings use total credits won from settled
-        markets.
-      </p>
-      <p className="mt-3 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
-        No wallet required yet. COPE Credits are in-app Season 1 points only.
+        {SEASON_ELIGIBILITY_NOTE} Rankings use total credits won from settled
+        markets during {seasonName}.
       </p>
     </section>
   );
 }
 
 export function LeaderboardPage({ entries }: LeaderboardPageProps) {
+  const currentSeason = getCurrentSeason();
+
   return (
     <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
         <header className="pb-4">
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Leaderboard
+            {getSeasonLeaderboardTitle(currentSeason)}
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            Ranked by total credits won in Season 1 markets. Enter at least one
-            market to qualify.
+            Ranked by total credits won in {currentSeason.name} markets. Enter
+            at least one market to qualify.
           </p>
         </header>
+
+        <SeasonExplainer season={currentSeason} />
 
         <LeaderboardQualificationHint />
 
@@ -102,7 +108,7 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
               {LEADERBOARD_EMPTY_TITLE}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-500">
-              {LEADERBOARD_EMPTY_SUBTEXT}
+              {getLeaderboardEmptySubtext()}
             </p>
             <Link
               href="/markets"
@@ -119,7 +125,7 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
           </section>
         )}
 
-        <RewardsCard />
+        <RewardsNote seasonName={currentSeason.name} />
       </div>
     </InnerPageShell>
   );
