@@ -1,10 +1,10 @@
 "use client";
 
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
+import { DEBATE_AGENT_NAMES } from "@/lib/agent-profiles";
 import { getVotePercentages } from "@/lib/vote";
 import {
   getLastMessagePreview,
-  getParticipants,
   type SavedConversation,
 } from "@/lib/saved-chats";
 import type { RoomSearchResult } from "@/lib/room-search";
@@ -138,8 +138,7 @@ export function recentBeliefToConversation(
     belief: item.belief,
     createdAt: item.createdAt,
     messages,
-    participants:
-      messages.length > 0 ? getParticipants(messages) : ["Mason", "Victor", "Logan"],
+    participants: [...DEBATE_AGENT_NAMES],
     creatorId: "",
     attentionRemaining: MAX_ROOM_ATTENTION,
     believeCount: item.believeCount,

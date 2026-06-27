@@ -88,18 +88,27 @@ function GradientPlaceholder({ name, linkable = true }: AvatarPlaceholderProps) 
   );
 }
 
-const MINI_AVATAR_CLASS = "size-7 shrink-0 overflow-hidden rounded-md";
+const MINI_AVATAR_CLASS = "size-7 shrink-0 overflow-hidden rounded-[6px]";
+
+const FAN_CARD_LAYOUT = [
+  { rotate: -14, x: 0, y: 3 },
+  { rotate: -5, x: 5, y: 1 },
+  { rotate: 5, x: 10, y: -1 },
+  { rotate: 13, x: 15, y: -2 },
+] as const;
 
 type MiniAvatarProps = {
   name: string;
   className?: string;
   linkable?: boolean;
+  ringClassName?: string;
 };
 
 export function MiniAvatar({
   name,
   className = "",
   linkable = true,
+  ringClassName = "ring-2 ring-background",
 }: MiniAvatarProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const src = AGENT_AVATARS[name];
@@ -108,7 +117,7 @@ export function MiniAvatar({
     return (
       <RoomYouAvatar
         size="room-mini"
-        className={`ring-2 ring-background ${className}`}
+        className={`${ringClassName} ${className}`}
       />
     );
   }
@@ -119,7 +128,7 @@ export function MiniAvatar({
       <AvatarLinkWrapper
         name={name}
         linkable={linkable}
-        className={`ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
+        className={`${ringClassName} ${MINI_AVATAR_CLASS} ${className}`}
       >
         <div
           className={`flex size-full items-center justify-center bg-gradient-to-br text-[10px] font-semibold text-white ${gradient}`}
@@ -135,7 +144,7 @@ export function MiniAvatar({
     <AvatarLinkWrapper
       name={name}
       linkable={linkable}
-      className={`relative ring-2 ring-background ${MINI_AVATAR_CLASS} ${className}`}
+      className={`relative ${ringClassName} ${MINI_AVATAR_CLASS} ${className}`}
     >
       <Image
         src={src}
@@ -153,31 +162,58 @@ type ParticipantAvatarStackProps = {
   participants: string[];
   max?: number;
   linkable?: boolean;
+  variant?: "default" | "homepage";
 };
+
+const STACK_RING_CLASS = {
+  default:
+    "ring-2 ring-background shadow-[0_2px_8px_-2px_rgba(0,0,0,0.28)] dark:shadow-[0_2px_10px_-2px_rgba(0,0,0,0.55)]",
+  homepage:
+    "ring-2 ring-white/90 shadow-[0_3px_10px_-2px_rgba(0,0,0,0.45)]",
+} as const;
 
 export function ParticipantAvatarStack({
   participants,
   max = 4,
   linkable = true,
+  variant = "default",
 }: ParticipantAvatarStackProps) {
   const agents = participants
     .filter((name) => name !== USER_DISPLAY_NAME)
     .slice(0, max);
 
   if (agents.length === 0) {
-    return <MiniAvatar name={USER_DISPLAY_NAME} />;
+    return <MiniAvatar name={USER_DISPLAY_NAME} ringClassName={STACK_RING_CLASS[variant]} />;
   }
 
+  const ringClassName = STACK_RING_CLASS[variant];
+
   return (
-    <div className="flex items-center">
-      {agents.map((name, index) => (
-        <MiniAvatar
-          key={name}
-          name={name}
-          linkable={linkable}
-          className={index > 0 ? "-ml-2" : ""}
-        />
-      ))}
+    <div
+      className="relative h-9 w-11 shrink-0 sm:h-10 sm:w-12"
+      role="img"
+      aria-label={`Agents in room: ${agents.join(", ")}`}
+    >
+      {agents.map((name, index) => {
+        const layout = FAN_CARD_LAYOUT[index] ?? FAN_CARD_LAYOUT[FAN_CARD_LAYOUT.length - 1];
+
+        return (
+          <div
+            key={name}
+            className="absolute left-0 top-1 origin-bottom-left motion-reduce:transition-none"
+            style={{
+              zIndex: index,
+              transform: `rotate(${layout.rotate}deg) translate(${layout.x}px, ${layout.y}px)`,
+            }}
+          >
+            <MiniAvatar
+              name={name}
+              linkable={linkable}
+              ringClassName={ringClassName}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

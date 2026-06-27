@@ -23,6 +23,7 @@ function PinIcon({ className }: { className?: string }) {
 type PinnedBeliefProps = {
   text: string;
   attentionRemaining?: number;
+  /** Omit while creator status is loading on DB-backed rooms. */
   isCreator?: boolean;
 };
 

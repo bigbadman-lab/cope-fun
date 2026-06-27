@@ -5,7 +5,7 @@ import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { PinnedBelief } from "./pinned-belief";
 import { RoomMarketPanel } from "./room-market-panel";
-import { RoomConclusionPanel, RoomVisitorPanel } from "./room-bottom-panel";
+import { RoomConclusionPanel } from "./room-bottom-panel";
 import {
   AgentTurnRow,
   ChatMessageRow,
@@ -127,7 +127,9 @@ export function SavedChatView({
   const [isChallengeSubmitting, setIsChallengeSubmitting] = useState(false);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
-  const [isCreatorForViewer, setIsCreatorForViewer] = useState(false);
+  const [isCreatorForViewer, setIsCreatorForViewer] = useState<boolean | null>(
+    dbBacked ? null : false,
+  );
   const roundTimersRef = useRef<number[]>([]);
   const debateBodyRef = useRef<HTMLDivElement>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
@@ -135,9 +137,13 @@ export function SavedChatView({
 
   const belief = conversation.belief;
   const messages = conversation.messages;
+  const isCreatorStatusKnown = !dbBacked || isCreatorForViewer !== null;
   const isCreator = dbBacked
-    ? isCreatorForViewer
+    ? isCreatorForViewer === true
     : isRoomCreator(conversation.creatorId);
+  const showCreatorBottomPanel = isCreatorStatusKnown && isCreator;
+  const pinnedBeliefIsCreator =
+    dbBacked && isCreatorForViewer === null ? undefined : isCreator;
   const attentionRemaining = conversation.attentionRemaining;
   const canSendFollowUp =
     isCreator &&
@@ -182,19 +188,26 @@ export function SavedChatView({
     let cancelled = false;
 
     async function loadCreatorStatus() {
+      setIsCreatorForViewer(null);
+
       try {
         const token = getAnonymousSessionToken();
         const response = await fetch(
           `/api/rooms/${encodeURIComponent(conversation.slug)}/creator?anonymousToken=${encodeURIComponent(token)}`,
         );
-        if (!response.ok || cancelled) return;
+        if (cancelled) return;
+
+        if (!response.ok) {
+          setIsCreatorForViewer(false);
+          return;
+        }
 
         const result = (await response.json()) as RoomCreatorApiResponse;
-        if (!result.ok || cancelled) return;
+        if (cancelled) return;
 
-        setIsCreatorForViewer(result.isCreator === true);
+        setIsCreatorForViewer(result.ok && result.isCreator === true);
       } catch {
-        // Keep visitor panel if hydration fails.
+        if (!cancelled) setIsCreatorForViewer(false);
       }
     }
 
@@ -663,11 +676,11 @@ export function SavedChatView({
     submitDbChallenge,
   ]);
 
-  const bottomPanelHeight = isCreator
+  const bottomPanelHeight = showCreatorBottomPanel
     ? attentionRemaining > 0
       ? "pb-[calc(9.5rem+var(--scroll-bottom-inset))]"
       : "pb-[calc(10rem+var(--scroll-bottom-inset))]"
-    : "pb-[calc(11.5rem+var(--scroll-bottom-inset))]";
+    : "pb-[calc(2rem+var(--scroll-bottom-inset))]";
 
   return (
     <>
@@ -677,7 +690,7 @@ export function SavedChatView({
             <PinnedBelief
               text={beliefMessage?.text ?? belief}
               attentionRemaining={attentionRemaining}
-              isCreator={isCreator}
+              isCreator={pinnedBeliefIsCreator}
             />
             {dbBacked && roomMarket ? (
               <RoomMarketPanel initialMarket={roomMarket} />
@@ -742,40 +755,40 @@ export function SavedChatView({
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-mobile-bottom-nav z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
-        <div className="relative mx-auto w-full max-w-md">
-          {isCreator && attentionRemaining > 0 ? (
-            <>
-              {challengeProcessingStage ? (
-                <ChallengeProcessingStatus stage={challengeProcessingStage} />
-              ) : null}
-              <BeliefInput
-                ref={followUpInputRef}
-                value={followUpDraft}
-                onChange={(value) => {
-                  setFollowUpDraft(value);
-                  if (followUpError) setFollowUpError(null);
-                }}
-                onSubmit={handleFollowUpSubmit}
-                disabled={isChallengeSubmitting || isAgentRoundActive}
-                isProcessing={isChallengeSubmitting}
-                compact
-                placeholder="Challenge the debate…"
-                submitAriaLabel="Send follow-up"
-                processingAriaLabel="Submitting challenge"
-                helperText={
-                  followUpError ??
-                  (challengeProcessingStage ? undefined : "Uses 1 Attention")
-                }
-              />
-            </>
-          ) : isCreator ? (
-            <RoomConclusionPanel />
-          ) : (
-            <RoomVisitorPanel />
-          )}
+      {showCreatorBottomPanel ? (
+        <div className="fixed inset-x-0 bottom-mobile-bottom-nav z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
+          <div className="relative mx-auto w-full max-w-md">
+            {attentionRemaining > 0 ? (
+              <>
+                {challengeProcessingStage ? (
+                  <ChallengeProcessingStatus stage={challengeProcessingStage} />
+                ) : null}
+                <BeliefInput
+                  ref={followUpInputRef}
+                  value={followUpDraft}
+                  onChange={(value) => {
+                    setFollowUpDraft(value);
+                    if (followUpError) setFollowUpError(null);
+                  }}
+                  onSubmit={handleFollowUpSubmit}
+                  disabled={isChallengeSubmitting || isAgentRoundActive}
+                  isProcessing={isChallengeSubmitting}
+                  compact
+                  placeholder="Challenge the debate…"
+                  submitAriaLabel="Send follow-up"
+                  processingAriaLabel="Submitting challenge"
+                  helperText={
+                    followUpError ??
+                    (challengeProcessingStage ? undefined : "Uses 1 Attention")
+                  }
+                />
+              </>
+            ) : (
+              <RoomConclusionPanel />
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
     </>
   );
 }

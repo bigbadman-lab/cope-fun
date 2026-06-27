@@ -43,6 +43,7 @@ export function ConversationListRow({
           <ParticipantAvatarStack
             participants={conversation.participants}
             linkable={false}
+            variant={isHomepage ? "homepage" : "default"}
           />
         </div>
         <div className="min-w-0 flex-1">

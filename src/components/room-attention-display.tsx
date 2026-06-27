@@ -64,7 +64,7 @@ export function RoomAttentionStrip({
       : "Challenge the debate. Each reply costs 1 Attention."
     : concluded
       ? "The creator has used all available challenges."
-      : "The creator can challenge the agents until Attention runs out.";
+      : "Read-only. Only the creator can challenge the agents until Attention runs out.";
 
   return (
     <div className="mt-3 border-t border-zinc-200/60 pt-3 dark:border-white/[0.06]">

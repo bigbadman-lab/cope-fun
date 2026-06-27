@@ -75,6 +75,8 @@ export const AGENT_PROFILES: AgentProfile[] = [
   },
 ];
 
+export const DEBATE_AGENT_NAMES = AGENT_PROFILES.map((profile) => profile.name);
+
 const PROFILE_CONVERSATIONS: Record<AgentSlug, ChatMessage[]> = {
   mason: [
     GUEST("mason-1", "who are you?"),
