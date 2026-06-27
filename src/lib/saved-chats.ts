@@ -2,11 +2,11 @@ import { USER_DISPLAY_NAME } from "@/components/avatar-placeholder";
 import type { ChatMessage } from "@/components/debate-chat";
 
 import type { VoteChoice } from "@/lib/vote";
-import type { MarketSnapshot } from "@/lib/market";
 
 import { getRoomCreatorSessionId } from "@/lib/room-creator";
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
 
+/** Local-only room archive. MVP markets live in Supabase, not here. */
 export type SavedConversation = {
   id: string;
   slug: string;
@@ -19,7 +19,6 @@ export type SavedConversation = {
   userVote?: VoteChoice | null;
   believeCount?: number;
   copeCount?: number;
-  market?: MarketSnapshot;
 };
 
 const STORAGE_KEY = "cope-fun:saved-conversations";
@@ -138,16 +137,25 @@ function readAll(): SavedConversation[] {
   }
 }
 
+/** Drop legacy prototype fields (e.g. removed `market`) from stored conversations. */
 function normalizeConversation(
-  conversation: SavedConversation,
+  conversation: SavedConversation & { market?: unknown },
 ): SavedConversation {
   return {
-    ...conversation,
+    id: conversation.id,
+    slug: conversation.slug,
+    belief: conversation.belief,
+    createdAt: conversation.createdAt,
+    messages: conversation.messages,
+    participants: conversation.participants,
     creatorId: conversation.creatorId ?? "",
     attentionRemaining:
       typeof conversation.attentionRemaining === "number"
         ? Math.max(0, Math.min(MAX_ROOM_ATTENTION, conversation.attentionRemaining))
         : MAX_ROOM_ATTENTION,
+    userVote: conversation.userVote ?? null,
+    believeCount: conversation.believeCount,
+    copeCount: conversation.copeCount,
   };
 }
 

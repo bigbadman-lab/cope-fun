@@ -320,13 +320,15 @@ function SeasonHeroCard({ dashboard }: { dashboard: ProfileDashboard }) {
         />
         <StatCard label="Win rate" value={winRateLabel} />
         <StatCard
-          label="Credits won"
-          value={account.totalWonCredits.toLocaleString()}
+          label="Season points"
+          value={account.seasonPoints.toLocaleString()}
         />
       </div>
 
       <p className="mt-4 text-[12px] leading-relaxed text-zinc-500">
-        {season.eligibilityNote || SEASON_ELIGIBILITY_NOTE}
+        {season.eligibilityNote || SEASON_ELIGIBILITY_NOTE} Season rank uses
+        season points from winning settled markets. Lifetime credits won:{" "}
+        {account.totalWonCredits.toLocaleString()}.
       </p>
       <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
         {COPE_CREDITS_DISCLAIMER}

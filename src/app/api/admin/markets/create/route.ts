@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiAuth } from "@/lib/admin/require-auth";
 import { createDraftMarket } from "@/lib/db/market-admin";
+import { parseTreasuryConvictionCope } from "@/lib/markets/treasury-conviction";
 
 type CreateMarketRequest = {
   roomId?: unknown;
@@ -9,6 +10,7 @@ type CreateMarketRequest = {
   resolutionSource?: unknown;
   closesAt?: unknown;
   resolvesAt?: unknown;
+  treasuryConvictionCope?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -49,6 +51,19 @@ export async function POST(request: Request) {
       );
     }
 
+    let treasuryConvictionCope = 0;
+    try {
+      treasuryConvictionCope = parseTreasuryConvictionCope(
+        body.treasuryConvictionCope,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Invalid Treasury Conviction amount.";
+      return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    }
+
     const market = await createDraftMarket({
       roomId: body.roomId.trim(),
       title: body.title,
@@ -60,6 +75,7 @@ export async function POST(request: Request) {
         typeof body.resolvesAt === "string" && body.resolvesAt.trim()
           ? body.resolvesAt
           : null,
+      treasuryConvictionCope,
     });
 
     if (!market) {

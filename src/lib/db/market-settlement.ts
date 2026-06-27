@@ -1,6 +1,7 @@
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { AdminMarketRow, MarketSide } from "@/lib/markets/types";
+import { toTreasuryConvictionCope } from "@/lib/markets/treasury-conviction";
 import { getMarketById, type MarketRow } from "./markets";
 
 async function loadAdminMarketRow(market: MarketRow): Promise<AdminMarketRow> {
@@ -33,6 +34,13 @@ async function loadAdminMarketRow(market: MarketRow): Promise<AdminMarketRow> {
     believePool: market.believe_pool_credits,
     copePool: market.cope_pool_credits,
     participantCount: market.participant_count,
+    treasuryConvictionCope: toTreasuryConvictionCope(
+      market.treasury_conviction_cope,
+    ),
+    seasonId: market.season_id,
+    displayOrder: market.display_order,
+    isFeatured: market.is_featured,
+    createdAt: market.created_at,
   };
 }
 

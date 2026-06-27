@@ -1,6 +1,20 @@
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { AdminMarketRow } from "@/lib/markets/types";
+import {
+  canEditMarketContent,
+  isTerminalMarketStatus,
+} from "@/lib/markets/admin-publish-guardrails";
+import {
+  getDefaultSeasonForNewMarket,
+  parseDisplayOrder,
+  parseIsFeatured,
+  parseSeasonMarketId,
+} from "@/lib/markets/season-curation";
+import {
+  parseTreasuryConvictionCope,
+  toTreasuryConvictionCope,
+} from "@/lib/markets/treasury-conviction";
 import { getMarketById } from "./markets";
 
 export type CreateMarketInput = {
@@ -10,6 +24,7 @@ export type CreateMarketInput = {
   resolutionSource?: string | null;
   closesAt: string;
   resolvesAt?: string | null;
+  treasuryConvictionCope?: number;
 };
 
 export async function createDraftMarket(
@@ -50,6 +65,10 @@ export async function createDraftMarket(
     throw new Error("Invalid close time.");
   }
 
+  const treasuryConvictionCope = parseTreasuryConvictionCope(
+    input.treasuryConvictionCope ?? 0,
+  );
+
   const { data: market, error: createError } = await supabase
     .from("belief_room_markets")
     .insert({
@@ -61,6 +80,10 @@ export async function createDraftMarket(
       resolves_at: input.resolvesAt
         ? new Date(input.resolvesAt).toISOString()
         : null,
+      treasury_conviction_cope: treasuryConvictionCope,
+      season_id: getDefaultSeasonForNewMarket(),
+      display_order: null,
+      is_featured: false,
       status: "draft",
     })
     .select("*")
@@ -143,6 +166,142 @@ export async function closeMarket(
   return loadAdminMarketRowById(marketId);
 }
 
+export type UpdateMarketAdminFieldsInput = {
+  marketId: string;
+  title?: string;
+  resolutionCriteria?: string;
+  resolutionSource?: string | null;
+  closesAt?: string;
+  resolvesAt?: string | null;
+  treasuryConvictionCope?: number;
+  seasonId?: string;
+  displayOrder?: number | null;
+  isFeatured?: boolean;
+};
+
+function mapDuplicateOrderError(error: { code?: string }): never {
+  if (error.code === "23505") {
+    throw new Error(
+      "Display order is already used by another market in this season.",
+    );
+  }
+  throw new Error("Could not update market.");
+}
+
+export async function updateMarketAdminFields(
+  input: UpdateMarketAdminFieldsInput,
+): Promise<AdminMarketRow | null> {
+  const market = await getMarketById(input.marketId);
+  if (!market) return null;
+
+  const terminal = isTerminalMarketStatus(market.status);
+  const contentEditable = canEditMarketContent(market.status);
+
+  const hasContentUpdate =
+    input.title !== undefined ||
+    input.resolutionCriteria !== undefined ||
+    input.resolutionSource !== undefined ||
+    input.closesAt !== undefined ||
+    input.resolvesAt !== undefined ||
+    input.treasuryConvictionCope !== undefined;
+
+  if (terminal && hasContentUpdate) {
+    throw new Error(
+      "Resolved or voided markets only support season, display order, and featured updates.",
+    );
+  }
+
+  const updates: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (contentEditable) {
+    if (input.title !== undefined) {
+      const title = input.title.trim();
+      if (!title) throw new Error("Title is required.");
+      updates.title = title;
+    }
+
+    if (input.resolutionCriteria !== undefined) {
+      const resolutionCriteria = input.resolutionCriteria.trim();
+      if (!resolutionCriteria) {
+        throw new Error("Resolution criteria cannot be empty.");
+      }
+      updates.resolution_criteria = resolutionCriteria;
+    }
+
+    if (input.resolutionSource !== undefined) {
+      updates.resolution_source = input.resolutionSource?.trim() || null;
+    }
+
+    if (input.closesAt !== undefined) {
+      const closesAt = new Date(input.closesAt);
+      if (Number.isNaN(closesAt.getTime())) {
+        throw new Error("Invalid close time.");
+      }
+      updates.closes_at = closesAt.toISOString();
+    }
+
+    if (input.resolvesAt !== undefined) {
+      updates.resolves_at = input.resolvesAt
+        ? new Date(input.resolvesAt).toISOString()
+        : null;
+    }
+
+    if (input.treasuryConvictionCope !== undefined) {
+      updates.treasury_conviction_cope = parseTreasuryConvictionCope(
+        input.treasuryConvictionCope,
+      );
+    }
+  }
+
+  if (input.seasonId !== undefined) {
+    updates.season_id = parseSeasonMarketId(input.seasonId);
+  }
+
+  if (input.displayOrder !== undefined) {
+    updates.display_order = parseDisplayOrder(input.displayOrder);
+  }
+
+  if (input.isFeatured !== undefined) {
+    updates.is_featured = parseIsFeatured(input.isFeatured);
+  }
+
+  if (Object.keys(updates).length <= 1) {
+    throw new Error("No fields to update.");
+  }
+
+  const supabase = createSupabaseServiceClient();
+  const { error } = await supabase
+    .from("belief_room_markets")
+    .update(updates)
+    .eq("id", input.marketId);
+
+  if (error) {
+    mapDuplicateOrderError(error);
+  }
+
+  return loadAdminMarketRowById(input.marketId);
+}
+
+export type UpdateMarketCurationInput = {
+  marketId: string;
+  seasonId: string;
+  displayOrder: number | null;
+  isFeatured: boolean;
+};
+
+export async function updateMarketCuration(
+  input: UpdateMarketCurationInput,
+): Promise<AdminMarketRow | null> {
+  return updateMarketAdminFields({
+    marketId: input.marketId,
+    seasonId: input.seasonId,
+    displayOrder: input.displayOrder,
+    isFeatured: input.isFeatured,
+  });
+}
+
 function mapAdminMarketRow(
   market: {
     id: string;
@@ -160,6 +319,11 @@ function mapAdminMarketRow(
     believe_pool_credits: number;
     cope_pool_credits: number;
     participant_count: number;
+    treasury_conviction_cope: number | string;
+    season_id: string;
+    display_order: number | null;
+    is_featured: boolean;
+    created_at: string;
   },
   room: { id: string; slug: string; belief: string },
 ): AdminMarketRow {
@@ -181,6 +345,13 @@ function mapAdminMarketRow(
     believePool: market.believe_pool_credits,
     copePool: market.cope_pool_credits,
     participantCount: market.participant_count,
+    treasuryConvictionCope: toTreasuryConvictionCope(
+      market.treasury_conviction_cope,
+    ),
+    seasonId: market.season_id,
+    displayOrder: market.display_order,
+    isFeatured: market.is_featured,
+    createdAt: market.created_at,
   };
 }
 

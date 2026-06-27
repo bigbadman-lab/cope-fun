@@ -2,7 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 
-/** Local placeholder for wallet auth — maps to `users.wallet_address` when backed by DB. */
+/**
+ * Temporary local follow gating only — NOT a real wallet.
+ *
+ * Do not use for markets, COPE Credits, staking, leaderboard, or Privy auth.
+ * Real wallet identity lives on `app_users.wallet_address` via Privy.
+ */
 export type WalletSession = {
   connected: boolean;
   address: string | null;
@@ -96,6 +101,7 @@ function createMockAddress(): string {
   return `cope_${suffix}`;
 }
 
+/** Enables local room follow only — not on-chain or Privy wallet connect. */
 export function connectMockWallet(): WalletSession {
   const session: WalletSession = {
     connected: true,

@@ -21,18 +21,17 @@ import {
   LEADERBOARD_MIN_MARKETS_ENTERED,
   getLeaderboardProfileUnqualifiedMessage,
 } from "@/lib/leaderboard/eligibility";
+import {
+  findLeaderboardRank,
+  LEADERBOARD_RANK_ORDER,
+  type LeaderboardRankRow,
+} from "@/lib/leaderboard/ranking";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { CreditAccountView } from "@/lib/markets/types";
 
 const CREATED_ROOMS_LIMIT = 10;
 
-type CreditAccountRankRow = {
-  user_id: string;
-  total_won_credits: number;
-  markets_won: number;
-  markets_entered: number;
-  created_at: string;
-};
+type CreditAccountRankRow = LeaderboardRankRow;
 
 type PositionJoinRow = {
   id: string;
@@ -113,6 +112,7 @@ function toUserSummary(user: AppUser): ProfileUserSummary {
 function toAccountSummary(account: CreditAccountView): ProfileAccountSummary {
   return {
     balanceCredits: account.balanceCredits,
+    seasonPoints: account.seasonPoints,
     totalWonCredits: account.totalWonCredits,
     totalStakedCredits: account.totalStakedCredits,
     totalLostCredits: account.totalLostCredits,
@@ -235,14 +235,19 @@ export async function getUserLeaderboardRank(
 
   const supabase = createSupabaseServiceClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("cope_credit_accounts")
-    .select("user_id, total_won_credits, markets_won, markets_entered, created_at")
+    .select(
+      "user_id, season_points, total_won_credits, markets_won, markets_entered, updated_at, created_at",
+    )
     .not("user_id", "is", null)
-    .gte("markets_entered", LEADERBOARD_MIN_MARKETS_ENTERED)
-    .order("total_won_credits", { ascending: false })
-    .order("markets_won", { ascending: false })
-    .order("created_at", { ascending: true });
+    .gte("markets_entered", LEADERBOARD_MIN_MARKETS_ENTERED);
+
+  for (const { column, ascending } of LEADERBOARD_RANK_ORDER) {
+    query = query.order(column, { ascending });
+  }
+
+  const { data, error } = await query;
 
   if (error || !data) {
     throw new Error("Could not load leaderboard rank.");
@@ -250,10 +255,9 @@ export async function getUserLeaderboardRank(
 
   const rows = data as CreditAccountRankRow[];
   const totalPlayers = rows.length;
-  const index = rows.findIndex((row) => row.user_id === userId);
 
   return {
-    rank: index >= 0 ? index + 1 : null,
+    rank: findLeaderboardRank(rows, userId),
     totalPlayers,
     isQualified: true,
   };

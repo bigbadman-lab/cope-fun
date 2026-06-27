@@ -1,3 +1,5 @@
+import type { SeasonLaunchReport } from "@/lib/markets/season-curation";
+
 export type MarketStatus = "draft" | "open" | "closed" | "resolved" | "voided";
 export type MarketSide = "believe" | "cope";
 
@@ -21,6 +23,11 @@ export type PublicMarket = {
   believePool: number;
   copePool: number;
   participantCount: number;
+  treasuryConvictionCope: number;
+  seasonId: string;
+  displayOrder: number | null;
+  isFeatured: boolean;
+  createdAt: string;
 };
 
 export type MarketPositionView = {
@@ -52,6 +59,7 @@ export type LeaderboardEntry = {
   rank: number;
   userId: string;
   label: string;
+  seasonPoints: number;
   balanceCredits: number;
   totalWonCredits: number;
   marketsEntered: number;
@@ -88,6 +96,11 @@ export type AdminMarketRow = {
   believePool: number;
   copePool: number;
   participantCount: number;
+  treasuryConvictionCope: number;
+  seasonId: string;
+  displayOrder: number | null;
+  isFeatured: boolean;
+  createdAt: string;
 };
 
 export type AdminMarketsData = {
@@ -96,4 +109,5 @@ export type AdminMarketsData = {
   open: AdminMarketRow[];
   closed: AdminMarketRow[];
   terminal: AdminMarketRow[];
+  curationReport: SeasonLaunchReport;
 };

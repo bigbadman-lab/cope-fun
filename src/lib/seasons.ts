@@ -44,7 +44,15 @@ export const SEASON_SNAPSHOT_COPY =
   "At the end of each season, Cope takes a final leaderboard snapshot.";
 
 export const SEASON_REWARDS_COPY =
-  "Eligible rewards are sent to the wallet assigned to your account.";
+  "Eligible rewards, if any, are reviewed after the season snapshot. Automatic $COPE payout is not live at MVP launch.";
+
+export const SEASON_LEADERBOARD_RANKING_COPY =
+  "Ranked by season points earned from winning settled markets during the active season.";
+
+export const SEASON_LEADERBOARD_QUALIFICATION_COPY =
+  "Enter at least one belief market during the active season to qualify.";
+
+export const SEASON_POINTS_LABEL = "Season points";
 
 export const SEASON_WALLET_SIGNUP_COPY =
   "When you sign up, Cope creates or assigns a wallet address for your account. This wallet is used for Season reward tracking and distribution.";
@@ -57,9 +65,9 @@ export const SEASON_ELIGIBILITY_NOTE =
 
 export const SEASON_FAQ_BULLETS = [
   "Join belief markets to compete during the active season.",
-  "Climb the leaderboard with credits won from settled markets.",
+  "Climb the leaderboard with season points from winning settled markets.",
   "Cope takes a final snapshot when the season closes.",
-  "Eligible rewards, if any, are sent to the wallet assigned to your account.",
+  "Final $COPE rewards, if any, are reviewed after the snapshot — not auto-distributed at MVP launch.",
 ] as const;
 
 export function getSeasonStatus(

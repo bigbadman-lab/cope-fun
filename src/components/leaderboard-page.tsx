@@ -10,6 +10,9 @@ import {
   getCurrentSeason,
   getSeasonLeaderboardTitle,
   SEASON_ELIGIBILITY_NOTE,
+  SEASON_LEADERBOARD_QUALIFICATION_COPY,
+  SEASON_LEADERBOARD_RANKING_COPY,
+  SEASON_REWARDS_COPY,
 } from "@/lib/seasons";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
@@ -49,18 +52,19 @@ function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
             <span>
               <span className="font-medium tabular-nums text-zinc-700 dark:text-zinc-300">
-                {entry.totalWonCredits.toLocaleString()}
+                {entry.seasonPoints.toLocaleString()}
               </span>{" "}
-              won
-            </span>
-            <span>
-              <span className="font-medium tabular-nums text-zinc-700 dark:text-zinc-300">
-                {entry.balanceCredits.toLocaleString()}
-              </span>{" "}
-              balance
+              season pts
             </span>
             <span>{entry.marketsEntered} entered</span>
-            <span>{entry.marketsWon}W / {entry.marketsLost}L</span>
+            <span>
+              {entry.marketsWon}W / {entry.marketsLost}L
+            </span>
+            {entry.totalWonCredits > 0 ? (
+              <span className="text-zinc-400 dark:text-zinc-500">
+                {entry.totalWonCredits.toLocaleString()} credits won (lifetime)
+              </span>
+            ) : null}
           </div>
         </div>
       </div>
@@ -75,8 +79,7 @@ function RewardsNote({ seasonName }: { seasonName: string }) {
         {seasonName} rewards
       </h2>
       <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {SEASON_ELIGIBILITY_NOTE} Rankings use total credits won from settled
-        markets during {seasonName}.
+        {SEASON_ELIGIBILITY_NOTE} {SEASON_REWARDS_COPY}
       </p>
     </section>
   );
@@ -93,8 +96,7 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
             {getSeasonLeaderboardTitle(currentSeason)}
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            Ranked by total credits won in {currentSeason.name} markets. Enter
-            at least one market to qualify.
+            {SEASON_LEADERBOARD_RANKING_COPY} {SEASON_LEADERBOARD_QUALIFICATION_COPY}
           </p>
         </header>
 

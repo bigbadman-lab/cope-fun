@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MarketStatusBadge } from "./market-status-badge";
+import { TreasuryConvictionDisplay } from "./treasury-conviction-display";
 import {
   getMarketDisplayStatus,
 } from "@/lib/markets/display-status";
@@ -90,6 +91,12 @@ export function MarketListRow({ market }: MarketListRowProps) {
             </div>
 
             <p className="mt-1 truncate text-xs text-zinc-500">{market.roomBelief}</p>
+
+            {market.treasuryConvictionCope > 0 ? (
+              <div className="mt-2">
+                <TreasuryConvictionDisplay amount={market.treasuryConvictionCope} />
+              </div>
+            ) : null}
 
             <div className="mt-2">
               <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] tabular-nums">

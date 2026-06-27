@@ -1,6 +1,13 @@
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getMarketDisplayStatus } from "@/lib/markets/display-status";
+import {
+  analyzeSeasonLaunch,
+  comparePublicMarketCuration,
+  getCurrentSeasonMarketId,
+  type SeasonCurationMarketInput,
+} from "@/lib/markets/season-curation";
+import { toTreasuryConvictionCope } from "@/lib/markets/treasury-conviction";
 import type {
   AdminMarketCandidate,
   AdminMarketRow,
@@ -29,6 +36,11 @@ type MarketRow = {
   believe_pool_credits: number;
   cope_pool_credits: number;
   participant_count: number;
+  treasury_conviction_cope: number | string;
+  season_id: string;
+  display_order: number | null;
+  is_featured: boolean;
+  created_at: string;
 };
 
 type RoomJoin = {
@@ -79,6 +91,13 @@ function toPublicMarket(
     believePool: market.believe_pool_credits,
     copePool: market.cope_pool_credits,
     participantCount: market.participant_count,
+    treasuryConvictionCope: toTreasuryConvictionCope(
+      market.treasury_conviction_cope,
+    ),
+    seasonId: market.season_id,
+    displayOrder: market.display_order,
+    isFeatured: market.is_featured,
+    createdAt: market.created_at,
   };
 
   return {
@@ -111,6 +130,11 @@ async function loadMarketsWithRooms(
       believe_pool_credits,
       cope_pool_credits,
       participant_count,
+      treasury_conviction_cope,
+      season_id,
+      display_order,
+      is_featured,
+      created_at,
       belief_rooms!inner (
         id,
         slug,
@@ -154,6 +178,11 @@ async function loadMarketsWithRooms(
       believe_pool_credits: row.believe_pool_credits,
       cope_pool_credits: row.cope_pool_credits,
       participant_count: row.participant_count,
+      treasury_conviction_cope: row.treasury_conviction_cope,
+      season_id: row.season_id,
+      display_order: row.display_order,
+      is_featured: row.is_featured,
+      created_at: row.created_at,
     } satisfies MarketRow;
     return { market, room };
   });
@@ -190,7 +219,18 @@ export async function getPublicMarkets(): Promise<{
     else if (market.status === "voided") voided.push(mapped);
   }
 
-  return { open, closed, resolved, voided };
+  const currentSeasonId = getCurrentSeasonMarketId();
+  const sortBucket = (markets: PublicMarket[]) =>
+    [...markets].sort((a, b) =>
+      comparePublicMarketCuration(a, b, currentSeasonId),
+    );
+
+  return {
+    open: sortBucket(open),
+    closed: sortBucket(closed),
+    resolved: sortBucket(resolved),
+    voided: sortBucket(voided),
+  };
 }
 
 export async function getRoomMarketBySlug(
@@ -217,6 +257,11 @@ export async function getRoomMarketBySlug(
       believe_pool_credits,
       cope_pool_credits,
       participant_count,
+      treasury_conviction_cope,
+      season_id,
+      display_order,
+      is_featured,
+      created_at,
       belief_rooms!inner (
         id,
         slug,
@@ -249,6 +294,11 @@ export async function getRoomMarketBySlug(
     believe_pool_credits: data.believe_pool_credits,
     cope_pool_credits: data.cope_pool_credits,
     participant_count: data.participant_count,
+    treasury_conviction_cope: data.treasury_conviction_cope,
+    season_id: data.season_id,
+    display_order: data.display_order,
+    is_featured: data.is_featured,
+    created_at: data.created_at,
   };
   const base = toPublicMarket(market, room) as PublicMarket;
 
@@ -322,6 +372,11 @@ export async function getAdminMarketsData(): Promise<AdminMarketsData> {
       believe_pool_credits,
       cope_pool_credits,
       participant_count,
+      treasury_conviction_cope,
+      season_id,
+      display_order,
+      is_featured,
+      created_at,
       belief_rooms!inner (
         id,
         slug,
@@ -370,6 +425,8 @@ export async function getAdminMarketsData(): Promise<AdminMarketsData> {
   const closed: AdminMarketRow[] = [];
   const terminal: AdminMarketRow[] = [];
 
+  const curationInputs: SeasonCurationMarketInput[] = [];
+
   for (const row of allMarkets) {
     const roomRaw = row.belief_rooms as unknown as RoomJoin | RoomJoin[];
     const room = Array.isArray(roomRaw) ? roomRaw[0] : roomRaw;
@@ -389,8 +446,24 @@ export async function getAdminMarketsData(): Promise<AdminMarketsData> {
       believe_pool_credits: row.believe_pool_credits,
       cope_pool_credits: row.cope_pool_credits,
       participant_count: row.participant_count,
+      treasury_conviction_cope: row.treasury_conviction_cope,
+      season_id: row.season_id,
+      display_order: row.display_order,
+      is_featured: row.is_featured,
+      created_at: row.created_at,
     };
     const mapped = toPublicMarket(marketRow, room) as AdminMarketRow;
+
+    curationInputs.push({
+      id: mapped.id,
+      seasonId: mapped.seasonId,
+      status: mapped.status,
+      displayOrder: mapped.displayOrder,
+      treasuryConvictionCope: mapped.treasuryConvictionCope,
+      resolutionCriteria: mapped.resolutionCriteria,
+      closesAt: mapped.closesAt,
+      createdAt: mapped.createdAt,
+    });
 
     if (mapped.status === "draft") drafts.push(mapped);
     else if (mapped.status === "open") open.push(mapped);
@@ -398,7 +471,17 @@ export async function getAdminMarketsData(): Promise<AdminMarketsData> {
     else terminal.push(mapped);
   }
 
-  return { candidates, drafts, open, closed, terminal };
+  return {
+    candidates,
+    drafts,
+    open,
+    closed,
+    terminal,
+    curationReport: analyzeSeasonLaunch(
+      curationInputs,
+      getCurrentSeasonMarketId(),
+    ),
+  };
 }
 
 export type { MarketRow };

@@ -1,7 +1,15 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+function useIsClient() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 
 const iconButtonClass =
   "inline-flex shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-[color,background-color,transform,box-shadow] duration-150 ease-out hover:bg-zinc-950/[0.05] hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 active:scale-95 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500/40";
@@ -54,13 +62,9 @@ function MoonIcon({ className }: { className?: string }) {
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const isClient = useIsClient();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!isClient) {
     return (
       <button
         type="button"

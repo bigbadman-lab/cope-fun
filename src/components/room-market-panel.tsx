@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopeCreditsDisclaimer } from "./cope-credits-disclaimer";
 import { MarketStatusBadge } from "./market-status-badge";
+import { TreasuryConvictionDisplay } from "./treasury-conviction-display";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import {
   canStakeOnMarket,
@@ -191,6 +192,11 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
           Source: {market.resolutionSource}
         </p>
       ) : null}
+
+      <TreasuryConvictionDisplay
+        amount={market.treasuryConvictionCope}
+        variant="panel"
+      />
 
       <div className="mt-3">
         <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] tabular-nums">

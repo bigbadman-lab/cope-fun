@@ -35,8 +35,12 @@ type RoomFollowButtonProps = {
   belief: string;
 };
 
+/**
+ * Local follow bookmark — uses temporary wallet-session gating, not Privy.
+ * Unrelated to market staking or COPE Credits.
+ */
 export function RoomFollowButton({ slug, roomId, belief }: RoomFollowButtonProps) {
-  const wallet = useWalletSession();
+  const followGate = useWalletSession();
   const following = useSyncExternalStore(
     subscribeFollowedRooms,
     () => isRoomFollowed(slug),
@@ -50,17 +54,17 @@ export function RoomFollowButton({ slug, roomId, belief }: RoomFollowButtonProps
     setBusy(true);
     window.setTimeout(() => setBusy(false), 200);
 
-    if (!wallet.connected) {
+    if (!followGate.connected) {
       connectMockWallet();
       toggleFollowRoom({ slug, roomId, belief });
       return;
     }
 
     toggleFollowRoom({ slug, roomId, belief });
-  }, [belief, busy, roomId, slug, wallet.connected]);
+  }, [belief, busy, roomId, slug, followGate.connected]);
 
-  const ariaLabel = !wallet.connected
-    ? "Connect wallet to follow room"
+  const ariaLabel = !followGate.connected
+    ? "Enable follow for this room"
     : following
       ? "Unfollow room"
       : "Follow room";
@@ -70,25 +74,25 @@ export function RoomFollowButton({ slug, roomId, belief }: RoomFollowButtonProps
       type="button"
       onClick={handleClick}
       aria-label={ariaLabel}
-      aria-pressed={wallet.connected ? following : undefined}
+      aria-pressed={followGate.connected ? following : undefined}
       title={
-        !wallet.connected
-          ? "Connect to follow"
+        !followGate.connected
+          ? "Enable follow"
           : following
             ? "Following"
             : "Follow room"
       }
       className={`${navIconButtonClass} transition-colors duration-200 ${
-        wallet.connected && following
+        followGate.connected && following
           ? `${navIconActiveClass} text-cope-orange dark:text-cope-orange`
-          : !wallet.connected
+          : !followGate.connected
             ? "opacity-70"
             : ""
       }`}
     >
       <FollowIcon
         className={navIconClass}
-        filled={wallet.connected && following}
+        filled={followGate.connected && following}
       />
     </button>
   );

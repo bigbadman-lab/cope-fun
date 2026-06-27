@@ -25,6 +25,7 @@ export type ProfileSeasonSummary = {
 
 export type ProfileAccountSummary = {
   balanceCredits: number;
+  seasonPoints: number;
   totalWonCredits: number;
   totalStakedCredits: number;
   totalLostCredits: number;
