@@ -1,10 +1,19 @@
 import type { ReactNode } from "react";
 import { InnerPageShell } from "@/components/inner-page-shell";
+import { createPageMetadata } from "@/lib/metadata";
 import {
   getCurrentSeason,
   SEASON_FAQ_BULLETS,
   SEASON_OVERVIEW_COPY,
 } from "@/lib/seasons";
+
+export const metadata = createPageMetadata({
+  title: "Docs",
+  description:
+    "Product docs for Belief Rooms, COPE Credits, markets, seasons, resolution, and the path to $COPE integration.",
+  openGraphTitle: "Cope product docs",
+  path: "/docs",
+});
 
 const HERO_PILLS = ["Belief Rooms", "COPE Credits", "Future Markets"] as const;
 
