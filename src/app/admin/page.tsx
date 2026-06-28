@@ -3,8 +3,10 @@ import { AdminDashboard } from "@/components/admin-dashboard";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { InnerPageShell } from "@/components/inner-page-shell";
 import { isAdminAuthenticated, isAdminConfigured } from "@/lib/admin/auth";
+import { countLeaderboardExportMissingWallets } from "@/lib/db/admin-leaderboard-export";
 import { getAdminDashboardData } from "@/lib/db/admin-dashboard";
 import { getAdminMarketsData } from "@/lib/db/markets";
+import { getCurrentSeason } from "@/lib/seasons";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -25,14 +27,21 @@ export default async function AdminPage() {
     );
   }
 
-  const [data, marketsData] = await Promise.all([
+  const [data, marketsData, missingWalletCount] = await Promise.all([
     getAdminDashboardData(),
     getAdminMarketsData(),
+    countLeaderboardExportMissingWallets(),
   ]);
+  const currentSeason = getCurrentSeason();
 
   return (
     <InnerPageShell mainClassName="px-4 py-8">
-      <AdminDashboard data={data} marketsData={marketsData} />
+      <AdminDashboard
+        data={data}
+        marketsData={marketsData}
+        exportSeason={currentSeason}
+        missingWalletCount={missingWalletCount}
+      />
     </InnerPageShell>
   );
 }

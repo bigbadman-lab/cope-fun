@@ -134,6 +134,7 @@ A user portfolio (currently **`/profile`**) should show:
 - **`season_points` population:** Increased on winning market resolution via `resolve_market` RPC (same payout amount as credit winnings). No migration changes required for MVP.
 - **MVP limitation:** `season_points` on `cope_credit_accounts` is treated as the **active Season 1 score**. There is no per-season row history yet. Before Season 2, add season-scoped snapshots or per-season account rows and reset/archive logic.
 - **Rewards:** Final $COPE reward distribution is **not automatically implemented** at MVP launch. Snapshot/reward tables remain future work.
+- **Admin export:** `GET /api/admin/leaderboard/export?seasonId=season-1` — admin-only CSV for manual Season reward review. Does **not** trigger payouts. Includes rewards wallet addresses (`app_users.wallet_address`), flags missing wallets (`wallet_missing`, `eligible`), and uses the same ranking order as the public leaderboard.
 
 ---
 
@@ -162,6 +163,7 @@ A user portfolio (currently **`/profile`**) should show:
 - **Publish guardrails:** Non-blocking warnings in admin when resolution criteria, future close time, display order, or Treasury Conviction are missing.
 - **Preview links:** Admin links to `/room/[slug]` for room and public page (no separate market detail route in MVP).
 - **MVP auth:** shared admin password + `ADMIN_SECRET` cookie session (`src/lib/admin/auth.ts`). Acceptable for pre-launch only if secret is strong.
+- **Leaderboard export:** `GET /api/admin/leaderboard/export` — CSV download from `/admin` for manual $COPE reward review. No token transfers; no private keys.
 - **Longer term:** DB-backed admin roles linked to `app_users`.
 
 ---
@@ -229,3 +231,4 @@ Season 1 launch should be operated entirely from `/admin`. The first 10 markets 
   - `/api/admin/markets/[marketId]/action`
   - `/api/admin/markets/[marketId]/update`
   - `/api/admin/markets/[marketId]/curation`
+  - `/api/admin/leaderboard/export`

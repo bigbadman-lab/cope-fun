@@ -42,6 +42,7 @@ Anonymous-session credit staking RPC exists in migrations but is **not exposed**
 - **Settlement:** Winning resolves increment `season_points` via `resolve_market` RPC (no change required)
 - **Limitation:** Single column on credit account — not multi-season history. Reset/snapshot required before Season 2.
 - **Rewards:** Automatic $COPE payout not implemented; snapshot tables remain future work
+- **Admin export:** `GET /api/admin/leaderboard/export?seasonId=season-1` (`src/lib/db/admin-leaderboard-export.ts`) — admin-only CSV for manual reward review. Same ranking rules as public leaderboard. Includes wallet addresses and `wallet_missing` / `eligible` flags. Does not send tokens or expose private keys.
 
 ## Season curation (Release 0.95 Phase 5)
 

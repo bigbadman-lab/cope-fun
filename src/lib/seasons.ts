@@ -114,6 +114,36 @@ export function getSeasonById(id: SeasonId): Season | undefined {
   return SEASONS.find((season) => season.id === id);
 }
 
+export function getSeasonExportId(season: Season): string {
+  return `season-${season.id}`;
+}
+
+export function parseSeasonExportId(
+  value: string | null | undefined,
+): Season | null {
+  if (!value?.trim()) return null;
+
+  const trimmed = value.trim().toLowerCase();
+  const slugMatch = trimmed.match(/^season-(\d+)$/);
+  if (slugMatch) {
+    const id = Number(slugMatch[1]) as SeasonId;
+    return getSeasonById(id) ?? null;
+  }
+
+  const numericId = Number(trimmed);
+  if (Number.isInteger(numericId) && numericId >= 1 && numericId <= 3) {
+    return getSeasonById(numericId as SeasonId) ?? null;
+  }
+
+  return null;
+}
+
+export function resolveSeasonForExport(
+  seasonId: string | null | undefined,
+): Season {
+  return parseSeasonExportId(seasonId) ?? getCurrentSeason();
+}
+
 export function getSeasonLeaderboardTitle(season: Season = getCurrentSeason()): string {
   return `${season.name} Leaderboard`;
 }

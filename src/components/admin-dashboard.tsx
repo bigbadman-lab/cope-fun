@@ -11,10 +11,14 @@ import type {
   AdminRoomSummary,
 } from "@/lib/admin/dashboard-types";
 import type { AdminMarketsData } from "@/lib/markets/types";
+import type { Season } from "@/lib/seasons";
+import { AdminRewardsExportSection } from "./admin-rewards-export-section";
 
 type AdminDashboardProps = {
   data: AdminDashboardData;
   marketsData: AdminMarketsData;
+  exportSeason: Season;
+  missingWalletCount: number;
 };
 
 function formatNumber(value: number): string {
@@ -229,7 +233,12 @@ function RoomLeaderboard({
   );
 }
 
-export function AdminDashboard({ data, marketsData }: AdminDashboardProps) {
+export function AdminDashboard({
+  data,
+  marketsData,
+  exportSeason,
+  missingWalletCount,
+}: AdminDashboardProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -295,6 +304,11 @@ export function AdminDashboard({ data, marketsData }: AdminDashboardProps) {
         </p>
         <AdminMarketsSection data={marketsData} />
       </section>
+
+      <AdminRewardsExportSection
+        season={exportSeason}
+        missingWalletCount={missingWalletCount}
+      />
 
       <section className="mt-10 grid gap-6 xl:grid-cols-2">
         <RoomLeaderboard
