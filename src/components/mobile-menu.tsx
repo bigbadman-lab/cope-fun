@@ -7,12 +7,15 @@ import { useEffect, useState } from "react";
 import { AuthNavAffordance } from "./auth-nav-button";
 import { navIconButtonClass } from "./theme-toggle";
 
-const PRIMARY_LINKS = [{ href: "/agents", label: "Agents" }] as const;
+const PRIMARY_LINKS = [
+  { href: "/agents", label: "Agents" },
+  { href: "/how-markets-work", label: "Markets" },
+  { href: "/cope", label: "$COPE" },
+] as const;
 
 const SECONDARY_LINKS = [
-  { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" },
-  { href: "/how-markets-work", label: "How Markets Work" },
+  { href: "/about", label: "About" },
   { href: "/manifesto", label: "Manifesto" },
   { href: "/contact", label: "Contact" },
   { href: "/legal", label: "Legal" },
