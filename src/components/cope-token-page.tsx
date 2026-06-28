@@ -245,7 +245,7 @@ export function CopeTokenPage() {
             <div className="rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-3.5 dark:border-white/[0.07] dark:bg-surface/40">
               <TimelineItem
                 label="Season 1"
-                copy="Launch the belief market network"
+                copy="Launch the Season market network"
               />
               <TimelineItem
                 label="Season 2"
@@ -300,18 +300,34 @@ export function CopeTokenPage() {
             after that is about decentralising it.
           </p>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <p className="text-[13px] leading-relaxed text-zinc-500">
             <Link
               href="/how-markets-work"
-              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-zinc-200/80 bg-surface/50 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/[0.08] dark:bg-surface/40 dark:text-zinc-300 dark:hover:bg-white/[0.04]"
+              className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
             >
-              How Markets Work
+              How markets work
             </Link>
+            {" · "}
             <Link
               href="/docs"
+              className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
+            >
+              Docs
+            </Link>
+          </p>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href="/markets"
               className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-zinc-900 px-4 text-sm font-medium text-zinc-50 transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
-              Read Docs
+              Explore Markets
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-zinc-200/80 bg-surface/50 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/[0.08] dark:bg-surface/40 dark:text-zinc-300 dark:hover:bg-white/[0.04]"
+            >
+              Share a belief
             </Link>
           </div>
         </div>

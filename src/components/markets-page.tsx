@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
 import { MarketListRow } from "./market-list-row";
 import {
@@ -24,7 +25,7 @@ function SeasonBanner() {
             {currentSeason.name}
           </p>
           <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Stake COPE Credits on curated belief markets
+            Enter curated Season markets with COPE Credits
           </p>
           <p className="mt-1 text-xs text-zinc-500">
             {formatSeasonDateRange(currentSeason)}
@@ -100,7 +101,7 @@ export function MarketsPage({
           <>
             <MarketSection
               title="Open"
-              description="Markets accepting stakes."
+              description="Open for COPE Credits."
               markets={open}
             />
             <MarketSection
@@ -120,6 +121,27 @@ export function MarketsPage({
             />
           </>
         )}
+
+        <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-t border-zinc-200/80 pt-4 text-sm dark:border-white/[0.06]">
+          <Link
+            href="/how-markets-work"
+            className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
+          >
+            How markets work
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
+          >
+            Leaderboard
+          </Link>
+          <Link
+            href="/cope"
+            className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
+          >
+            About $COPE
+          </Link>
+        </div>
       </div>
     </InnerPageShell>
   );

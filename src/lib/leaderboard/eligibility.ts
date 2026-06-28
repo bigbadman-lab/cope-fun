@@ -9,7 +9,7 @@ export const LEADERBOARD_MIN_MARKETS_ENTERED = 1;
 export const LEADERBOARD_EMPTY_TITLE = "No market participants yet.";
 
 export function getLeaderboardEmptySubtext(): string {
-  return `Enter a belief market to join the ${getCurrentSeason().name} leaderboard.`;
+  return `Enter a Season market to join the ${getCurrentSeason().name} leaderboard.`;
 }
 
 export function getLeaderboardUnqualifiedHint(): string {

@@ -107,7 +107,7 @@ export function ManifestoPage() {
               href="/"
               className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-900/[0.04] hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-white/[0.04] dark:hover:text-zinc-100"
             >
-              Challenge a decision
+              Share a belief
             </Link>
           </div>
         )}

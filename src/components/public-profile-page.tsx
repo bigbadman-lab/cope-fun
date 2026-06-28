@@ -128,7 +128,7 @@ function ProfileContent({ profile }: { profile: MockProfile }) {
         <div className="mt-4 grid grid-cols-2 gap-2">
           <StatCard label="Season Rank" value={`#${profile.seasonRank}`} />
           <StatCard
-            label="Season Points"
+            label="season points"
             value={profile.seasonPoints.toLocaleString()}
           />
           <StatCard

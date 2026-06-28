@@ -35,10 +35,10 @@ export const SEASONS: readonly Season[] = [
 ] as const;
 
 export const SEASON_OVERVIEW_COPY =
-  "Seasons are monthly competitions where users earn position on the leaderboard by participating in belief markets.";
+  "Seasons are monthly competitions where users earn position on the leaderboard by participating in Season markets.";
 
 export const SEASON_QUALIFICATION_COPY =
-  "You enter the leaderboard after joining your first belief market.";
+  "You enter the leaderboard after joining your first Season market.";
 
 export const SEASON_SNAPSHOT_COPY =
   "At the end of each season, Cope takes a final leaderboard snapshot.";
@@ -50,9 +50,9 @@ export const SEASON_LEADERBOARD_RANKING_COPY =
   "Ranked by season points earned from winning settled markets during the active season.";
 
 export const SEASON_LEADERBOARD_QUALIFICATION_COPY =
-  "Enter at least one belief market during the active season to qualify.";
+  "Enter at least one Season market during the active season to qualify.";
 
-export const SEASON_POINTS_LABEL = "Season points";
+export const SEASON_POINTS_LABEL = "season points";
 
 export const SEASON_WALLET_SIGNUP_COPY =
   "When you sign up, Cope creates or assigns a wallet address for your account. This wallet is used for Season reward tracking and distribution.";
@@ -64,7 +64,7 @@ export const SEASON_ELIGIBILITY_NOTE =
   "Season leaderboard standings may be used to determine eligibility for rewards you qualify for, if applicable. Exact criteria and allocations are not guaranteed.";
 
 export const SEASON_FAQ_BULLETS = [
-  "Join belief markets to compete during the active season.",
+  "Join Season markets to compete during the active season.",
   "Climb the leaderboard with season points from winning settled markets.",
   "Cope takes a final snapshot when the season closes.",
   "Final $COPE rewards, if any, are reviewed after the snapshot — not auto-distributed at MVP launch.",
@@ -112,7 +112,7 @@ export function getSeasonLeaderboardTitle(season: Season = getCurrentSeason()): 
 export function getLeaderboardQualificationMessage(
   season: Season = getCurrentSeason(),
 ): string {
-  return `Enter your first belief market to join ${season.name}.`;
+  return `Enter your first Season market to join ${season.name}.`;
 }
 
 export function formatSeasonDateUtc(iso: string): string {
@@ -151,5 +151,5 @@ export function formatWalletAddress(address: string): string {
 export function getCopeCreditsDisclaimer(
   season: Season = getCurrentSeason(),
 ): string {
-  return `COPE Credits are in-app points for ${season.name}. They are not real money, not transferable, and not withdrawable.`;
+  return `COPE Credits are gameplay credits for ${season.name}. They are not $COPE, not real money, not transferable, and not withdrawable.`;
 }

@@ -762,7 +762,7 @@ export function HomePage({
                       role={validationMessage ? "alert" : undefined}
                     >
                       {validationMessage ||
-                        "Share a belief. The agents will test it."}
+                        "Share a belief. Let the AI agents debate it."}
                     </p>
                   </>
                 )}
