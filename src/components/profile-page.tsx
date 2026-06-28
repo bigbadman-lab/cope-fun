@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useExportWallet } from "@privy-io/react-auth/solana";
 import { InnerPageShell } from "./inner-page-shell";
 import { ProfileAvatarCustomizer } from "./profile-avatar-customizer";
 import { UserAccountAvatar } from "./user-account-avatar";
@@ -15,10 +16,14 @@ import {
 import {
   formatWalletAddress,
   getCurrentSeason,
+  REWARDS_WALLET_UNAVAILABLE_COPY,
+  REWARDS_WALLET_PROFILE_COPY,
   SEASON_ELIGIBILITY_NOTE,
-  SEASON_WALLET_PROFILE_COPY,
-  SEASON_WALLET_SIGNUP_COPY,
 } from "@/lib/seasons";
+import {
+  rewardsWalletSourceLabel,
+  type RewardsWalletSource,
+} from "@/lib/auth/rewards-wallet";
 import type {
   ProfileCreatedRoomSummary,
   ProfileDashboard,
@@ -364,24 +369,105 @@ function getAuthMethodLabel(
   return "Privy";
 }
 
-function SeasonWalletSection({ walletAddress }: { walletAddress: string | null }) {
+function RewardsWalletSection({
+  walletAddress,
+  rewardsWalletSource,
+}: {
+  walletAddress: string | null;
+  rewardsWalletSource: RewardsWalletSource | null;
+}) {
+  const { exportWallet } = useExportWallet();
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
+  const [exportState, setExportState] = useState<
+    "idle" | "loading" | "error"
+  >("idle");
+
+  const handleCopy = useCallback(async () => {
+    if (!walletAddress) return;
+
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2000);
+    } catch {
+      setCopyState("error");
+      window.setTimeout(() => setCopyState("idle"), 2000);
+    }
+  }, [walletAddress]);
+
+  const handleExport = useCallback(async () => {
+    if (!walletAddress || rewardsWalletSource !== "embedded") return;
+
+    setExportState("loading");
+    try {
+      await exportWallet({ address: walletAddress });
+      setExportState("idle");
+    } catch {
+      setExportState("error");
+      window.setTimeout(() => setExportState("idle"), 2500);
+    }
+  }, [exportWallet, rewardsWalletSource, walletAddress]);
+
+  const sourceLabel =
+    walletAddress && rewardsWalletSource
+      ? rewardsWalletSourceLabel(rewardsWalletSource)
+      : walletAddress
+        ? rewardsWalletSourceLabel("unknown")
+        : null;
+
   return (
-    <ProfileSection title="Season wallet">
+    <ProfileSection title="Rewards wallet">
       {walletAddress ? (
         <>
-          <p className="font-mono text-sm text-zinc-900 dark:text-zinc-100">
+          <div className="flex flex-wrap items-center gap-2">
+            {sourceLabel ? (
+              <span className="rounded-full border border-zinc-200/80 bg-background/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-zinc-600 dark:border-white/10 dark:bg-background/40 dark:text-zinc-400">
+                {sourceLabel}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-2 font-mono text-sm text-zinc-900 dark:text-zinc-100">
             {formatWalletAddress(walletAddress)}
           </p>
           <p className="mt-1 break-all font-mono text-[11px] text-zinc-500">
             {walletAddress}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void handleCopy()}
+              className="inline-flex min-h-9 items-center rounded-xl border border-zinc-200/80 bg-background px-3 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/10 dark:bg-background dark:text-zinc-300 dark:hover:bg-white/[0.04]"
+            >
+              {copyState === "copied"
+                ? "Copied"
+                : copyState === "error"
+                  ? "Copy failed"
+                  : "Copy address"}
+            </button>
+            {rewardsWalletSource === "embedded" ? (
+              <button
+                type="button"
+                onClick={() => void handleExport()}
+                disabled={exportState === "loading"}
+                className="inline-flex min-h-9 items-center rounded-xl border border-cope-orange/25 bg-cope-orange/10 px-3 text-xs font-medium text-cope-orange transition-colors hover:bg-cope-orange/15 disabled:opacity-60"
+              >
+                {exportState === "loading"
+                  ? "Opening…"
+                  : exportState === "error"
+                    ? "Export failed"
+                    : "Export wallet"}
+              </button>
+            ) : null}
+          </div>
           <p className="mt-3 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {SEASON_WALLET_PROFILE_COPY}
+            {REWARDS_WALLET_PROFILE_COPY}
           </p>
         </>
       ) : (
         <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-          {SEASON_WALLET_SIGNUP_COPY}
+          {REWARDS_WALLET_UNAVAILABLE_COPY}
         </p>
       )}
     </ProfileSection>
@@ -446,7 +532,10 @@ function ProfileDashboardView({
     <>
       <SeasonHeroCard dashboard={dashboard} />
 
-      <SeasonWalletSection walletAddress={dashboard.user.walletAddress} />
+      <RewardsWalletSection
+        walletAddress={dashboard.user.walletAddress}
+        rewardsWalletSource={dashboard.user.rewardsWalletSource}
+      />
 
       <ProfileAvatarCustomizer user={dashboard.user} onUserUpdated={onUserUpdated} />
 
@@ -519,6 +608,7 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchKey, setFetchKey] = useState(0);
+  const walletRetryRef = useRef(false);
 
   const loadProfile = useCallback(async () => {
     setLoading(true);
@@ -575,6 +665,21 @@ export function ProfilePage() {
       cancelled = true;
     };
   }, [ready, authenticated, loadProfile, fetchKey]);
+
+  useEffect(() => {
+    if (!dashboard?.user || dashboard.user.walletAddress || walletRetryRef.current) {
+      return;
+    }
+
+    walletRetryRef.current = true;
+    const timer = window.setTimeout(() => {
+      setFetchKey((value) => value + 1);
+    }, 4000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [dashboard?.user]);
 
   const handleRetry = useCallback(() => {
     setFetchKey((value) => value + 1);

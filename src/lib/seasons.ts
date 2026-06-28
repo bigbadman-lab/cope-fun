@@ -55,10 +55,19 @@ export const SEASON_LEADERBOARD_QUALIFICATION_COPY =
 export const SEASON_POINTS_LABEL = "season points";
 
 export const SEASON_WALLET_SIGNUP_COPY =
-  "When you sign up, Cope creates or assigns a wallet address for your account. This wallet is used for Season reward tracking and distribution.";
+  "When you sign up, Cope creates or assigns a Solana rewards wallet for your account. This wallet is used for future $COPE rewards you qualify for. Automatic payout is not live at MVP launch. COPE Credits remain internal gameplay credits and are not $COPE.";
 
 export const SEASON_WALLET_PROFILE_COPY =
-  "This wallet is used for Season rewards you qualify for.";
+  "This wallet is used for future $COPE rewards you qualify for. Automatic payout is not live at MVP launch. COPE Credits are internal and are not $COPE.";
+
+export const REWARDS_WALLET_UNAVAILABLE_COPY =
+  "Your rewards wallet is still being prepared. Sign out and back in, or connect a Solana wallet if this does not update.";
+
+/** @deprecated Use SEASON_WALLET_SIGNUP_COPY — kept for import stability. */
+export const REWARDS_WALLET_SIGNUP_COPY = SEASON_WALLET_SIGNUP_COPY;
+
+/** @deprecated Use SEASON_WALLET_PROFILE_COPY — kept for import stability. */
+export const REWARDS_WALLET_PROFILE_COPY = SEASON_WALLET_PROFILE_COPY;
 
 export const SEASON_ELIGIBILITY_NOTE =
   "Season leaderboard standings may be used to determine eligibility for rewards you qualify for, if applicable. Exact criteria and allocations are not guaranteed.";

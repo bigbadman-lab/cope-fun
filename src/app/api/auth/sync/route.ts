@@ -30,6 +30,7 @@ export async function POST(request: Request) {
       user: {
         id: appUser.id,
         walletAddress: appUser.walletAddress,
+        rewardsWalletSource: appUser.rewardsWalletSource,
         email: appUser.email,
         displayName: appUser.displayName,
       },

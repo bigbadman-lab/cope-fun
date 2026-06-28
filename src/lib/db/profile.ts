@@ -94,6 +94,7 @@ function toUserSummary(user: AppUser): ProfileUserSummary {
     id: user.id,
     displayName: user.displayName,
     walletAddress: user.walletAddress,
+    rewardsWalletSource: user.rewardsWalletSource,
     email: user.email,
     label: formatAppUserLabel({
       id: user.id,

@@ -3,17 +3,19 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { useCallback } from "react";
 import { formatAppUserLabel } from "@/lib/auth/display-label";
+import {
+  extractSolanaRewardsWallet,
+  type RewardsWalletSource,
+} from "@/lib/auth/rewards-wallet";
 
 export function useAppAuth() {
   const { ready, authenticated, user, login, logout, getAccessToken } =
     usePrivy();
 
-  const walletAddress =
-    user?.wallet?.address ??
-    user?.linkedAccounts?.find(
-      (account) => account.type === "wallet" && "address" in account,
-    )?.address ??
-    null;
+  const rewardsWallet = user ? extractSolanaRewardsWallet(user) : null;
+  const walletAddress = rewardsWallet?.address ?? null;
+  const rewardsWalletSource: RewardsWalletSource | null =
+    rewardsWallet?.source ?? null;
 
   const email =
     user?.email?.address ??
@@ -60,6 +62,7 @@ export function useAppAuth() {
     getAccessToken,
     displayLabel,
     walletAddress: typeof walletAddress === "string" ? walletAddress : null,
+    rewardsWalletSource,
     getAuthHeaders,
     authFetch,
   };

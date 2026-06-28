@@ -4,17 +4,32 @@ import { useEffect, useRef } from "react";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 
+const WALLET_SYNC_RETRY_MS = 3500;
+const MAX_WALLET_SYNC_ATTEMPTS = 3;
+
+type SyncResponse =
+  | {
+      ok: true;
+      user?: {
+        walletAddress?: string | null;
+      };
+    }
+  | { ok: false };
+
 export function AuthSync() {
   const { ready, authenticated, authFetch } = useAppAuth();
-  const syncedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!ready || !authenticated) {
-      syncedRef.current = false;
+      attemptRef.current = 0;
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
       return;
     }
-
-    if (syncedRef.current) return;
 
     let cancelled = false;
 
@@ -28,11 +43,39 @@ export function AuthSync() {
           }),
         });
 
-        if (!cancelled && response.ok) {
-          syncedRef.current = true;
+        if (cancelled) return;
+
+        const payload = (await response.json()) as SyncResponse;
+        const walletAddress =
+          payload.ok === true ? (payload.user?.walletAddress ?? null) : null;
+
+        if (response.ok && walletAddress) {
+          attemptRef.current = 0;
+          return;
         }
+
+        if (
+          response.ok &&
+          !walletAddress &&
+          attemptRef.current < MAX_WALLET_SYNC_ATTEMPTS - 1
+        ) {
+          attemptRef.current += 1;
+          retryTimerRef.current = setTimeout(() => {
+            if (!cancelled) void sync();
+          }, WALLET_SYNC_RETRY_MS);
+          return;
+        }
+
+        attemptRef.current = 0;
       } catch {
-        // Retry on next authenticated mount cycle.
+        if (cancelled) return;
+
+        if (attemptRef.current < MAX_WALLET_SYNC_ATTEMPTS - 1) {
+          attemptRef.current += 1;
+          retryTimerRef.current = setTimeout(() => {
+            if (!cancelled) void sync();
+          }, WALLET_SYNC_RETRY_MS);
+        }
       }
     }
 
@@ -40,6 +83,10 @@ export function AuthSync() {
 
     return () => {
       cancelled = true;
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
     };
   }, [ready, authenticated, authFetch]);
 

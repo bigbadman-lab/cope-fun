@@ -1,5 +1,10 @@
 import "server-only";
 import { PrivyClient, type User } from "@privy-io/server-auth";
+import {
+  extractSolanaRewardsWallet,
+  isLikelySolanaAddress,
+  type RewardsWalletSource,
+} from "./rewards-wallet";
 
 let privyClient: PrivyClient | null = null;
 
@@ -29,26 +34,31 @@ export type VerifiedPrivyAuth = {
 
 export function extractPrivyProfile(user: User): {
   walletAddress: string | null;
+  rewardsWalletSource: RewardsWalletSource | null;
   email: string | null;
   displayName: string | null;
 } {
-  let walletAddress = user.wallet?.address ?? null;
+  const rewardsWallet = extractSolanaRewardsWallet(user);
   let email = user.email?.address ?? null;
 
   for (const account of user.linkedAccounts ?? []) {
-    if (account.type === "wallet" && "address" in account && typeof account.address === "string") {
-      if (!walletAddress) walletAddress = account.address;
-    }
     if (account.type === "email" && "address" in account && typeof account.address === "string") {
       if (!email) email = account.address;
     }
   }
 
   return {
-    walletAddress,
+    walletAddress: rewardsWallet.address,
+    rewardsWalletSource: rewardsWallet.source,
     email,
     displayName: null,
   };
+}
+
+export function isStoredRewardsWalletAddress(
+  address: string | null | undefined,
+): address is string {
+  return typeof address === "string" && isLikelySolanaAddress(address);
 }
 
 export async function verifyPrivyRequest(

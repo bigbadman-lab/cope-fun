@@ -5,6 +5,7 @@ export type ProfileUserSummary = {
   id: string;
   displayName: string | null;
   walletAddress: string | null;
+  rewardsWalletSource: "connected" | "embedded" | "unknown" | null;
   email: string | null;
   label: string;
   linkedAnonymousSessionId: string | null;

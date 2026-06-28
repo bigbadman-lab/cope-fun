@@ -1,9 +1,11 @@
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getOrCreateAnonymousSession } from "@/lib/db/anonymous-session";
+import type { RewardsWalletSource } from "./rewards-wallet";
 import {
   extractPrivyProfile,
   fetchPrivyUser,
+  isStoredRewardsWalletAddress,
   verifyPrivyRequest,
   type VerifiedPrivyAuth,
 } from "./privy";
@@ -12,6 +14,7 @@ export type AppUser = {
   id: string;
   privyUserId: string;
   walletAddress: string | null;
+  rewardsWalletSource: RewardsWalletSource | null;
   email: string | null;
   displayName: string | null;
   linkedAnonymousSessionId: string | null;
@@ -32,11 +35,15 @@ type AppUserRow = {
   avatar_updated_at: string | null;
 };
 
-function toAppUser(row: AppUserRow): AppUser {
+function toAppUser(
+  row: AppUserRow,
+  rewardsWalletSource: RewardsWalletSource | null = null,
+): AppUser {
   return {
     id: row.id,
     privyUserId: row.privy_user_id,
     walletAddress: row.wallet_address,
+    rewardsWalletSource,
     email: row.email,
     displayName: row.display_name,
     linkedAnonymousSessionId: row.linked_anonymous_session_id,
@@ -44,6 +51,17 @@ function toAppUser(row: AppUserRow): AppUser {
     avatarUrl: row.avatar_url,
     avatarUpdatedAt: row.avatar_updated_at,
   };
+}
+
+function resolveStoredWalletAddress(
+  profileWalletAddress: string | null,
+  existingWalletAddress: string | null,
+): string | null {
+  if (profileWalletAddress) return profileWalletAddress;
+  if (isStoredRewardsWalletAddress(existingWalletAddress)) {
+    return existingWalletAddress;
+  }
+  return null;
 }
 
 export async function getOrCreateAppUser(
@@ -65,10 +83,15 @@ export async function getOrCreateAppUser(
   }
 
   if (existing) {
+    const walletAddress = resolveStoredWalletAddress(
+      profile.walletAddress,
+      existing.wallet_address,
+    );
+
     const { data: updated, error: updateError } = await supabase
       .from("app_users")
       .update({
-        wallet_address: profile.walletAddress ?? existing.wallet_address,
+        wallet_address: walletAddress,
         email: profile.email ?? existing.email,
         last_seen_at: now,
         updated_at: now,
@@ -81,7 +104,7 @@ export async function getOrCreateAppUser(
       throw new Error("Could not update app user.");
     }
 
-    return toAppUser(updated as AppUserRow);
+    return toAppUser(updated as AppUserRow, profile.rewardsWalletSource);
   }
 
   const { data: created, error: createError } = await supabase
@@ -108,7 +131,7 @@ export async function getOrCreateAppUser(
         throw new Error("Could not create app user.");
       }
 
-      return toAppUser(raced as AppUserRow);
+      return toAppUser(raced as AppUserRow, profile.rewardsWalletSource);
     }
 
     throw new Error("Could not create app user.");
@@ -118,7 +141,7 @@ export async function getOrCreateAppUser(
     throw new Error("Could not create app user.");
   }
 
-  return toAppUser(created as AppUserRow);
+  return toAppUser(created as AppUserRow, profile.rewardsWalletSource);
 }
 
 export async function linkAnonymousSessionToAppUser(
