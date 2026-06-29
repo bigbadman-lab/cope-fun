@@ -1,15 +1,8 @@
-"use client";
-
-import Image from "next/image";
-import { useState } from "react";
-
 const BLUR_WEBP = "/backgrounds/sky1-blur.webp";
 const FULL_WEBP = "/backgrounds/sky1.webp";
 const FULL_JPG = "/backgrounds/sky1.jpg";
 
 export function HomepageBackgroundVideo() {
-  const [fullLoaded, setFullLoaded] = useState(false);
-
   return (
     <div
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
@@ -17,28 +10,34 @@ export function HomepageBackgroundVideo() {
     >
       <div className="absolute inset-0 scale-[1.02]">
         <div className="relative h-full w-full">
-          {/* Tiny blurred placeholder — paints immediately while the full image loads. */}
-          <Image
+          {/*
+            Tiny blurred placeholder. Server-rendered and always visible, so
+            there is never a blank background while the full image streams in.
+          */}
+          <img
             src={BLUR_WEBP}
             alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-            unoptimized
+            aria-hidden
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
 
-          {/* Full-resolution background — WebP with original JPG fallback. */}
+          {/*
+            Full-resolution background — WebP with original JPG fallback.
+            Rendered immediately at full opacity (not gated behind any JS
+            loaded state), so it appears on first paint without hydration or a
+            refresh. The fade is a CSS-only progressive enhancement whose
+            resting state is fully opaque.
+          */}
           <picture className="absolute inset-0 block h-full w-full">
             <source srcSet={FULL_WEBP} type="image/webp" />
             <img
               src={FULL_JPG}
               alt=""
+              aria-hidden
               decoding="async"
-              onLoad={() => setFullLoaded(true)}
-              className={`h-full w-full object-cover object-center transition-opacity duration-700 ease-out motion-reduce:transition-none ${
-                fullLoaded ? "opacity-100" : "opacity-0"
-              }`}
+              fetchPriority="high"
+              className="animate-bg-image-in h-full w-full object-cover object-center opacity-100"
             />
           </picture>
         </div>

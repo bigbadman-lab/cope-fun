@@ -262,6 +262,32 @@ body {
   animation: message-in 0.4s ease-out forwards;
 }
 
+@keyframes bg-image-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Progressive enhancement only: the element's resting opacity is already 1
+ * (set via the utility class on the element), so the full background is
+ * visible even if this animation never runs (no JS, reduced motion, or a
+ * cached image that paints before paint-time animation). The blurred
+ * placeholder beneath guarantees there is never a blank background.
+ */
+.animate-bg-image-in {
+  animation: bg-image-in 0.7s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bg-image-in {
+    animation: none;
+  }
+}
+
 @keyframes join-in {
   from {
     opacity: 0;
