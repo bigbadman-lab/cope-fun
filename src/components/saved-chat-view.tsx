@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { PinnedBelief } from "./pinned-belief";
+import { PinnedMarketHeader } from "./pinned-market-header";
 import { RoomMarketPanel } from "./room-market-panel";
 import { RoomConclusionPanel } from "./room-bottom-panel";
 import {
@@ -687,20 +688,29 @@ export function SavedChatView({
       <div className="flex min-h-0 flex-1 flex-col">
         <header className="room-pinned-header px-4">
           <div className="mx-auto w-full max-w-md">
-            <PinnedBelief
-              text={beliefMessage?.text ?? belief}
-              attentionRemaining={attentionRemaining}
-              isCreator={pinnedBeliefIsCreator}
-            />
             {dbBacked && roomMarket ? (
-              <RoomMarketPanel initialMarket={roomMarket} />
-            ) : null}
+              <PinnedMarketHeader market={roomMarket} />
+            ) : (
+              <PinnedBelief
+                text={beliefMessage?.text ?? belief}
+                attentionRemaining={attentionRemaining}
+                isCreator={pinnedBeliefIsCreator}
+              />
+            )}
           </div>
         </header>
 
         <div ref={debateBodyRef} className="room-debate-body">
           <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
             <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
+              {dbBacked && roomMarket ? (
+                <RoomMarketPanel
+                  market={roomMarket}
+                  onMarketChange={setRoomMarket}
+                  hideSummary
+                />
+              ) : null}
+
               <GroupFormationMessage animate={false} />
 
               {reactionError && (

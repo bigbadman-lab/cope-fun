@@ -18,8 +18,40 @@ import {
   type StakeAmount,
 } from "@/lib/markets/types";
 
+export const ROOM_MARKET_PANEL_ID = "room-market-panel";
+
+export function applyStakeToMarket(
+  market: RoomMarketView,
+  side: MarketSide,
+  stakeCredits: number,
+): RoomMarketView {
+  if (market.userPosition) return market;
+
+  return {
+    ...market,
+    userPosition: {
+      id: "local",
+      side,
+      stakeCredits,
+      payoutCredits: null,
+      isWinner: null,
+      settledAt: null,
+    },
+    believePool:
+      side === "believe"
+        ? market.believePool + stakeCredits
+        : market.believePool,
+    copePool:
+      side === "cope" ? market.copePool + stakeCredits : market.copePool,
+    participantCount: market.participantCount + 1,
+  };
+}
+
 type RoomMarketPanelProps = {
-  initialMarket: RoomMarketView;
+  market: RoomMarketView;
+  onMarketChange: (market: RoomMarketView) => void;
+  /** Hide the title/status/split/participant summary shown by PinnedMarketHeader. */
+  hideSummary?: boolean;
 };
 
 function formatDateTime(value: string | null): string {
@@ -32,9 +64,12 @@ function formatDateTime(value: string | null): string {
   });
 }
 
-export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
+export function RoomMarketPanel({
+  market,
+  onMarketChange,
+  hideSummary = false,
+}: RoomMarketPanelProps) {
   const { ready, authenticated, login, authFetch } = useAppAuth();
-  const [market, setMarket] = useState(initialMarket);
   const [account, setAccount] = useState<CreditAccountView | null>(null);
   const [selectedSide, setSelectedSide] = useState<MarketSide>("believe");
   const [selectedStake, setSelectedStake] = useState<StakeAmount>(100);
@@ -131,26 +166,9 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
         return;
       }
 
-      setMarket((current) => ({
-        ...current,
-        userPosition: {
-          id: "local",
-          side: payload.side ?? selectedSide,
-          stakeCredits: payload.stakeCredits ?? selectedStake,
-          payoutCredits: null,
-          isWinner: null,
-          settledAt: null,
-        },
-        believePool:
-          selectedSide === "believe"
-            ? current.believePool + selectedStake
-            : current.believePool,
-        copePool:
-          selectedSide === "cope"
-            ? current.copePool + selectedStake
-            : current.copePool,
-        participantCount: current.participantCount + 1,
-      }));
+      const stakedSide = payload.side ?? selectedSide;
+      const stakedCredits = payload.stakeCredits ?? selectedStake;
+      onMarketChange(applyStakeToMarket(market, stakedSide, stakedCredits));
 
       if (typeof payload.balanceCredits === "number") {
         setAccount((current) =>
@@ -171,19 +189,29 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
     totalPool > 0 ? Math.round((market.believePool / totalPool) * 100) : 50;
 
   return (
-    <section className="mt-3 rounded-xl border border-zinc-200/70 bg-background px-3.5 py-3.5 dark:border-white/[0.07]">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-cope-orange">
-          Market
-        </p>
-        <MarketStatusBadge dbStatus={market.status} closesAt={market.closesAt} />
-      </div>
+    <section
+      id={ROOM_MARKET_PANEL_ID}
+      className="rounded-xl border border-zinc-200/70 bg-background px-3.5 py-3.5 dark:border-white/[0.07]"
+    >
+      {!hideSummary ? (
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-cope-orange">
+              Market
+            </p>
+            <MarketStatusBadge
+              dbStatus={market.status}
+              closesAt={market.closesAt}
+            />
+          </div>
 
-      <h2 className="mt-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-        {market.title}
-      </h2>
+          <h2 className="mt-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            {market.title}
+          </h2>
+        </>
+      ) : null}
 
-      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+      <p className={`${hideSummary ? "" : "mt-2 "}text-xs leading-relaxed text-zinc-500`}>
         {market.resolutionCriteria}
       </p>
 
@@ -198,34 +226,38 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
         variant="panel"
       />
 
-      <div className="mt-3">
-        <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] tabular-nums">
-          <span className="text-emerald-700/80 dark:text-emerald-400/80">
-            Believe {believePct}%
-          </span>
-          <span className="text-rose-700/80 dark:text-rose-400/80">
-            Cope {100 - believePct}%
-          </span>
-        </div>
-        <div className="flex h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800/80">
-          <div
-            className="bg-emerald-600/60"
-            style={{ width: `${believePct}%` }}
-          />
-          <div
-            className="bg-rose-500/50"
-            style={{ width: `${100 - believePct}%` }}
-          />
-        </div>
-      </div>
+      {!hideSummary ? (
+        <>
+          <div className="mt-3">
+            <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] tabular-nums">
+              <span className="text-emerald-700/80 dark:text-emerald-400/80">
+                Believe {believePct}%
+              </span>
+              <span className="text-rose-700/80 dark:text-rose-400/80">
+                Cope {100 - believePct}%
+              </span>
+            </div>
+            <div className="flex h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800/80">
+              <div
+                className="bg-emerald-600/60"
+                style={{ width: `${believePct}%` }}
+              />
+              <div
+                className="bg-rose-500/50"
+                style={{ width: `${100 - believePct}%` }}
+              />
+            </div>
+          </div>
+
+          <p className="mt-2 text-xs text-zinc-500">
+            {totalPool.toLocaleString()} credits staked ·{" "}
+            {market.participantCount}{" "}
+            {market.participantCount === 1 ? "participant" : "participants"}
+          </p>
+        </>
+      ) : null}
 
       <p className="mt-2 text-xs text-zinc-500">
-        {totalPool.toLocaleString()} credits staked ·{" "}
-        {market.participantCount}{" "}
-        {market.participantCount === 1 ? "participant" : "participants"}
-      </p>
-
-      <p className="mt-1 text-xs text-zinc-500">
         Market closes {formatDateTime(market.closesAt)}
         {market.resolvesAt
           ? ` · Resolves ${formatDateTime(market.resolvesAt)}`
@@ -262,6 +294,7 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
+              disabled={isStaking}
               onClick={() => setSelectedSide("believe")}
               className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${
                 selectedSide === "believe"
@@ -273,6 +306,7 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
             </button>
             <button
               type="button"
+              disabled={isStaking}
               onClick={() => setSelectedSide("cope")}
               className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${
                 selectedSide === "cope"
@@ -289,6 +323,7 @@ export function RoomMarketPanel({ initialMarket }: RoomMarketPanelProps) {
               <button
                 key={amount}
                 type="button"
+                disabled={isStaking}
                 onClick={() => setSelectedStake(amount)}
                 className={`rounded-lg border px-2.5 py-1 text-xs font-medium tabular-nums ${
                   selectedStake === amount
