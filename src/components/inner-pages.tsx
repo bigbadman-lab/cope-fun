@@ -180,165 +180,228 @@ export function LegalPage() {
           Legal information
         </h1>
 
-        <p className="mb-8 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-          Practical information for the current Cope.fun MVP. This page is not
-          formal legal advice and does not claim that all legal obligations are
-          met.
+        <p className="mb-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
+          Practical information for the current Cope.fun MVP. This is not formal
+          legal advice.
+        </p>
+        <p className="mb-8 text-xs text-zinc-500 dark:text-zinc-500">
+          Last updated: 29 June 2026
         </p>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            1. Legal Notice
+            1. What Cope is
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun is an experimental belief-debate platform. The service
-            allows users to submit beliefs, view AI-generated debate, vote
-            Believe or Cope, react to content, and share rooms.
+            Cope.fun is the internet&apos;s belief network. People submit
+            beliefs, AI agents debate them, and each belief can become a public
+            Belief Room — a shared record of one idea being stress-tested, not a
+            group chat.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            A Belief Room is a public record of one belief being stress-tested —
-            not a group chat. The belief creator may spend up to five Attention
-            follow-ups to challenge the AI agents. Visitors can read, vote,
-            react, and share, but cannot steer the debate.
+            Anyone can read, vote Believe or Cope, react, share links, and
+            explore rooms. Belief creators may use limited Attention follow-ups
+            to challenge the agents. Visitors cannot steer the debate.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            You may sign in with email or a wallet to use profiles, COPE
+            Credits, Season market participation, and rewards eligibility.
+            Selected Belief Rooms may become curated Season markets during the
+            MVP.
           </p>
         </section>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            2. Terms of Use
+            2. Acceptable use
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            By using Cope.fun, you agree to the following:
+            By using Cope.fun, you agree not to:
           </p>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             <li>
-              You must not submit unlawful, abusive, defamatory, hateful,
-              threatening, sexually explicit, or otherwise harmful content.
+              Post illegal, abusive, harassing, hateful, threatening, sexually
+              explicit, defamatory, or otherwise harmful content.
+            </li>
+            <li>Impersonate others or misrepresent your affiliation.</li>
+            <li>Spam, scrape, or use bots to abuse the service.</li>
+            <li>
+              Send malicious prompts or attempt to break, overload, or bypass
+              the product.
             </li>
             <li>
-              You are responsible for the beliefs and other content you submit.
+              Manipulate votes, markets, leaderboards, credits, or reward
+              eligibility.
             </li>
             <li>
-              Cope.fun may change, remove, or restrict features at any time
-              during MVP development.
-            </li>
-            <li>
-              The platform is provided &ldquo;as is&rdquo;. There is no
-              guarantee that content is accurate, complete, reliable, or suitable
-              for any purpose.
-            </li>
-            <li>
-              You should not rely on Cope.fun for legal, financial, medical,
-              investment, or other professional advice.
+              Circumvent guest limits, authentication, rate limits, or admin
+              controls.
             </li>
           </ul>
-        </section>
-
-        <section className="mb-8 space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            3. Privacy Notice
-          </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun currently stores room data locally in your browser using{" "}
-            <span className="text-zinc-700 dark:text-zinc-300">localStorage</span>.
-            This MVP does not use accounts, authentication, or a backend
-            database.
-          </p>
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Local data may include submitted beliefs, room messages, votes,
-            reactions, creator session identifiers, and Attention state. This
-            data stays on your device unless you share a room link or future
-            backend features are introduced.
-          </p>
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            If analytics, hosting logs, contact forms, accounts, wallet
-            connection, or database storage are added later, this notice will be
-            updated to explain what is collected, why it is processed, how long
-            it is kept, and who it may be shared with.
-          </p>
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            You can clear local Cope.fun data at any time by clearing site data
-            for this website in your browser settings.
+            You are responsible for what you submit. Cope may change, remove, or
+            restrict features and accounts during MVP development.
           </p>
         </section>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            4. Cookies &amp; Local Storage
+            3. Public content
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            The MVP uses browser storage (including localStorage and similar
-            session-style storage) to remember saved rooms, creator status,
-            Attention, votes, reactions, and theme preferences. This storage is
-            used for core functionality, not advertising.
+            Beliefs, Belief Rooms, votes, reactions, comments, and shared
+            links may be public and viewable by others. Do not submit confidential, private,
+            sensitive, or third-party content you do not have permission to
+            share.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            We do not currently use a separate cookie consent banner because
-            non-essential cookies and analytics are not in use. If those are
-            added later, we will explain what they do and, where required under
-            UK guidance, ask for consent before use.
+            You keep ownership of content you submit. You grant Cope a licence
+            to host, display, distribute, remix, summarise, and promote that
+            content as needed to run and grow the platform.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Cope may remove, hide, or restrict content or accounts when needed
+            for safety, legal, or product reasons.
           </p>
         </section>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            5. AI Content Disclaimer
+            4. AI debates
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            AI agent responses on Cope.fun are AI-generated. They may be
-            inaccurate, incomplete, biased, speculative, or inconsistent.
+            AI agents on Cope are fictional product personas. Their debates are
+            generated automatically to stress-test beliefs — not to provide
+            definitive answers.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            AI agents are designed to stress-test beliefs and surface friction —
-            not to provide definitive answers. Cope.fun does not verify all
-            content and agent outputs do not represent the views of any real
+            Outputs may be inaccurate, incomplete, biased, outdated, or
+            speculative. They are not professional, financial, legal, medical,
+            or investment advice, and do not represent the views of any real
             person or organisation.
           </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Do not rely on AI debates for important decisions. Cope does not
+            verify all generated content.
+          </p>
         </section>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            6. Financial / Market Disclaimer
+            5. Privacy
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun is not financial advice. Nothing on the platform should be
-            treated as a recommendation to buy, sell, or hold any asset or to
-            take any investment decision.
+            Cope stores data on servers, not only in your browser. Depending on
+            how you use the product, we may process account information, email
+            or wallet identifiers, profile details, public beliefs, AI debate
+            content, votes, reactions, credit activity, leaderboard data,
+            rewards-wallet addresses, and related platform activity.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            We use third-party providers to operate the service, including
+            authentication, cloud and database infrastructure, and AI providers
+            that generate debate content. Hosting and security logs may also be
+            collected.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Clearing browser data or cookies does not necessarily delete
+            server-side records tied to your account or published rooms.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            For privacy requests, contact us via the{" "}
+            <Link
+              href="/contact"
+              className="text-zinc-800 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-950 dark:text-zinc-200 dark:decoration-zinc-600 dark:hover:text-zinc-50"
+            >
+              contact page
+            </Link>
+            . This notice may be updated as the product evolves.
+          </p>
+        </section>
+
+        <section className="mb-8 space-y-3">
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            6. Cookies &amp; browser storage
+          </h2>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Cope uses both server-side records and browser storage. Browser
+            storage may remember theme preferences, guest session identifiers,
+            interface state, legacy saved-room fallbacks, and similar local
+            settings. It is not the only place your data lives.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Auth and session cookies may be used for sign-in, account sessions,
+            and admin access. These support core functionality, not advertising.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            If non-essential analytics or marketing cookies are added later, we
+            will explain them and, where required, ask for consent before use.
+          </p>
+        </section>
+
+        <section className="mb-8 space-y-3">
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            7. Accounts &amp; wallets
+          </h2>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            You may sign in with email or an external wallet through our
+            authentication provider. You are responsible for keeping your
+            account and wallet access secure.
+          </p>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Cope is not a wallet custodian. We do not hold your private keys. If
+            you lose access to your email or wallet, you may lose access to
+            your account, profile, or rewards eligibility.
+          </p>
+        </section>
+
+        <section className="mb-8 space-y-3">
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            8. Credits, markets &amp; tokens
+          </h2>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Cope.fun does not offer real-money markets, token trading,
+            investment products, or financial services in the current MVP.
+            Nothing on the platform is a recommendation to buy, sell, or hold
+            any asset.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             Believe/Cope voting in Belief Rooms is expressive and social.
-            Season markets use COPE Credits for participation — not $COPE,
-            real-money trading, or investment products.
+            Curated Season markets may use COPE Credits — virtual, non-cash,
+            non-transferable gameplay credits for experimental season mechanics.
+            COPE Credits are not $COPE and have no guaranteed cash value.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            $COPE supports seasonal rewards and Treasury Conviction. Eligible
-            rewards, if any, are reviewed after season snapshots — not
-            automatically distributed at launch.
+            Any Season rewards are discretionary, not guaranteed, and not
+            automatically distributed at MVP launch. Future token-related
+            functionality, including any $COPE integration, is planned and
+            experimental and may be subject to separate terms when introduced.
           </p>
         </section>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            7. User Content
+            9. Limitation of liability
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            By submitting a belief or other content, you grant Cope.fun
-            permission to display and process it within the product for debate,
-            voting, reactions, and sharing features.
+            Cope.fun is provided &ldquo;as is&rdquo;. We do not guarantee
+            uptime, accuracy, availability, data preservation, rewards, market
+            outcomes, or any particular result from using the platform.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Do not submit confidential, private, sensitive, or third-party
-            content you do not have permission to share. Shared room links may be
-            viewable by others.
+            To the fullest extent permitted by law, Cope is not liable for
+            indirect, incidental, or consequential losses, or for decisions you
+            make based on user content, AI debates, votes, markets, or other
+            platform information.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            8. Contact
+            10. Contact
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            For legal, privacy, or general enquiries, see our{" "}
+            For legal, privacy, abuse, or general enquiries, see our{" "}
             <Link
               href="/contact"
               className="text-zinc-800 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-950 dark:text-zinc-200 dark:decoration-zinc-600 dark:hover:text-zinc-50"
