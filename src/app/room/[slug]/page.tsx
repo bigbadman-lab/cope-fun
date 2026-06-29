@@ -10,8 +10,6 @@ import {
   GENERIC_ROOM_TITLE,
   ROOM_DESCRIPTION,
   roomMetadataTitleSegment,
-  roomOgImageAlt,
-  roomOgImagePath,
   roomPageTitle,
 } from "@/lib/room-og/copy";
 
@@ -24,31 +22,28 @@ export async function generateMetadata({ params }: RoomProps): Promise<Metadata>
   const room = await getBeliefRoomBySlug(slug);
 
   const title = room ? roomPageTitle(room.belief) : GENERIC_ROOM_TITLE;
-  const ogImagePath = roomOgImagePath(slug);
-  const ogImageAlt = roomOgImageAlt(room?.belief ?? null);
 
+  // The OG/Twitter image is produced by the colocated `opengraph-image.tsx`
+  // file convention, which Next resolves to an absolute URL via metadataBase
+  // and renders a branded fallback when the room cannot be loaded.
   return {
     title: room ? roomMetadataTitleSegment(room.belief) : "Belief Room",
     description: ROOM_DESCRIPTION,
+    alternates: {
+      canonical: `/room/${slug}`,
+    },
     openGraph: {
       title,
       description: ROOM_DESCRIPTION,
       url: `/room/${slug}`,
+      siteName: "Cope",
       type: "website",
-      images: [
-        {
-          url: ogImagePath,
-          width: 1200,
-          height: 630,
-          alt: ogImageAlt,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
+      site: "@copefun",
       title,
       description: ROOM_DESCRIPTION,
-      images: [ogImagePath],
     },
   };
 }

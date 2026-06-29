@@ -18,12 +18,24 @@ type OgImageProps = {
 
 export default async function Image({ params }: OgImageProps) {
   const { slug } = await params;
-  const room = await getBeliefRoomBySlug(slug);
-  const quote = room ? selectOgQuote(room.messages) : null;
+
+  let belief: string | undefined;
+  let quote = null;
+
+  // Public crawlers hit this without auth; never throw — fall back to the
+  // branded generic image if the room can't be loaded.
+  try {
+    const room = await getBeliefRoomBySlug(slug);
+    belief = room?.belief;
+    quote = room ? selectOgQuote(room.messages) : null;
+  } catch {
+    belief = undefined;
+    quote = null;
+  }
 
   return new ImageResponse(
     buildRoomOgImageElement({
-      belief: room?.belief,
+      belief,
       quote,
     }),
     {

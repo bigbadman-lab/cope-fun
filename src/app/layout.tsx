@@ -9,7 +9,7 @@ import { GlobalSearchProvider } from "@/components/global-search-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   DEFAULT_OG_IMAGE_ALT,
-  DEFAULT_OG_IMAGE_PATH,
+  DEFAULT_OG_IMAGE_URL,
   DEFAULT_SITE_DESCRIPTION,
   SITE_URL,
 } from "@/lib/room-og/copy";
@@ -39,7 +39,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: DEFAULT_OG_IMAGE_PATH,
+        url: DEFAULT_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
         alt: DEFAULT_OG_IMAGE_ALT,
       },
     ],
@@ -47,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@copefun",
-    images: [DEFAULT_OG_IMAGE_PATH],
+    images: [DEFAULT_OG_IMAGE_URL],
   },
 };
 

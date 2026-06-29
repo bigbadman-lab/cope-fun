@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEFAULT_OG_IMAGE_ALT, DEFAULT_OG_IMAGE_PATH } from "@/lib/room-og/copy";
+import { DEFAULT_OG_IMAGE_ALT, DEFAULT_OG_IMAGE_URL } from "@/lib/room-og/copy";
 
 type PageMetadataInput = {
   title: string;
@@ -22,18 +22,23 @@ export function createPageMetadata(input: PageMetadataInput): Metadata {
       title: input.openGraphTitle,
       description: openGraphDescription,
       url: input.path,
+      siteName: "Cope",
+      type: "website",
       images: [
         {
-          url: DEFAULT_OG_IMAGE_PATH,
+          url: DEFAULT_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
           alt: DEFAULT_OG_IMAGE_ALT,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
+      site: "@copefun",
       title: input.openGraphTitle,
       description: openGraphDescription,
-      images: [DEFAULT_OG_IMAGE_PATH],
+      images: [DEFAULT_OG_IMAGE_URL],
     },
   };
 }

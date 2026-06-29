@@ -1,9 +1,31 @@
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://cope.fun";
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, "");
+
+  // Stable production domain on Vercel when NEXT_PUBLIC_SITE_URL is unset.
+  const vercelProduction = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (vercelProduction) return `https://${vercelProduction.replace(/\/+$/, "")}`;
+
+  // Per-deployment URL (preview deployments) so previews self-reference.
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) return `https://${vercelUrl.replace(/\/+$/, "")}`;
+
+  return "https://cope.fun";
+}
+
+export const SITE_URL = resolveSiteUrl();
+
+/** Turns a relative path into an absolute URL against the resolved site origin. */
+export function absoluteUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${SITE_URL}${normalizedPath}`;
+}
 
 export const DEFAULT_SITE_DESCRIPTION = "Enter a belief. Watch it argue.";
 
 export const DEFAULT_OG_IMAGE_PATH = "/copemeta.jpg";
+export const DEFAULT_OG_IMAGE_URL = absoluteUrl(DEFAULT_OG_IMAGE_PATH);
 export const DEFAULT_OG_IMAGE_ALT = "Cope — Enter a belief. Watch it argue.";
 
 export const ROOM_DESCRIPTION =
