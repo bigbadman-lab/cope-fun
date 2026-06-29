@@ -38,6 +38,11 @@ type PulseChatPostResponse =
 
 type PulseRoomChatProps = {
   beliefRoomId: string;
+  /**
+   * Mobile-only: reports the chat scroll offset for user-initiated scrolls so
+   * the Pulse header can collapse/expand. Programmatic auto-scroll is ignored.
+   */
+  onUserScroll?: (scrollTop: number) => void;
 };
 
 function formatMessageTime(createdAt: string): string {
@@ -128,7 +133,10 @@ function avatarPropsForMessage(message: PulseRoomMessage): {
   };
 }
 
-export function PulseRoomChat({ beliefRoomId }: PulseRoomChatProps) {
+export function PulseRoomChat({
+  beliefRoomId,
+  onUserScroll,
+}: PulseRoomChatProps) {
   const { ready, authenticated, login, authFetch } = useAppAuth();
   const [messages, setMessages] = useState<PulseRoomMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -140,6 +148,13 @@ export function PulseRoomChat({ beliefRoomId }: PulseRoomChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const shouldStickToBottomRef = useRef(true);
+  // Only react to genuine user scrolls — not the programmatic scroll-to-bottom —
+  // so the header stays fully expanded on initial load.
+  const userInteractedRef = useRef(false);
+
+  const markUserInteracted = useCallback(() => {
+    userInteractedRef.current = true;
+  }, []);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
@@ -251,11 +266,17 @@ export function PulseRoomChat({ beliefRoomId }: PulseRoomChatProps) {
 
         <div
           className="-mx-2 min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-[calc(6.5rem+var(--scroll-bottom-inset))]"
+          onWheel={markUserInteracted}
+          onTouchMove={markUserInteracted}
+          onPointerDown={markUserInteracted}
           onScroll={(event) => {
             const element = event.currentTarget;
             const distanceFromBottom =
               element.scrollHeight - element.scrollTop - element.clientHeight;
             shouldStickToBottomRef.current = distanceFromBottom < 48;
+            if (userInteractedRef.current) {
+              onUserScroll?.(element.scrollTop);
+            }
           }}
         >
           {isLoading ? (
