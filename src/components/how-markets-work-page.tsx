@@ -177,9 +177,10 @@ export function HowMarketsWorkPage() {
             From a single belief to a Season market.
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Every market on Cope begins as a belief. Beliefs are debated by AI
-            agents, challenged by the community, and selected by the Cope team
-            before becoming Season markets.
+            Most markets on Cope begin as a belief — debated by AI agents,
+            challenged by the community, and selected by the Cope team to become
+            a Season market. Pulse markets are the exception: they run
+            automatically from a live data feed.
           </p>
         </header>
 
@@ -203,6 +204,22 @@ export function HowMarketsWorkPage() {
               curated, time-bound, and built to resolve clearly.
             </p>
             <BulletList items={SEASON_MARKET_BULLETS} />
+          </InfoCard>
+
+          <InfoCard title="Pulse markets">
+            <p>
+              Pulse markets are a different kind of market built on a live data
+              feed instead of a team-curated belief. They live inside Pulse
+              Rooms — open community chat with no AI debate — and currently
+              track live SOL/USD price movement.
+            </p>
+            <BulletList
+              items={[
+                "Rounds open, lock, and settle automatically.",
+                "Outcomes are determined by live price movement, not team resolution.",
+                "You still take part with COPE Credits — Believe or Cope.",
+              ]}
+            />
           </InfoCard>
 
           <InfoCard title="COPE Credits">

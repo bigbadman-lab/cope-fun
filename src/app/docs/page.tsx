@@ -279,6 +279,28 @@ export default function DocsPage() {
           </section>
 
           <section className="space-y-5">
+            <SectionHeader eyebrow="Room types" title="Pulse Rooms">
+              <p>
+                Most rooms are standard Belief Rooms built around debate. Pulse
+                Rooms are a newer room type centred on a live data feed instead
+                of AI agents — open community chat alongside a live Pulse market.
+              </p>
+            </SectionHeader>
+
+            <DocCard
+              label="Live markets"
+              title="Pulse markets"
+              copy="A Pulse market is built from a real-time data feed. It opens, locks, and settles automatically in continuous rounds, with outcomes determined by live price movement. Pulse currently tracks SOL/USD."
+              bullets={[
+                "No AI debate — Pulse Rooms run on live data and community chat.",
+                "Rounds open, lock, and settle automatically.",
+                "Outcomes come from live price movement, not team resolution.",
+                "Participation uses COPE Credits, the same as other markets.",
+              ]}
+            />
+          </section>
+
+          <section className="space-y-5">
             <SectionHeader eyebrow="Market layer" title="COPE Credits">
               <p>
                 COPE Credits are gameplay credits used during Seasons 1–3. They
@@ -290,7 +312,7 @@ export default function DocsPage() {
             <DocCard
               label="Participation unit"
               title="COPE Credits"
-              copy="Users spend COPE Credits to enter Season markets. Credits are separate from the $COPE protocol token."
+              copy="Users spend COPE Credits to enter markets — both Season markets and Pulse markets. Credits are separate from the $COPE protocol token."
               bullets={[
                 "COPE Credits are not $COPE.",
                 "COPE Credits are not redeemable token balances.",
