@@ -1,5 +1,3 @@
-import "server-only";
-
 export const ALLOWED_PULSE_ROUND_DURATIONS = [15, 30, 60, 300, 900] as const;
 
 export type PulseRoundDurationSeconds =
