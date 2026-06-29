@@ -248,8 +248,8 @@ export function PulseRoomChat({
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col px-4 pt-3">
-        <div className="mb-3">
+      <div className="mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col px-4 pt-2 md:pt-3">
+        <div className="mb-2 md:mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex size-2" aria-hidden>
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500/60" />
@@ -259,7 +259,8 @@ export function PulseRoomChat({
               Live Pulse chat
             </h2>
           </div>
-          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          {/* Redundant on mobile — the composer placeholder says the same thing. */}
+          <p className="mt-0.5 hidden text-xs text-zinc-500 dark:text-zinc-400 md:block">
             Share your thoughts with the room
           </p>
         </div>

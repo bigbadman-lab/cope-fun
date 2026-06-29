@@ -206,12 +206,24 @@ export function PulseRoomHeader({
         ? "▲"
         : "▼";
 
+  const deltaText =
+    priceDelta !== null
+      ? `${priceDelta > 0 ? "+" : ""}${formatPulsePrice(priceDelta).replace(
+          "$-",
+          "-$",
+        )}${
+          priceDeltaPercent !== null
+            ? ` (${priceDeltaPercent > 0 ? "+" : ""}${priceDeltaPercent.toFixed(2)}%)`
+            : ""
+        }`
+      : null;
+
   const stakedSides = new Set<PulseSide>(userPositions.map((p) => p.side));
   const hasPosition = userPositions.length > 0;
   const alreadyStakedSelected = stakedSides.has(selectedSide);
 
   const yourPositionBlock = hasPosition ? (
-    <div className="mt-3 rounded-lg border border-cope-orange/30 bg-cope-orange/[0.06] px-3 py-2.5">
+    <div className="mt-2 rounded-lg border border-cope-orange/30 bg-cope-orange/[0.06] px-3 py-2 md:mt-3 md:py-2.5">
       <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cope-orange">
         Your position
       </p>
@@ -250,7 +262,7 @@ export function PulseRoomHeader({
   const stakeControls =
     isOpen && canStake ? (
       !authenticated ? (
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-200/60 pt-3 dark:border-white/[0.06]">
+        <div className="mt-2.5 flex items-center justify-between gap-3 border-t border-zinc-200/60 pt-2.5 dark:border-white/[0.06] md:mt-3 md:pt-3">
           <p className="text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
             Sign in to stake COPE Credits this round.
           </p>
@@ -264,7 +276,7 @@ export function PulseRoomHeader({
         </div>
       ) : (
         <div
-          className={`mt-3 border-t border-zinc-200/60 pt-3 dark:border-white/[0.06] ${
+          className={`mt-2.5 border-t border-zinc-200/60 pt-2.5 dark:border-white/[0.06] md:mt-3 md:pt-3 ${
             hasPosition ? "opacity-90" : ""
           }`}
         >
@@ -372,7 +384,7 @@ export function PulseRoomHeader({
         </div>
       )
     ) : (
-      <p className="mt-3 border-t border-zinc-200/60 pt-3 text-[11px] text-zinc-500 dark:border-white/[0.06]">
+      <p className="mt-2.5 border-t border-zinc-200/60 pt-2.5 text-[11px] text-zinc-500 dark:border-white/[0.06] md:mt-3 md:pt-3">
         {isPending
           ? !engineRunning && engine.lifecycleState === "ready"
             ? automation.runnerEnabled
@@ -467,7 +479,7 @@ export function PulseRoomHeader({
       >
         <div className="overflow-hidden">
       <section className="overflow-hidden rounded-xl border border-cope-orange/30 bg-surface dark:border-cope-orange/20">
-        <div className="px-3.5 py-3">
+        <div className="px-3.5 py-2.5 md:py-3">
           {/* Top row: LIVE + pair + round # / status badge */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
@@ -496,33 +508,37 @@ export function PulseRoomHeader({
 
           {/* Hero price */}
           <div
-            className={`mt-2.5 rounded-xl px-3 py-2.5 transition-colors duration-500 ${directionBg}`}
+            className={`mt-2 md:mt-2.5 rounded-xl px-3 py-2 md:py-2.5 transition-colors duration-500 ${directionBg}`}
           >
-            <div className="flex items-baseline justify-between gap-2">
+            {/* Desktop label row — redundant on mobile (top row already shows the pair + Live). */}
+            <div className="hidden items-baseline justify-between gap-2 md:flex">
               <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
                 {engine.displayPair} · Live
               </span>
-              {priceDelta !== null ? (
+              {deltaText !== null ? (
                 <span className={`text-[11px] font-semibold tabular-nums ${deltaColor}`}>
-                  {priceDelta > 0 ? "+" : ""}
-                  {formatPulsePrice(priceDelta).replace("$-", "-$")}
-                  {priceDeltaPercent !== null
-                    ? ` (${priceDeltaPercent > 0 ? "+" : ""}${priceDeltaPercent.toFixed(2)}%)`
-                    : ""}
+                  {deltaText}
                 </span>
               ) : null}
             </div>
-            <div className="mt-0.5 flex items-end gap-2">
+            <div className="mt-0 flex items-end gap-2 md:mt-0.5">
               <span
-                className={`font-mono text-[2.5rem] font-bold leading-none tabular-nums transition-colors duration-300 ${directionColor}`}
+                className={`font-mono text-[2rem] font-bold leading-none tabular-nums transition-colors duration-300 md:text-[2.5rem] ${directionColor}`}
               >
                 {livePriceValue !== null
                   ? formatPulsePrice(livePriceValue)
                   : "—"}
               </span>
-              <span className={`pb-1 text-lg leading-none ${deltaColor}`} aria-hidden>
+              <span className={`pb-0.5 text-lg leading-none md:pb-1 ${deltaColor}`} aria-hidden>
                 {directionArrow}
               </span>
+              {deltaText !== null ? (
+                <span
+                  className={`ml-auto pb-0.5 text-[11px] font-semibold tabular-nums md:hidden ${deltaColor}`}
+                >
+                  {deltaText}
+                </span>
+              ) : null}
             </div>
             <div className="mt-1 flex items-center justify-between gap-2 text-[11px]">
               <span className="text-zinc-500">
@@ -550,8 +566,8 @@ export function PulseRoomHeader({
           </div>
 
           {/* Countdown + winner */}
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-lg border border-zinc-200/60 px-3 py-2 dark:border-white/[0.06]">
+          <div className="mt-2 grid grid-cols-2 gap-2 md:mt-3">
+            <div className="rounded-lg border border-zinc-200/60 px-3 py-1.5 dark:border-white/[0.06] md:py-2">
               <p className="text-[10px] uppercase tracking-wide text-zinc-500">
                 {isOpen ? "Round ends in" : "Time"}
               </p>
@@ -571,7 +587,7 @@ export function PulseRoomHeader({
                 </div>
               ) : null}
             </div>
-            <div className="rounded-lg border border-zinc-200/60 px-3 py-2 dark:border-white/[0.06]">
+            <div className="rounded-lg border border-zinc-200/60 px-3 py-1.5 dark:border-white/[0.06] md:py-2">
               <p className="text-[10px] uppercase tracking-wide text-zinc-500">
                 {isSettled ? "Winner" : "Currently winning"}
               </p>
@@ -582,7 +598,7 @@ export function PulseRoomHeader({
           </div>
 
           {/* Pool split */}
-          <div className="mt-3">
+          <div className="mt-2 md:mt-3">
             <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] tabular-nums">
               <span className="text-emerald-700/80 dark:text-emerald-400/80">
                 Believe {formatPulsePercent(round?.believePercent)}
