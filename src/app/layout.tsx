@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist_Mono, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AppPrivyProvider } from "@/components/privy-provider";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -96,6 +97,7 @@ export default function RootLayout({
             </GlobalSearchProvider>
           </AppPrivyProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
