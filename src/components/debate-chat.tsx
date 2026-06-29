@@ -229,6 +229,7 @@ export function DebateCTA({
         userVote={userVote}
         onVote={onVote}
         variant="room"
+        persisted={false}
       />
       {onSaveChat && (
         <div className="flex justify-center pt-0.5">

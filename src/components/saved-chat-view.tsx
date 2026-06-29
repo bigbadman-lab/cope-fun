@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { PinnedBelief } from "./pinned-belief";
@@ -32,11 +32,7 @@ import {
   pickRespondingAgents,
   validateFollowUpDraft,
 } from "@/lib/room-follow-up";
-import {
-  applyVoteChange,
-  seedVoteCounts,
-  type VoteChoice,
-} from "@/lib/vote";
+import { applyVoteChange, type VoteChoice } from "@/lib/vote";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import { readRateLimitMessage } from "@/lib/rate-limit/client";
@@ -293,13 +289,8 @@ export function SavedChatView({
     };
   }, []);
 
-  const seededCounts = useMemo(() => seedVoteCounts(belief), [belief]);
-  const initialBelieveCount = dbBacked
-    ? (conversation.believeCount ?? 0)
-    : (conversation.believeCount ?? seededCounts.believeCount);
-  const initialCopeCount = dbBacked
-    ? (conversation.copeCount ?? 0)
-    : (conversation.copeCount ?? seededCounts.copeCount);
+  const initialBelieveCount = conversation.believeCount ?? 0;
+  const initialCopeCount = conversation.copeCount ?? 0;
 
   const [localBelieveCount, setLocalBelieveCount] = useState(initialBelieveCount);
   const [localCopeCount, setLocalCopeCount] = useState(initialCopeCount);
@@ -808,6 +799,7 @@ export function SavedChatView({
                   userVote={localUserVote}
                   onVote={isVotePending ? undefined : handleVote}
                   variant="room"
+                  persisted={dbBacked}
                 />
 
                 <div ref={scrollEndRef} aria-hidden className="h-1" />

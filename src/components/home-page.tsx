@@ -29,11 +29,7 @@ import {
 } from "@/lib/recent-beliefs";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { MAX_ROOM_ATTENTION } from "@/lib/room-follow-up";
-import {
-  applyVoteChange,
-  seedVoteCounts,
-  type VoteChoice,
-} from "@/lib/vote";
+import { applyVoteChange, type VoteChoice } from "@/lib/vote";
 import type { RoomSearchResult } from "@/lib/room-search";
 import type {
   BeliefValidationResult,
@@ -527,7 +523,6 @@ export function HomePage({
         recordGuestBeliefCreated();
       }
 
-      const seeded = seedVoteCounts(acceptedBelief);
       setBelief(acceptedBelief);
       setLockedBelief(acceptedBelief);
       setAgentMessages(nextAgentMessages);
@@ -537,8 +532,8 @@ export function HomePage({
       setTypingFadingOut(false);
       setShowCta(false);
       agentsScheduledRef.current = false;
-      setBelieveCount(seeded.believeCount);
-      setCopeCount(seeded.copeCount);
+      setBelieveCount(0);
+      setCopeCount(0);
       setUserVote(null);
       setMoveOffsetPx(0);
       setValidationMessage(null);

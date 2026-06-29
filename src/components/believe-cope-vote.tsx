@@ -8,6 +8,12 @@ type BelieveCopeVoteProps = {
   userVote: VoteChoice | null;
   onVote?: (choice: VoteChoice) => void;
   variant?: "default" | "room";
+  /**
+   * Whether the room is persisted with real vote data. When false (e.g. a
+   * freshly generated debate that has not been saved yet), the tally/meter is
+   * hidden so we never display fabricated counts or percentages.
+   */
+  persisted?: boolean;
 };
 
 function VoteMeter({
@@ -83,18 +89,26 @@ function VoteControls({
   userVote,
   onVote,
   variant,
+  persisted,
 }: {
   believeCount: number;
   copeCount: number;
   userVote: VoteChoice | null;
   onVote?: (choice: VoteChoice) => void;
   variant: "default" | "room";
+  persisted: boolean;
 }) {
   const readOnly = !onVote;
   const hasVoted = userVote !== null;
-  const { believePct, copePct } = getVotePercentages(believeCount, copeCount);
   const totalTakes = believeCount + copeCount;
-  const showMeter = variant === "room" || hasVoted;
+  // Only derive a split from real votes — an empty room shows 0/0, never a
+  // fabricated 50/50.
+  const { believePct, copePct } =
+    totalTakes === 0
+      ? { believePct: 0, copePct: 0 }
+      : getVotePercentages(believeCount, copeCount);
+  // Never surface counts/percentages until the room is persisted with real data.
+  const showMeter = persisted && (variant === "room" || hasVoted);
   const meterMuted = variant === "room" && !hasVoted;
 
   return (
@@ -157,7 +171,13 @@ function VoteControls({
         />
       </div>
 
-      {variant === "room" && !hasVoted && (
+      {variant === "room" && !persisted && (
+        <p className="mt-2.5 text-center text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
+          Save this room to start voting.
+        </p>
+      )}
+
+      {variant === "room" && persisted && !hasVoted && (
         <p className="mt-2.5 text-center text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
           Pick a side — your vote joins the room tally.
         </p>
@@ -172,6 +192,7 @@ export function BelieveCopeVote({
   userVote,
   onVote,
   variant = "default",
+  persisted = true,
 }: BelieveCopeVoteProps) {
   const hasVoted = userVote !== null;
 
@@ -188,6 +209,7 @@ export function BelieveCopeVote({
             userVote={userVote}
             onVote={onVote}
             variant={variant}
+            persisted={persisted}
           />
         </div>
       </section>
@@ -202,6 +224,7 @@ export function BelieveCopeVote({
         userVote={userVote}
         onVote={onVote}
         variant={variant}
+        persisted={persisted}
       />
     </div>
   );

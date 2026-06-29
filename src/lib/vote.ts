@@ -6,19 +6,6 @@ export type VoteState = {
   userVote: VoteChoice | null;
 };
 
-export function seedVoteCounts(belief: string): Pick<VoteState, "believeCount" | "copeCount"> {
-  let hash = 0;
-  for (let i = 0; i < belief.length; i += 1) {
-    hash = (hash << 5) - hash + belief.charCodeAt(i);
-    hash |= 0;
-  }
-
-  const believeCount = 48 + (Math.abs(hash) % 52);
-  const copeCount = 24 + (Math.abs(hash >> 3) % 36);
-
-  return { believeCount, copeCount };
-}
-
 export function applyVoteChange(state: VoteState, choice: VoteChoice): VoteState {
   if (state.userVote === choice) {
     return state;
