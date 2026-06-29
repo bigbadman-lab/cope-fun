@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 
 export const EXAMPLE_BELIEFS = [
-  "solana will ath in 2026",
-  "travelling for 6 months is better than starting a career",
-  "remote work is dead",
+  "solana will hit a new ath this cycle",
   "university is mostly a scam",
-  "most people are too late to buy a house",
-  "ethereum has lost its edge",
+  "remote work is dead",
+  "ai will replace junior developers",
+  "the uk housing market is broken",
+  "social media is making people lonelier",
+  "bitcoin will outperform every major asset",
   "the future belongs to small teams",
-  "social media is getting worse",
 ] as const;
 
 const PAUSE_AFTER_COMPLETE_MS = 2000;
