@@ -19,6 +19,7 @@ import {
 } from "./debate-chat";
 import { useMessageReactions } from "@/hooks/use-message-reactions";
 import { TYPING_FADE_OUT_MS } from "@/lib/debate-timing";
+import { REACTIONS_ENABLED } from "@/lib/features";
 import { isRoomCreator } from "@/lib/room-creator";
 import {
   buildFollowUpResponse,
@@ -411,7 +412,7 @@ export function SavedChatView({
     isShaking,
     isPending,
   } = useMessageReactions(conversation.slug, {
-    enabled: dbBacked,
+    enabled: dbBacked && REACTIONS_ENABLED,
     authenticated,
     authReady: ready,
     authFetch,
@@ -419,7 +420,7 @@ export function SavedChatView({
 
   const getReactionProps = useCallback(
     (messageId: string): MessageReactionProps | undefined => {
-      if (!dbBacked) return undefined;
+      if (!REACTIONS_ENABLED || !dbBacked) return undefined;
 
       return {
         counts: getCounts(messageId),
@@ -763,7 +764,7 @@ export function SavedChatView({
 
                 <GroupFormationMessage animate={false} />
 
-                {reactionError && (
+                {REACTIONS_ENABLED && reactionError && (
                   <p
                     className="text-center text-[11px] font-medium text-orange-700 dark:text-orange-300"
                     role="alert"

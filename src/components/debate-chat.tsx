@@ -8,6 +8,7 @@ import {
   type MessageReactionCounts,
 } from "./chat-message-reactions";
 import { TYPING_FADE_OUT_MS } from "@/lib/debate-timing";
+import { REACTIONS_ENABLED } from "@/lib/features";
 import type { VoteChoice } from "@/lib/vote";
 
 export type ChatMessage = {
@@ -64,7 +65,7 @@ export function ChatMessageRow({
   attentionChallenge = false,
 }: ChatMessageRowProps) {
   const isAgent = !message.isUser;
-  const showReactions = isAgent && reactions;
+  const showReactions = REACTIONS_ENABLED && isAgent && reactions;
 
   return (
     <div
@@ -134,7 +135,7 @@ function TypingDots({ fadingOut }: { fadingOut: boolean }) {
 }
 
 export function AgentTurnRow({ message, mode, reactions }: AgentTurnRowProps) {
-  const showReactions = mode === "message" && reactions;
+  const showReactions = REACTIONS_ENABLED && mode === "message" && reactions;
 
   return (
     <div className={`flex gap-2.5 ${showReactions ? "group/message" : ""}`}>

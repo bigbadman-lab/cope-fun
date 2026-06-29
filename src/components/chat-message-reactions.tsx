@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { REACTIONS_ENABLED } from "@/lib/features";
 import {
   REACTION_OPTIONS,
   type MessageReactionCounts,
@@ -179,6 +180,10 @@ export function ChatMessageReactions({
 
   const hideCompactDesktop =
     "md:group-hover/message:pointer-events-none md:group-hover/message:opacity-0 md:group-focus-within/message:pointer-events-none md:group-focus-within/message:opacity-0";
+
+  if (!REACTIONS_ENABLED) {
+    return null;
+  }
 
   if (readOnly && !hasReacted && !hasVisibleCounts(counts)) {
     return null;
