@@ -23,5 +23,22 @@ export default async function Home() {
     initialRecentBeliefs = [];
   }
 
-  return <HomePage initialRecentBeliefs={initialRecentBeliefs} />;
+  return (
+    <>
+      <link
+        rel="preload"
+        href="/backgrounds/sky1-blur.webp"
+        as="image"
+        type="image/webp"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        href="/backgrounds/sky1.webp"
+        as="image"
+        type="image/webp"
+      />
+      <HomePage initialRecentBeliefs={initialRecentBeliefs} />
+    </>
+  );
 }
