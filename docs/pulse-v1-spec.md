@@ -600,3 +600,27 @@ Explicitly exclude from v1:
 - First round on activate: immediate vs next aligned 15-minute boundary.
 - Whether Pulse appears on `/markets` or only on the attached room in v1.
 - Whether optional `pulse_price_snapshots` ships in v1 or only round-level persisted prices.
+
+---
+
+## 16. Production deployment (Vercel)
+
+### Round advancement
+
+On Vercel, **do not rely on the in-process Pulse runner**. Serverless instances are short-lived and may spawn multiple copies, so `PULSE_RUNNER_ENABLED` should be **`false`** (or unset) in production.
+
+Instead:
+
+1. Set **`CRON_SECRET`** in Vercel environment variables (a long random string).
+2. Vercel Cron invokes **`GET /api/cron/pulse/advance`** every minute (see `vercel.json`).
+3. Vercel sends `Authorization: Bearer <CRON_SECRET>` automatically when `CRON_SECRET` is configured.
+4. The route loads advanceable engines via `getAdvanceablePulseEngines()` and calls `advancePulseEngine()` for each — same business logic as the in-process runner, but cron-safe and idempotent.
+
+The in-process runner (`instrumentation.ts` + `PULSE_RUNNER_ENABLED=true`) remains for **local development** only.
+
+### Manual test
+
+```bash
+curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+  "http://localhost:3000/api/cron/pulse/advance"
+```
