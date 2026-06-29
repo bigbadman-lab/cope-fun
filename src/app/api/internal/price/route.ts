@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import {
-  CoingeckoPriceError,
-  fetchSolUsdPriceFromCoingeckoRest,
-} from "@/lib/price/coingecko-rest";
-import { getLatestCachedSolUsdPrice } from "@/lib/prices/service";
-import { getPriceAgeMs, isPriceStale } from "@/lib/prices/stale";
+  resolveSolUsdPrice,
+  SolUsdPriceStaleError,
+  SolUsdPriceUnavailableError,
+} from "@/lib/prices/resolve-sol-usd-price";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,94 +23,60 @@ function noStoreJson<T>(body: T, init?: ResponseInit): NextResponse<T> {
 }
 
 export async function GET() {
-  const snapshot = getLatestCachedSolUsdPrice();
-  const { connectionStatus } = snapshot;
+  try {
+    const price = await resolveSolUsdPrice();
 
-  const hasWebSocketPrice =
-    snapshot.price !== null && snapshot.updatedAt !== null;
-
-  if (hasWebSocketPrice && !isPriceStale(snapshot.updatedAt)) {
     return noStoreJson({
       ok: true,
-      asset: snapshot.asset,
-      quote: snapshot.quote,
-      price: snapshot.price,
-      source: "websocket",
-      updatedAt: snapshot.updatedAt,
-      connectionStatus,
-      priceAgeMs: getPriceAgeMs(snapshot.updatedAt),
+      asset: price.asset,
+      quote: price.quote,
+      price: price.price,
+      source: price.source,
+      updatedAt: price.updatedAt,
+      connectionStatus: price.connectionStatus,
+      priceAgeMs: price.priceAgeMs,
+      ...(price.staleWebSocketPrice
+        ? { staleWebSocketPrice: price.staleWebSocketPrice }
+        : {}),
     });
-  }
-
-  let restPrice: Awaited<ReturnType<typeof fetchSolUsdPriceFromCoingeckoRest>> | null =
-    null;
-
-  try {
-    restPrice = await fetchSolUsdPriceFromCoingeckoRest();
   } catch (error) {
-    const detail =
-      error instanceof CoingeckoPriceError
-        ? error.message
-        : error instanceof Error
-          ? error.message
-          : "unknown error";
-    console.warn("[price-service] REST fallback failed:", detail);
-    restPrice = null;
-  }
-
-  if (!hasWebSocketPrice) {
-    if (!restPrice) {
+    if (error instanceof SolUsdPriceUnavailableError) {
       return noStoreJson(
         {
           ok: false,
           error: "price_unavailable",
-          message: "SOL/USD price is not available yet.",
-          connectionStatus,
+          message: error.message,
+          connectionStatus: error.connectionStatus,
         },
         { status: 503 },
       );
     }
 
-    return noStoreJson({
-      ok: true,
-      asset: restPrice.asset,
-      quote: restPrice.quote,
-      price: restPrice.price,
-      source: "rest_fallback",
-      updatedAt: restPrice.updatedAt,
-      connectionStatus,
-      priceAgeMs: getPriceAgeMs(restPrice.updatedAt),
-    });
-  }
+    if (error instanceof SolUsdPriceStaleError) {
+      return noStoreJson(
+        {
+          ok: false,
+          error: "price_stale",
+          message: error.message,
+          lastPrice: error.lastPrice,
+          updatedAt: error.updatedAt,
+          connectionStatus: error.connectionStatus,
+          priceAgeMs: error.priceAgeMs,
+        },
+        { status: 503 },
+      );
+    }
 
-  if (!restPrice) {
+    console.error("[price-service] unexpected resolve error:", error);
+
     return noStoreJson(
       {
         ok: false,
-        error: "price_stale",
-        message: "SOL/USD price is stale.",
-        lastPrice: snapshot.price,
-        updatedAt: snapshot.updatedAt,
-        connectionStatus,
-        priceAgeMs: getPriceAgeMs(snapshot.updatedAt),
+        error: "price_unavailable",
+        message: "SOL/USD price is not available yet.",
+        connectionStatus: "unknown",
       },
       { status: 503 },
     );
   }
-
-  return noStoreJson({
-    ok: true,
-    asset: restPrice.asset,
-    quote: restPrice.quote,
-    price: restPrice.price,
-    source: "rest_fallback",
-    updatedAt: restPrice.updatedAt,
-    connectionStatus,
-    priceAgeMs: getPriceAgeMs(restPrice.updatedAt),
-    staleWebSocketPrice: {
-      price: snapshot.price,
-      updatedAt: snapshot.updatedAt,
-      priceAgeMs: getPriceAgeMs(snapshot.updatedAt),
-    },
-  });
 }

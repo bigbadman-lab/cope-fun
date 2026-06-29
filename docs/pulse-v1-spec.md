@@ -180,27 +180,23 @@ One row per perpetual Pulse engine.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid primary key default gen_random_uuid()` | Engine id |
-| `room_id` | `uuid not null references belief_rooms(id) on delete restrict` | Attached belief room; **unique** in v1 |
-| `asset_symbol` | `text not null` | e.g. `SOL` |
-| `quote_currency` | `text not null` | e.g. `USD` |
-| `provider_asset_id` | `text not null` | Provider identifier for WS/REST |
-| `display_pair` | `text not null` | e.g. `SOL/USD` for UI |
-| `price_provider` | `text not null` | v1: `coingecko_analyst_ws` |
+| `belief_room_id` | `uuid not null references belief_rooms(id) on delete restrict` | Attached belief room; **unique** in v1 |
+| `asset_symbol` | `text not null default 'SOL'` | e.g. `SOL` |
+| `quote_currency` | `text not null default 'USD'` | e.g. `USD` |
+| `provider_asset_id` | `text not null default 'solana'` | Provider identifier for WS/REST |
+| `display_pair` | `text not null default 'SOL/USD'` | e.g. `SOL/USD` for UI |
 | `round_duration_seconds` | `integer not null default 900` | 15 minutes |
-| `lifecycle_state` | enum/text | See state machine |
+| `lifecycle_state` | `text not null default 'draft'` | `draft`, `ready`, `running`, `paused`, `pausing`, `settling`, `errored`, `disabled`, `archived` |
 | `pause_after_current` | `boolean not null default false` | Pause after current round ends |
-| `health` | enum/text | `healthy`, `degraded`, `offline`, `needs_admin_review` (cached/derived) |
-| `current_round_id` | `uuid null` | FK to active `pulse_rounds.id` |
-| `last_round_id` | `uuid null` | Latest completed round |
-| `stale_after_seconds` | `integer not null default 30` | Price freshness threshold |
-| `created_by_user_id` | `uuid null references app_users(id)` | Admin creator |
+| `health` | `text not null default 'offline'` | `healthy`, `degraded`, `offline`, `needs_admin_review` (cached/derived) |
+| `active_round_id` | `uuid null references pulse_rounds(id) on delete set null` | FK added after both tables are created |
 | `created_at` | `timestamptz not null default now()` |  |
 | `updated_at` | `timestamptz not null default now()` |  |
 
 Recommended constraints:
 
-- `unique(room_id)` — one Pulse engine per room.
-- At most one `current_round_id` per engine when lifecycle is `round_open` or `round_settling`.
+- `unique(belief_room_id)` — one Pulse engine per room.
+- `active_round_id` points at the currently active `pulse_rounds.id` when a round is open/settling.
 
 ### `pulse_rounds`
 
@@ -209,27 +205,21 @@ One row per 15-minute round. **Persisted open/close prices are the auditable set
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid primary key default gen_random_uuid()` | Round id |
-| `engine_id` | `uuid not null references pulse_engines(id)` | Parent engine |
-| `room_id` | `uuid not null references belief_rooms(id)` | Denormalized |
-| `sequence_number` | `bigint not null` | Monotonic per engine |
-| `status` | enum/text | `created`, `open`, `closing`, `resolving`, `resolved`, `voided`, `failed`, `needs_admin_review` |
-| `opens_at` | `timestamptz not null` | Scheduled open |
-| `closes_at` | `timestamptz not null` | `opens_at + duration` |
+| `engine_id` | `uuid not null references pulse_engines(id) on delete restrict` | Parent engine |
+| `round_number` | `integer not null` | Monotonic per engine |
+| `status` | `text not null default 'pending'` | `pending`, `open`, `locked`, `settling`, `settled`, `cancelled`, `errored` |
 | `opened_at` | `timestamptz null` | Actual open time |
-| `closed_at` | `timestamptz null` | Actual close time |
-| `resolved_at` | `timestamptz null` | Settlement complete |
-| `opening_price` | `numeric(20, 8) null` | **Auditable** open price in quote currency |
+| `closes_at` | `timestamptz null` | Scheduled close time |
+| `settled_at` | `timestamptz null` | Settlement complete |
+| `opening_price` | `numeric null` | **Auditable** open price in quote currency |
 | `opening_price_source` | `text null` | `coingecko_analyst_ws`, `coingecko_rest`, `admin_recovery` |
 | `opening_price_at` | `timestamptz null` | When open price was captured |
-| `closing_price` | `numeric(20, 8) null` | **Auditable** close price |
+| `closing_price` | `numeric null` | **Auditable** close price |
 | `closing_price_source` | `text null` | Same source enum as opening |
 | `closing_price_at` | `timestamptz null` | When close price was captured |
-| `outcome` | `market_side null` | `believe` if close > open, else `cope` |
-| `believe_pool_credits` | `integer not null default 0` | Stored counter |
-| `cope_pool_credits` | `integer not null default 0` | Stored counter |
-| `participant_count` | `integer not null default 0` | Stored counter |
-| `failure_reason` | `text null` | Settlement/price errors |
-| `admin_review_notes` | `text null` | Recovery trail |
+| `winning_side` | `text null` | `believe`, `cope`, `draw`, or `null` before outcome |
+| `believe_pool` | `integer not null default 0` | Stored counter |
+| `cope_pool` | `integer not null default 0` | Stored counter |
 | `created_at` | `timestamptz not null default now()` |  |
 | `updated_at` | `timestamptz not null default now()` |  |
 

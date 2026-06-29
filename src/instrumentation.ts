@@ -6,4 +6,7 @@ export async function register() {
 
   const { startPriceWebSocketService } = await import("@/lib/prices/service");
   startPriceWebSocketService();
+
+  const { startPulseRunner } = await import("@/lib/pulse/runner");
+  startPulseRunner();
 }

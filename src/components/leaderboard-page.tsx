@@ -7,12 +7,11 @@ import {
   LEADERBOARD_EMPTY_TITLE,
 } from "@/lib/leaderboard/eligibility";
 import {
+  formatSeasonDateRange,
   getCurrentSeason,
-  getSeasonLeaderboardTitle,
   SEASON_ELIGIBILITY_NOTE,
-  SEASON_LEADERBOARD_QUALIFICATION_COPY,
-  SEASON_LEADERBOARD_RANKING_COPY,
   SEASON_REWARDS_COPY,
+  type Season,
 } from "@/lib/seasons";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
@@ -72,16 +71,25 @@ function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
   );
 }
 
-function RewardsNote({ seasonName }: { seasonName: string }) {
+function SeasonRewardsDetails({ season }: { season: Season }) {
   return (
-    <section className="mt-5 rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
-      <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-        {seasonName} rewards
-      </h2>
-      <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {SEASON_ELIGIBILITY_NOTE} {SEASON_REWARDS_COPY}
-      </p>
-    </section>
+    <details className="group mt-6 rounded-xl border border-zinc-200/80 bg-surface/50 dark:border-white/[0.07] dark:bg-surface/40">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 [&::-webkit-details-marker]:hidden">
+        How seasons and rewards work
+        <span
+          aria-hidden
+          className="text-zinc-400 transition-transform duration-200 group-open:rotate-180"
+        >
+          ⌄
+        </span>
+      </summary>
+      <div className="border-t border-zinc-200/70 px-4 py-4 dark:border-white/[0.06]">
+        <SeasonExplainer season={season} embedded />
+        <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+          {SEASON_ELIGIBILITY_NOTE} {SEASON_REWARDS_COPY}
+        </p>
+      </div>
+    </details>
   );
 }
 
@@ -93,14 +101,17 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
       <div className="inner-page-content w-full max-w-md !py-5">
         <header className="pb-4">
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            {getSeasonLeaderboardTitle(currentSeason)}
+            Leaderboard
           </h1>
-          <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            {SEASON_LEADERBOARD_RANKING_COPY} {SEASON_LEADERBOARD_QUALIFICATION_COPY}
-          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
+              Track the top players in {currentSeason.name}.
+            </p>
+            <span className="rounded-full border border-cope-orange/25 bg-cope-orange/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-cope-orange">
+              {formatSeasonDateRange(currentSeason)}
+            </span>
+          </div>
         </header>
-
-        <SeasonExplainer season={currentSeason} />
 
         <LeaderboardQualificationHint />
 
@@ -127,7 +138,7 @@ export function LeaderboardPage({ entries }: LeaderboardPageProps) {
           </section>
         )}
 
-        <RewardsNote seasonName={currentSeason.name} />
+        <SeasonRewardsDetails season={currentSeason} />
       </div>
     </InnerPageShell>
   );

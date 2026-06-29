@@ -1,17 +1,27 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
 import { MarketListRow } from "./market-list-row";
+import { MarketMiniCard } from "./market-mini-card";
+import { PulseMarketCard } from "./pulse/pulse-market-card";
+import type { PulseStatusResponse } from "./pulse/use-pulse-room";
 import {
   formatSeasonDateRange,
   getCurrentSeason,
 } from "@/lib/seasons";
 import type { PublicMarket } from "@/lib/markets/types";
 
+type PulseMarketPreview = {
+  roomSlug: string;
+  belief: string;
+  initialStatus: PulseStatusResponse | null;
+};
+
 type MarketsPageProps = {
   open: PublicMarket[];
   closed: PublicMarket[];
   resolved: PublicMarket[];
   voided: PublicMarket[];
+  pulseMarket?: PulseMarketPreview | null;
 };
 
 function SeasonBanner() {
@@ -72,6 +82,7 @@ export function MarketsPage({
   closed,
   resolved,
   voided,
+  pulseMarket = null,
 }: MarketsPageProps) {
   const hasMarkets =
     open.length + closed.length + resolved.length + voided.length > 0;
@@ -90,6 +101,14 @@ export function MarketsPage({
 
         <SeasonBanner />
 
+        {pulseMarket ? (
+          <PulseMarketCard
+            roomSlug={pulseMarket.roomSlug}
+            belief={pulseMarket.belief}
+            initialStatus={pulseMarket.initialStatus}
+          />
+        ) : null}
+
         {!hasMarkets ? (
           <div className="py-16 text-center">
             <p className="text-base text-zinc-500">No active markets yet.</p>
@@ -99,11 +118,13 @@ export function MarketsPage({
           </div>
         ) : (
           <>
-            <MarketSection
-              title="Open"
-              description="Open for COPE Credits."
-              markets={open}
-            />
+            {open.length > 0 ? (
+              <section className="mb-8">
+                {open.map((market) => (
+                  <MarketMiniCard key={market.id} market={market} />
+                ))}
+              </section>
+            ) : null}
             <MarketSection
               title="Closed / Awaiting Resolution"
               description="Staking has ended, including markets past their close time awaiting admin action."

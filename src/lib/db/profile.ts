@@ -26,6 +26,7 @@ import {
   LEADERBOARD_RANK_ORDER,
   type LeaderboardRankRow,
 } from "@/lib/leaderboard/ranking";
+import { getUserActivePulsePositions } from "@/lib/pulse/profile-positions";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { CreditAccountView } from "@/lib/markets/types";
 
@@ -393,10 +394,11 @@ export async function getAccountDashboard(
   user: AppUser,
   account: CreditAccountView,
 ): Promise<ProfileDashboard> {
-  const [{ rank, totalPlayers, isQualified }, positions, createdRooms] =
+  const [{ rank, totalPlayers, isQualified }, positions, pulsePositions, createdRooms] =
     await Promise.all([
       getUserLeaderboardRank(user.id, account.marketsEntered),
       getUserMarketPositions(user.id),
+      getUserActivePulsePositions(user.id),
       getUserCreatedBeliefRooms(user.id, user.linkedAnonymousSessionId),
     ]);
 
@@ -418,6 +420,7 @@ export async function getAccountDashboard(
     season,
     account: toAccountSummary(account),
     activePositions: positions.activePositions,
+    activePulsePositions: pulsePositions,
     resolvedPositions: positions.resolvedPositions,
     createdRooms,
   };

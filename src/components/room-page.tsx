@@ -11,17 +11,20 @@ import {
   type SavedConversation,
 } from "@/lib/saved-chats";
 import type { RoomMarketView } from "@/lib/markets/types";
+import type { PulseStatusResponse } from "./pulse/use-pulse-room";
 
 type RoomPageProps = {
   slug: string;
   initialConversation?: SavedConversation | null;
   initialMarket?: RoomMarketView | null;
+  initialPulseStatus?: PulseStatusResponse | null;
 };
 
 export function RoomPage({
   slug,
   initialConversation = null,
   initialMarket = null,
+  initialPulseStatus = null,
 }: RoomPageProps) {
   const isClient = useSyncExternalStore(
     () => () => {},
@@ -48,6 +51,7 @@ export function RoomPage({
           conversation={initialConversation}
           dbBacked
           initialMarket={initialMarket}
+          initialPulseStatus={initialPulseStatus}
         />
       </InnerPageShell>
     );

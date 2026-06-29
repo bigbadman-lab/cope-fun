@@ -5,8 +5,11 @@ import { BelieveCopeVote } from "./believe-cope-vote";
 import { BeliefInput } from "./belief-input";
 import { PinnedBelief } from "./pinned-belief";
 import { PinnedMarketHeader } from "./pinned-market-header";
+import { PulseRoomChat } from "./pulse/pulse-room-chat";
+import { PulseRoomHeader } from "./pulse/pulse-room-header";
 import { RoomMarketPanel } from "./room-market-panel";
 import { RoomConclusionPanel } from "./room-bottom-panel";
+import { RoomComposerShell } from "./room-composer-shell";
 import {
   AgentTurnRow,
   ChatMessageRow,
@@ -42,11 +45,14 @@ import {
   type SavedConversation,
 } from "@/lib/saved-chats";
 import type { RoomMarketView } from "@/lib/markets/types";
+import { PULSE_BELIEF_ROOM_ID } from "@/lib/pulse/constants";
+import type { PulseStatusResponse } from "./pulse/use-pulse-room";
 
 type SavedChatViewProps = {
   conversation: SavedConversation;
   dbBacked?: boolean;
   initialMarket?: RoomMarketView | null;
+  initialPulseStatus?: PulseStatusResponse | null;
 };
 
 type RoomVoteApiResponse = {
@@ -117,6 +123,7 @@ export function SavedChatView({
   conversation: initialConversation,
   dbBacked = false,
   initialMarket = null,
+  initialPulseStatus = null,
 }: SavedChatViewProps) {
   const [conversation, setConversation] = useState(initialConversation);
   const [roomMarket, setRoomMarket] = useState<RoomMarketView | null>(
@@ -138,11 +145,12 @@ export function SavedChatView({
 
   const belief = conversation.belief;
   const messages = conversation.messages;
+  const isPulseRoom = conversation.id === PULSE_BELIEF_ROOM_ID;
   const isCreatorStatusKnown = !dbBacked || isCreatorForViewer !== null;
   const isCreator = dbBacked
     ? isCreatorForViewer === true
     : isRoomCreator(conversation.creatorId);
-  const showCreatorBottomPanel = isCreatorStatusKnown && isCreator;
+  const showCreatorBottomPanel = isCreatorStatusKnown && isCreator && !isPulseRoom;
   const pinnedBeliefIsCreator =
     dbBacked && isCreatorForViewer === null ? undefined : isCreator;
   const attentionRemaining = conversation.attentionRemaining;
@@ -677,18 +685,26 @@ export function SavedChatView({
     submitDbChallenge,
   ]);
 
-  const bottomPanelHeight = showCreatorBottomPanel
-    ? attentionRemaining > 0
-      ? "pb-[calc(9.5rem+var(--scroll-bottom-inset))]"
-      : "pb-[calc(10rem+var(--scroll-bottom-inset))]"
-    : "pb-[calc(2rem+var(--scroll-bottom-inset))]";
+  const bottomPanelHeight = isPulseRoom
+    ? ""
+    : showCreatorBottomPanel
+      ? attentionRemaining > 0
+        ? "pb-[calc(9.5rem+var(--scroll-bottom-inset))]"
+        : "pb-[calc(10rem+var(--scroll-bottom-inset))]"
+      : "pb-[calc(2rem+var(--scroll-bottom-inset))]";
 
   return (
     <>
       <div className="flex min-h-0 flex-1 flex-col">
         <header className="room-pinned-header px-4">
           <div className="mx-auto w-full max-w-md">
-            {dbBacked && roomMarket ? (
+            {isPulseRoom ? (
+              <PulseRoomHeader
+                beliefRoomId={PULSE_BELIEF_ROOM_ID}
+                belief={beliefMessage?.text ?? belief}
+                initialStatus={initialPulseStatus}
+              />
+            ) : dbBacked && roomMarket ? (
               <PinnedMarketHeader market={roomMarket} />
             ) : (
               <PinnedBelief
@@ -700,104 +716,113 @@ export function SavedChatView({
           </div>
         </header>
 
-        <div ref={debateBodyRef} className="room-debate-body">
-          <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
-            <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
-              {dbBacked && roomMarket ? (
-                <RoomMarketPanel
-                  market={roomMarket}
-                  onMarketChange={setRoomMarket}
-                  hideSummary
-                />
-              ) : null}
-
-              <GroupFormationMessage animate={false} />
-
-              {reactionError && (
-                <p
-                  className="text-center text-[11px] font-medium text-orange-700 dark:text-orange-300"
-                  role="alert"
-                >
-                  {reactionError}
-                </p>
-              )}
-
-              {threadMessages.map((message) =>
-                message.isUser ? (
-                  <ChatMessageRow
-                    key={message.id}
-                    message={message}
-                    animate={false}
-                    attentionChallenge={isAttentionChallengeMessage(message)}
+        <div
+          ref={debateBodyRef}
+          className={
+            isPulseRoom
+              ? "room-debate-body flex min-h-0 flex-col overflow-hidden"
+              : "room-debate-body"
+          }
+        >
+          {isPulseRoom ? (
+            <PulseRoomChat beliefRoomId={PULSE_BELIEF_ROOM_ID} />
+          ) : (
+            <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
+              <div className="relative z-0 mx-auto w-full max-w-md space-y-4">
+                {dbBacked && roomMarket ? (
+                  <RoomMarketPanel
+                    market={roomMarket}
+                    onMarketChange={setRoomMarket}
+                    hideSummary
                   />
-                ) : (
-                  <ChatMessageRow
-                    key={message.id}
-                    message={message}
-                    animate={false}
-                    reactions={getReactionProps(message.id)}
+                ) : null}
+
+                <GroupFormationMessage animate={false} />
+
+                {reactionError && (
+                  <p
+                    className="text-center text-[11px] font-medium text-orange-700 dark:text-orange-300"
+                    role="alert"
+                  >
+                    {reactionError}
+                  </p>
+                )}
+
+                {threadMessages.map((message) =>
+                  message.isUser ? (
+                    <ChatMessageRow
+                      key={message.id}
+                      message={message}
+                      animate={false}
+                      attentionChallenge={isAttentionChallengeMessage(message)}
+                    />
+                  ) : (
+                    <ChatMessageRow
+                      key={message.id}
+                      message={message}
+                      animate={false}
+                      reactions={getReactionProps(message.id)}
+                    />
+                  ),
+                )}
+
+                {liveTurn && (
+                  <AgentTurnRow
+                    message={{
+                      id: "live-turn",
+                      author: liveTurn.author,
+                      text: liveTurn.text,
+                    }}
+                    mode={liveTurn.mode}
                   />
-                ),
-              )}
+                )}
 
-              {liveTurn && (
-                <AgentTurnRow
-                  message={{
-                    id: "live-turn",
-                    author: liveTurn.author,
-                    text: liveTurn.text,
-                  }}
-                  mode={liveTurn.mode}
+                <BelieveCopeVote
+                  believeCount={localBelieveCount}
+                  copeCount={localCopeCount}
+                  userVote={localUserVote}
+                  onVote={isVotePending ? undefined : handleVote}
+                  variant="room"
                 />
-              )}
 
-              <BelieveCopeVote
-                believeCount={localBelieveCount}
-                copeCount={localCopeCount}
-                userVote={localUserVote}
-                onVote={isVotePending ? undefined : handleVote}
-                variant="room"
-              />
-
-              <div ref={scrollEndRef} aria-hidden className="h-1" />
+                <div ref={scrollEndRef} aria-hidden className="h-1" />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {showCreatorBottomPanel ? (
-        <div className="fixed inset-x-0 bottom-mobile-bottom-nav z-20 border-t border-zinc-200/80 bg-background px-4 pt-3 pb-safe-4 before:pointer-events-none before:absolute before:-top-8 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-background before:to-transparent dark:border-white/5">
-          <div className="relative mx-auto w-full max-w-md">
-            {attentionRemaining > 0 ? (
-              <>
-                {challengeProcessingStage ? (
-                  <ChallengeProcessingStatus stage={challengeProcessingStage} />
-                ) : null}
-                <BeliefInput
-                  ref={followUpInputRef}
-                  value={followUpDraft}
-                  onChange={(value) => {
-                    setFollowUpDraft(value);
-                    if (followUpError) setFollowUpError(null);
-                  }}
-                  onSubmit={handleFollowUpSubmit}
-                  disabled={isChallengeSubmitting || isAgentRoundActive}
-                  isProcessing={isChallengeSubmitting}
-                  compact
-                  placeholder="Challenge the debate…"
-                  submitAriaLabel="Send follow-up"
-                  processingAriaLabel="Submitting challenge"
-                  helperText={
-                    followUpError ??
-                    (challengeProcessingStage ? undefined : "Uses 1 Attention")
-                  }
-                />
-              </>
-            ) : (
-              <RoomConclusionPanel />
-            )}
-          </div>
-        </div>
+        <RoomComposerShell>
+          {attentionRemaining > 0 ? (
+            <>
+              {challengeProcessingStage ? (
+                <ChallengeProcessingStatus stage={challengeProcessingStage} />
+              ) : null}
+              <BeliefInput
+                ref={followUpInputRef}
+                value={followUpDraft}
+                onChange={(value) => {
+                  setFollowUpDraft(value);
+                  if (followUpError) setFollowUpError(null);
+                }}
+                onSubmit={handleFollowUpSubmit}
+                disabled={isChallengeSubmitting || isAgentRoundActive}
+                isProcessing={isChallengeSubmitting}
+                compact
+                placeholder="Challenge the debate…"
+                submitAriaLabel="Send follow-up"
+                processingAriaLabel="Submitting challenge"
+                helperText={
+                  followUpError ??
+                  (challengeProcessingStage ? undefined : "Uses 1 Attention")
+                }
+              />
+            </>
+          ) : (
+            <RoomConclusionPanel />
+          )}
+        </RoomComposerShell>
       ) : null}
     </>
   );

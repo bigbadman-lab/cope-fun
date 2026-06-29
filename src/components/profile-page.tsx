@@ -14,6 +14,11 @@ import {
   getMarketDisplayStatusLabel,
 } from "@/lib/markets/display-status";
 import {
+  formatPulseCountdown,
+  pulsePositionStatusLabel,
+  pulseRoundStateLabel,
+} from "@/lib/pulse/display";
+import {
   formatWalletAddress,
   getCurrentSeason,
   REWARDS_WALLET_UNAVAILABLE_COPY,
@@ -28,6 +33,7 @@ import type {
   ProfileCreatedRoomSummary,
   ProfileDashboard,
   ProfileMarketPositionSummary,
+  ProfilePulsePositionSummary,
   ProfileUserSummary,
 } from "@/lib/profile/types";
 
@@ -120,6 +126,63 @@ function OutcomeBadge({
     <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-zinc-500">
       {getMarketDisplayStatusLabel(position.displayStatus)}
     </span>
+  );
+}
+
+function PulsePositionRow({
+  position,
+}: {
+  position: ProfilePulsePositionSummary;
+}) {
+  const statusLabel = pulsePositionStatusLabel({
+    side: position.side,
+    roundStatus: position.roundStatus,
+    currentlyWinningSide: position.currentlyWinningSide,
+  });
+  const isWinning = statusLabel === "Winning";
+  const isLosing = statusLabel === "Losing";
+
+  return (
+    <div className="border-b border-zinc-200/60 py-3.5 first:pt-0 last:border-b-0 last:pb-0 dark:border-white/[0.06]">
+      <div className="flex flex-wrap items-start gap-2">
+        <Link
+          href={`/room/${position.roomSlug}`}
+          className="min-w-0 flex-1 text-sm font-medium leading-snug text-zinc-900 transition-colors hover:text-cope-orange dark:text-zinc-100 dark:hover:text-cope-orange"
+        >
+          <span className="mr-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cope-orange">
+            Pulse
+          </span>
+          {position.displayPair} · Round #{position.roundNumber}
+        </Link>
+        <SideBadge side={position.side} />
+      </div>
+
+      <p className="mt-1 truncate text-xs text-zinc-500">{position.roomBelief}</p>
+
+      <p className="mt-1.5 text-xs text-zinc-500">
+        {position.stakeCredits.toLocaleString()} credits staked
+        {" · "}
+        {pulseRoundStateLabel(position.roundStatus, position.secondsRemaining)}
+        {position.roundStatus === "open" && position.secondsRemaining !== null ? (
+          <>
+            {" · "}
+            {formatPulseCountdown(position.secondsRemaining)} left
+          </>
+        ) : null}
+        {" · "}
+        <span
+          className={
+            isWinning
+              ? "text-emerald-600 dark:text-emerald-400"
+              : isLosing
+                ? "text-rose-600 dark:text-rose-400"
+                : ""
+          }
+        >
+          {statusLabel}
+        </span>
+      </p>
+    </div>
   );
 }
 
@@ -540,7 +603,8 @@ function ProfileDashboardView({
       <ProfileAvatarCustomizer user={dashboard.user} onUserUpdated={onUserUpdated} />
 
       <ProfileSection title="Active Markets">
-        {dashboard.activePositions.length === 0 ? (
+        {dashboard.activePulsePositions.length === 0 &&
+        dashboard.activePositions.length === 0 ? (
           <p className="text-sm leading-relaxed text-zinc-500">
             You have no active market positions yet.{" "}
             <Link
@@ -551,13 +615,18 @@ function ProfileDashboardView({
             </Link>
           </p>
         ) : (
-          dashboard.activePositions.map((position) => (
-            <PositionRow
-              key={position.id}
-              position={position}
-              variant="active"
-            />
-          ))
+          <>
+            {dashboard.activePulsePositions.map((position) => (
+              <PulsePositionRow key={position.id} position={position} />
+            ))}
+            {dashboard.activePositions.map((position) => (
+              <PositionRow
+                key={position.id}
+                position={position}
+                variant="active"
+              />
+            ))}
+          </>
         )}
       </ProfileSection>
 
@@ -631,6 +700,7 @@ export function ProfilePage() {
         season: payload.season,
         account: payload.account,
         activePositions: payload.activePositions,
+        activePulsePositions: payload.activePulsePositions ?? [],
         resolvedPositions: payload.resolvedPositions,
         createdRooms: payload.createdRooms,
       });

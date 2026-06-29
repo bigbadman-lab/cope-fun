@@ -1,5 +1,6 @@
 import type { MarketDisplayStatus } from "@/lib/markets/display-status";
 import type { MarketSide, MarketStatus } from "@/lib/markets/types";
+import type { PulseRoundStatus, PulseWinningSide } from "@/lib/pulse/types";
 
 export type ProfileUserSummary = {
   id: string;
@@ -55,6 +56,21 @@ export type ProfileMarketPositionSummary = {
   pnl: number | null;
 };
 
+export type ProfilePulsePositionSummary = {
+  id: string;
+  roundId: string;
+  roundNumber: number;
+  roundStatus: PulseRoundStatus;
+  displayPair: string;
+  roomSlug: string;
+  roomBelief: string;
+  side: MarketSide;
+  stakeCredits: number;
+  secondsRemaining: number | null;
+  currentlyWinningSide: PulseWinningSide | null;
+  createdAt: string;
+};
+
 export type ProfileCreatedRoomSummary = {
   id: string;
   slug: string;
@@ -69,6 +85,7 @@ export type ProfileDashboard = {
   season: ProfileSeasonSummary;
   account: ProfileAccountSummary;
   activePositions: ProfileMarketPositionSummary[];
+  activePulsePositions: ProfilePulsePositionSummary[];
   resolvedPositions: ProfileMarketPositionSummary[];
   createdRooms: ProfileCreatedRoomSummary[];
 };

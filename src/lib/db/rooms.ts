@@ -308,3 +308,32 @@ export async function loadBeliefRoomBySlug(
 }
 
 export const getBeliefRoomBySlug = cache(loadBeliefRoomBySlug);
+
+export type BeliefRoomSummary = {
+  id: string;
+  slug: string;
+  belief: string;
+};
+
+export async function getBeliefRoomSummaryById(
+  id: string,
+): Promise<BeliefRoomSummary | null> {
+  const supabase = createSupabaseServiceClient();
+
+  const { data, error } = await supabase
+    .from("belief_rooms")
+    .select("id, slug, belief")
+    .eq("id", id)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    belief: data.belief,
+  };
+}

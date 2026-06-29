@@ -12,11 +12,22 @@ import {
 
 type SeasonExplainerProps = {
   season?: Season;
+  /** When embedded inside another container (e.g. a collapsible), drop the card chrome. */
+  embedded?: boolean;
 };
 
-export function SeasonExplainer({ season = getCurrentSeason() }: SeasonExplainerProps) {
+export function SeasonExplainer({
+  season = getCurrentSeason(),
+  embedded = false,
+}: SeasonExplainerProps) {
   return (
-    <section className="mb-5 rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40">
+    <section
+      className={
+        embedded
+          ? "mb-4"
+          : "mb-5 rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-4 dark:border-white/[0.07] dark:bg-surface/40"
+      }
+    >
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-cope-orange">
         {season.name}
       </p>
