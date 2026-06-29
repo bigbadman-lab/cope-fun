@@ -130,7 +130,7 @@ function NavItem({
         href={href}
         prefetch
         aria-current={active ? "page" : undefined}
-        className="group -mt-3 flex min-h-11 min-w-11 flex-1 flex-col items-center justify-end gap-1 pb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#fc8401]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group -mt-4 flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#fc8401]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span
           className={`flex size-12 items-center justify-center rounded-full border shadow-[0_8px_20px_-10px_rgb(252_132_1/0.65)] transition-[transform,background-color,border-color] duration-150 ease-out group-active:scale-95 dark:shadow-[0_8px_20px_-10px_rgb(252_132_1/0.55)] ${
@@ -157,7 +157,7 @@ function NavItem({
       href={href}
       prefetch
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 min-w-11 flex-1 flex-col items-center justify-end gap-1 rounded-lg pb-1.5 pt-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-zinc-500 ${
+      className={`flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-zinc-500 ${
         active
           ? "text-cope-orange"
           : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -187,7 +187,7 @@ export function MobileBottomNav() {
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <div className="mx-auto flex h-[var(--mobile-bottom-nav-height)] max-w-lg items-end justify-around px-1.5">
+      <div className="mx-auto flex h-[var(--mobile-bottom-nav-height)] max-w-lg items-center justify-around px-1.5">
         {MOBILE_BOTTOM_NAV_ITEMS.map((item) => (
           <NavItem
             key={item.id}
