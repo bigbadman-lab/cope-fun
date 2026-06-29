@@ -14,6 +14,8 @@ export const metadata = createPageMetadata({
   path: "/markets",
 });
 
+export const dynamic = "force-dynamic";
+
 export default async function Markets() {
   const [{ open, closed, resolved, voided }, pulseRoom, pulseStatus] =
     await Promise.all([
