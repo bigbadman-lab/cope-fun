@@ -1,8 +1,11 @@
 "use client";
 
 import { PrivyProvider } from "@privy-io/react-auth";
+import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { AccountAvatarProvider } from "./account-avatar-provider";
 import { AuthSync } from "./auth-sync";
+
+const solanaConnectors = toSolanaWalletConnectors();
 
 type AppPrivyProviderProps = {
   children: React.ReactNode;
@@ -54,6 +57,11 @@ export function AppPrivyProvider({ children }: AppPrivyProviderProps) {
           },
           solana: {
             createOnLogin: "users-without-wallets",
+          },
+        },
+        externalWallets: {
+          solana: {
+            connectors: solanaConnectors,
           },
         },
       }}
