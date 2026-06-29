@@ -13,10 +13,10 @@ type ConversationListRowProps = {
 };
 
 const baseRowLinkClass = [
-  "group -mx-2 flex w-auto items-start gap-3 rounded-xl px-2 py-3.5",
+  "group -mx-2 flex w-auto items-start gap-3.5 rounded-xl px-2 py-3.5",
   "transition-[background-color,transform] duration-300 ease-out",
   "active:scale-[0.998]",
-  "sm:items-center sm:py-4",
+  "sm:gap-4 sm:py-4",
 ].join(" ");
 
 export function ConversationListRow({
@@ -39,7 +39,7 @@ export function ConversationListRow({
       }`}
     >
       <Link href={`/room/${conversation.slug}`} className={rowLinkClass}>
-        <div className="shrink-0 pt-0.5 transition-transform duration-300 ease-out group-hover:scale-[1.04] sm:pt-0">
+        <div className="shrink-0 pt-0.5 transition-transform duration-300 ease-out group-hover:scale-[1.04]">
           <ParticipantAvatarStack
             participants={conversation.participants}
             linkable={false}

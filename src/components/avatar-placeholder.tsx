@@ -91,10 +91,10 @@ function GradientPlaceholder({ name, linkable = true }: AvatarPlaceholderProps) 
 const MINI_AVATAR_CLASS = "size-7 shrink-0 overflow-hidden rounded-[6px]";
 
 const FAN_CARD_LAYOUT = [
-  { rotate: -14, x: 0, y: 3 },
-  { rotate: -5, x: 5, y: 1 },
-  { rotate: 5, x: 10, y: -1 },
-  { rotate: 13, x: 15, y: -2 },
+  { rotate: -12, x: 0, y: 2 },
+  { rotate: -4, x: 10, y: 0 },
+  { rotate: 4, x: 20, y: 0 },
+  { rotate: 12, x: 30, y: 2 },
 ] as const;
 
 type MiniAvatarProps = {
@@ -190,7 +190,7 @@ export function ParticipantAvatarStack({
 
   return (
     <div
-      className="relative h-9 w-11 shrink-0 sm:h-10 sm:w-12"
+      className="relative h-10 w-16 shrink-0 sm:h-11"
       role="img"
       aria-label={`Agents in room: ${agents.join(", ")}`}
     >
