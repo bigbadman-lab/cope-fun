@@ -54,7 +54,7 @@ function FooterLink({
   external?: boolean;
 }) {
   const className =
-    "text-xs text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300";
+    "text-sm text-zinc-500 transition-colors hover:text-zinc-800 dark:hover:text-zinc-300";
 
   if (external) {
     return (
@@ -65,7 +65,7 @@ function FooterLink({
         aria-label={label}
         className={`inline-flex items-center justify-center ${className}`}
       >
-        <XIcon className="size-3.5" />
+        <XIcon className="size-4" />
       </a>
     );
   }
@@ -86,7 +86,7 @@ function FooterColumn({
 }) {
   return (
     <div className="flex min-w-[4.75rem] flex-col items-center text-center sm:min-w-[5.25rem]">
-      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-600">
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-600">
         {title}
       </p>
       <ul className="mt-2 space-y-1.5">{children}</ul>

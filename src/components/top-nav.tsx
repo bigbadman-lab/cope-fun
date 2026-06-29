@@ -82,7 +82,7 @@ function ProductNavLinks({ pathname }: { pathname: string }) {
             key={link.href}
             href={link.href}
             aria-current={active ? "page" : undefined}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
                 ? "bg-zinc-900/[0.06] text-zinc-900 dark:bg-white/[0.07] dark:text-zinc-100"
                 : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"

@@ -134,7 +134,7 @@ function BeliefProcessingStatus({
 
   return (
     <div
-      className="mb-3 flex min-h-6 items-center justify-center gap-2 text-center text-xs font-medium text-white/90 drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)]"
+      className="mb-3 flex min-h-6 items-center justify-center gap-2 text-center text-sm font-medium text-white/90 drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)]"
       role="status"
       aria-live="polite"
     >
@@ -704,7 +704,7 @@ export function HomePage({
               >
                 <div className="flex flex-col items-center text-center">
                   <HeroMedia />
-                  <h1 className="mb-3 text-2xl font-semibold tracking-tight text-white drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)] sm:text-3xl">
+                  <h1 className="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tight text-white drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)] sm:text-3xl md:text-4xl">
                     What do you believe?
                   </h1>
                 </div>
@@ -754,7 +754,7 @@ export function HomePage({
                       animateExamples={phase === "idle" && !isSubmitProcessing}
                     />
                     <p
-                      className={`mt-2 min-h-4 text-center text-[11px] leading-relaxed drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] ${
+                      className={`mt-2 min-h-4 text-center text-xs leading-relaxed drop-shadow-[0_1px_8px_rgb(0_0_0/0.18)] sm:text-sm ${
                         validationMessage
                           ? "text-orange-100/85"
                           : "text-white/65 dark:text-white/60"

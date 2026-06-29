@@ -142,7 +142,7 @@ function NavItem({
           <Icon className="size-5" />
         </span>
         <span
-          className={`text-[10px] font-semibold leading-none ${
+          className={`text-xs font-semibold leading-none ${
             active ? "text-[#fc8401]" : "text-zinc-600 dark:text-zinc-400"
           }`}
         >
@@ -165,7 +165,7 @@ function NavItem({
     >
       <Icon className={`size-5 ${active ? "stroke-[2]" : ""}`} />
       <span
-        className={`text-[10px] leading-none ${
+        className={`text-xs leading-none ${
           active ? "font-semibold" : "font-medium"
         }`}
       >

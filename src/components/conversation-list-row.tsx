@@ -49,7 +49,7 @@ export function ConversationListRow({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
             <p
-              className={`min-w-0 flex-1 text-[15px] font-medium leading-snug transition-colors duration-300 ease-out ${
+              className={`min-w-0 flex-1 text-base font-medium leading-snug transition-colors duration-300 ease-out ${
                 isHomepage
                   ? "text-white group-hover:text-white"
                   : "text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-white"

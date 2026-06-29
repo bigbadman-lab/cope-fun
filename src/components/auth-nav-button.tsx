@@ -33,7 +33,7 @@ function AuthConnectingState({
       }
     >
       <SubmitButtonLoader />
-      <span className={isMenu ? "font-medium" : "hidden text-xs font-medium sm:inline"}>
+      <span className={isMenu ? "font-medium" : "hidden text-sm font-medium sm:inline"}>
         Connecting
       </span>
     </span>
@@ -57,7 +57,7 @@ function AuthSignInButton({
       className={
         isMenu
           ? "inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-cope-orange/25 bg-cope-orange/10 px-4 text-sm font-medium text-cope-orange transition-[color,background-color,transform,border-color] duration-200 ease-out hover:border-cope-orange/40 hover:bg-cope-orange/15 active:scale-[0.99]"
-          : "inline-flex h-9 max-w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-200/70 bg-background/60 px-2.5 text-xs font-medium text-zinc-700 transition-[color,background-color,transform,border-color,box-shadow] duration-200 ease-out hover:border-cope-orange/30 hover:bg-cope-orange/10 hover:text-cope-orange focus:outline-none focus-visible:ring-2 focus-visible:ring-cope-orange/25 active:scale-[0.98] dark:border-white/[0.08] dark:bg-background/40 dark:text-zinc-200 dark:hover:border-cope-orange/30 dark:hover:bg-cope-orange/10 dark:hover:text-cope-orange dark:focus-visible:ring-cope-orange/20 sm:px-3"
+          : "inline-flex h-9 max-w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-200/70 bg-background/60 px-2.5 text-sm font-medium text-zinc-700 transition-[color,background-color,transform,border-color,box-shadow] duration-200 ease-out hover:border-cope-orange/30 hover:bg-cope-orange/10 hover:text-cope-orange focus:outline-none focus-visible:ring-2 focus-visible:ring-cope-orange/25 active:scale-[0.98] dark:border-white/[0.08] dark:bg-background/40 dark:text-zinc-200 dark:hover:border-cope-orange/30 dark:hover:bg-cope-orange/10 dark:hover:text-cope-orange dark:focus-visible:ring-cope-orange/20 sm:px-3"
       }
     >
       Sign in
@@ -111,11 +111,11 @@ function AuthAccountChip({
         size={isMenu ? "sm" : "xs"}
         showStatusDot
       />
-      <span className={`min-w-0 truncate font-medium ${isMenu ? "text-sm" : "hidden text-xs sm:inline"}`}>
+      <span className={`min-w-0 truncate font-medium ${isMenu ? "text-sm" : "hidden text-sm sm:inline"}`}>
         {label}
       </span>
       {isMenu && (
-        <span className="ml-auto text-xs text-zinc-500 transition-colors group-hover:text-cope-orange dark:text-zinc-500">
+        <span className="ml-auto text-sm text-zinc-500 transition-colors group-hover:text-cope-orange dark:text-zinc-500">
           Dashboard
         </span>
       )}
