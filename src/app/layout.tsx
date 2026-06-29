@@ -35,10 +35,6 @@ export const metadata: Metadata = {
     template: "%s | Cope",
   },
   description: DEFAULT_SITE_DESCRIPTION,
-  icons: {
-    icon: [{ url: "/engine2.png", type: "image/png" }],
-    apple: [{ url: "/engine2.png", type: "image/png" }],
-  },
   openGraph: {
     siteName: "Cope",
     type: "website",
