@@ -13,6 +13,7 @@
     "@privy-io/server-auth": "^1.32.5",
     "@solana-program/memo": "0.10.0",
     "@supabase/supabase-js": "^2.108.2",
+    "@vercel/analytics": "^2.0.1",
     "next": "16.2.9",
     "next-themes": "^0.4.6",
     "openai": "^6.44.0",
