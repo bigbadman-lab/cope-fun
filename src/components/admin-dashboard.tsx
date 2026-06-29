@@ -71,19 +71,25 @@ function ActionButton({
   onClick,
   disabled,
   active = false,
+  tone = "default",
 }: {
   label: string;
   onClick: () => void;
   disabled?: boolean;
   active?: boolean;
+  tone?: "default" | "danger";
 }) {
+  const dangerClass =
+    "border-rose-200/80 bg-rose-50/70 text-rose-700 hover:bg-rose-100/60 dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-200 dark:hover:bg-rose-950/35";
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       className={`inline-flex min-h-8 items-center rounded-lg border px-2.5 text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-        active
+        tone === "danger"
+          ? dangerClass
+          : active
           ? "border-cope-orange/30 bg-cope-orange/10 text-cope-orange"
           : "border-zinc-200/80 text-zinc-600 hover:bg-zinc-900/[0.04] dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/[0.04]"
       }`}
@@ -109,6 +115,13 @@ function AdminRoomRow({
 
   async function runAction(action: AdminRoomAction) {
     if (pendingAction) return;
+
+    if (action === "delete") {
+      const confirmed = window.confirm(
+        `Permanently delete this room?\\n\\n${room.belief}\\n\\nThis hides it everywhere and cannot be undone.`,
+      );
+      if (!confirmed) return;
+    }
 
     setPendingAction(action);
     try {
@@ -186,6 +199,12 @@ function AdminRoomRow({
             }
             disabled={isPending}
             active={room.isMarketCandidate}
+          />
+          <ActionButton
+            label="Delete"
+            onClick={() => void runAction("delete")}
+            disabled={isPending}
+            tone="danger"
           />
         </div>
       </div>

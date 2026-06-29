@@ -24,7 +24,7 @@ type BeliefRoomReactionRow = {
 };
 
 const ACTION_FIELD_MAP: Record<
-  AdminRoomAction,
+  Exclude<AdminRoomAction, "delete">,
   keyof Pick<
     BeliefRoomAdminRow,
     "is_hidden" | "is_featured" | "is_market_candidate"
@@ -38,7 +38,7 @@ const ACTION_FIELD_MAP: Record<
   remove_market_candidate: "is_market_candidate",
 };
 
-function getActionValue(action: AdminRoomAction): boolean {
+function getActionValue(action: Exclude<AdminRoomAction, "delete">): boolean {
   return (
     action === "hide" ||
     action === "feature" ||
@@ -171,10 +171,52 @@ async function buildRoomSummary(roomId: string): Promise<AdminRoomSummary | null
   );
 }
 
+async function canDeleteRoom(roomId: string): Promise<boolean> {
+  const supabase = createSupabaseServiceClient();
+  const { data, error } = await supabase
+    .from("belief_room_markets")
+    .select("id")
+    .eq("room_id", roomId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error("Could not verify room market status.");
+  }
+
+  return !data;
+}
+
 export async function applyAdminRoomAction(
   roomId: string,
   action: AdminRoomAction,
 ): Promise<AdminRoomSummary | null> {
+  if (action === "delete") {
+    const existingSummary = await buildRoomSummary(roomId);
+    if (!existingSummary) return null;
+
+    const deletable = await canDeleteRoom(roomId);
+    if (!deletable) {
+      throw new Error("Cannot delete a room that has a market.");
+    }
+
+    const supabase = createSupabaseServiceClient();
+    const { error } = await supabase
+      .from("belief_rooms")
+      .update({
+        status: "deleted",
+        is_hidden: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", roomId)
+      .eq("status", "published");
+
+    if (error) {
+      throw new Error("Could not delete room.");
+    }
+
+    return existingSummary;
+  }
+
   const field = ACTION_FIELD_MAP[action];
   const value = getActionValue(action);
   const supabase = createSupabaseServiceClient();

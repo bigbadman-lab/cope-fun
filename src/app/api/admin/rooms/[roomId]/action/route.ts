@@ -14,6 +14,7 @@ const ADMIN_ROOM_ACTIONS = new Set<AdminRoomAction>([
   "unfeature",
   "mark_market_candidate",
   "remove_market_candidate",
+  "delete",
 ]);
 
 function isAdminRoomAction(value: unknown): value is AdminRoomAction {
@@ -48,7 +49,13 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     return NextResponse.json({ ok: true, room });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message) {
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       { ok: false, error: "Could not update room." },
       { status: 500 },

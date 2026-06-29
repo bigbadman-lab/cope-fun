@@ -21,7 +21,8 @@ export type AdminRoomAction =
   | "feature"
   | "unfeature"
   | "mark_market_candidate"
-  | "remove_market_candidate";
+  | "remove_market_candidate"
+  | "delete";
 
 export type AdminDashboardData = {
   totals: {
