@@ -132,6 +132,9 @@ export function SavedChatView({
   const [isChallengeSubmitting, setIsChallengeSubmitting] = useState(false);
   const [liveTurn, setLiveTurn] = useState<LiveAgentTurn | null>(null);
   const [isAgentRoundActive, setIsAgentRoundActive] = useState(false);
+  const [pulseMobileView, setPulseMobileView] = useState<"market" | "chat">(
+    "market",
+  );
   const [isCreatorForViewer, setIsCreatorForViewer] = useState<boolean | null>(
     dbBacked ? null : false,
   );
@@ -695,6 +698,8 @@ export function SavedChatView({
                 beliefRoomId={PULSE_BELIEF_ROOM_ID}
                 belief={beliefMessage?.text ?? belief}
                 initialStatus={initialPulseStatus}
+                mobileView={pulseMobileView}
+                onMobileViewChange={setPulseMobileView}
               />
             ) : dbBacked && roomMarket ? (
               <PinnedMarketHeader market={roomMarket} />
@@ -717,7 +722,15 @@ export function SavedChatView({
           }
         >
           {isPulseRoom ? (
-            <PulseRoomChat beliefRoomId={PULSE_BELIEF_ROOM_ID} />
+            <div
+              className={
+                pulseMobileView === "market"
+                  ? "hidden min-h-0 flex-1 flex-col md:flex"
+                  : "flex min-h-0 flex-1 flex-col"
+              }
+            >
+              <PulseRoomChat beliefRoomId={PULSE_BELIEF_ROOM_ID} />
+            </div>
           ) : (
             <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
               <div className="relative z-0 mx-auto w-full max-w-md space-y-4">

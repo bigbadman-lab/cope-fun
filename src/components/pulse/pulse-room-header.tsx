@@ -24,6 +24,8 @@ type PulseRoomHeaderProps = {
   beliefRoomId: string;
   belief: string;
   initialStatus?: PulseStatusResponse | null;
+  mobileView?: "market" | "chat";
+  onMobileViewChange?: (view: "market" | "chat") => void;
 };
 
 function winnerTextClass(side: PulseWinningSide | null): string {
@@ -91,6 +93,8 @@ export function PulseRoomHeader({
   beliefRoomId,
   belief,
   initialStatus = null,
+  mobileView = "market",
+  onMobileViewChange,
 }: PulseRoomHeaderProps) {
   const pulse = usePulseRoom(beliefRoomId, initialStatus);
   const { status, notFound } = pulse;
@@ -397,7 +401,53 @@ export function PulseRoomHeader({
 
   return (
     <div className="bg-background pb-3 pt-0.5">
-      <section className="overflow-hidden rounded-xl border border-cope-orange/30 bg-surface dark:border-cope-orange/20">
+      {onMobileViewChange ? (
+        <div className="mb-2 grid grid-cols-2 rounded-xl border border-zinc-200/70 bg-zinc-50/80 p-1 dark:border-white/[0.06] dark:bg-zinc-950/70 md:hidden">
+          {(["market", "chat"] as const).map((view) => (
+            <button
+              key={view}
+              type="button"
+              onClick={() => onMobileViewChange(view)}
+              aria-pressed={mobileView === view}
+              className={`min-h-9 rounded-lg text-xs font-semibold transition-colors ${
+                mobileView === view
+                  ? "bg-surface text-zinc-900 shadow-sm dark:bg-zinc-900 dark:text-zinc-50"
+                  : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
+              }`}
+            >
+              {view === "market" ? "Market" : "Live Chat"}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {mobileView === "chat" ? (
+        <div className="mb-2 flex items-center gap-2 rounded-xl border border-cope-orange/30 bg-surface px-3 py-2 dark:border-cope-orange/20 md:hidden">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cope-orange/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-cope-orange">
+            <span className="size-1 animate-pulse rounded-full bg-cope-orange" />
+            Live
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            {engine.displayPair}
+          </span>
+          <span
+            className={`shrink-0 font-mono text-sm font-bold tabular-nums ${directionColor}`}
+          >
+            {livePriceValue !== null ? formatPulsePrice(livePriceValue) : "—"}
+          </span>
+          <span className="ml-auto shrink-0 font-mono text-xs font-semibold tabular-nums text-zinc-700 dark:text-zinc-200">
+            {isOpen
+              ? formatPulseCountdown(liveSecondsRemaining)
+              : pulseRoundStateLabel(round, derived)}
+          </span>
+        </div>
+      ) : null}
+
+      <section
+        className={`overflow-hidden rounded-xl border border-cope-orange/30 bg-surface dark:border-cope-orange/20 ${
+          mobileView === "chat" ? "hidden md:block" : ""
+        }`}
+      >
         <div className="px-3.5 py-2.5 md:py-3">
           {/* Top row: LIVE + pair + round # / status badge */}
           <div className="flex items-center justify-between gap-2">
