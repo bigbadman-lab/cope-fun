@@ -400,16 +400,16 @@ export function PulseRoomHeader({
     );
 
   return (
-    <div className="bg-background pb-3 pt-0.5">
+    <div className="bg-background pb-2 pt-0.5 md:pb-3">
       {onMobileViewChange ? (
-        <div className="mb-2 grid grid-cols-2 rounded-xl border border-zinc-200/70 bg-zinc-50/80 p-1 dark:border-white/[0.06] dark:bg-zinc-950/70 md:hidden">
+        <div className="mb-1.5 grid grid-cols-2 rounded-lg border border-zinc-200/70 bg-zinc-50/80 p-0.5 dark:border-white/[0.06] dark:bg-zinc-950/70 md:hidden">
           {(["market", "chat"] as const).map((view) => (
             <button
               key={view}
               type="button"
               onClick={() => onMobileViewChange(view)}
               aria-pressed={mobileView === view}
-              className={`min-h-9 rounded-lg text-xs font-semibold transition-colors ${
+              className={`min-h-7 rounded-md text-xs font-semibold transition-colors ${
                 mobileView === view
                   ? "bg-surface text-zinc-900 shadow-sm dark:bg-zinc-900 dark:text-zinc-50"
                   : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -422,7 +422,7 @@ export function PulseRoomHeader({
       ) : null}
 
       {mobileView === "chat" ? (
-        <div className="mb-2 flex items-center gap-2 rounded-xl border border-cope-orange/30 bg-surface px-3 py-2 dark:border-cope-orange/20 md:hidden">
+        <div className="mb-1.5 flex items-center gap-2 rounded-xl border border-cope-orange/30 bg-surface px-3 py-1.5 dark:border-cope-orange/20 md:hidden">
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cope-orange/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-cope-orange">
             <span className="size-1 animate-pulse rounded-full bg-cope-orange" />
             Live
