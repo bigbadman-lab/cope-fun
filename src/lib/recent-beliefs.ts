@@ -47,8 +47,6 @@ export function getRecentBeliefsSnapshot(): RoomSearchResult[] {
   return recentBeliefsSnapshot;
 }
 
-export const RECENT_BELIEFS_SERVER_SNAPSHOT = EMPTY_RECENT_BELIEFS;
-
 export function getHighlightedRecentBeliefId(): string | null {
   return highlightedBeliefId;
 }

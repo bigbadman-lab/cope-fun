@@ -12,6 +12,9 @@ export const metadata = createPageMetadata({
 
 const RECENT_BELIEFS_LIMIT = 3;
 
+// Keep recent beliefs fresh without re-querying on every homepage request.
+export const revalidate = 30;
+
 export default async function Home() {
   let initialRecentBeliefs: Awaited<
     ReturnType<typeof getRecentPublishedBeliefs>

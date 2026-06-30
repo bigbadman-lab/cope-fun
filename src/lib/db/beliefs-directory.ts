@@ -15,6 +15,7 @@ export type BeliefDirectoryItem = {
   copeCount: number;
   believePct: number;
   copePct: number;
+  hasPulseMarket: boolean;
 };
 
 export type BeliefDirectoryPage = {
@@ -56,6 +57,34 @@ function aggregateVoteTotals(
   }
 
   return totals;
+}
+
+/**
+ * Returns the subset of room ids that have a Pulse engine attached. A row in
+ * `pulse_engines` keyed by `belief_room_id` is the canonical signal that a
+ * belief room is a live Pulse market. Failures degrade gracefully to "none"
+ * so the directory still renders if the Pulse table is unavailable.
+ */
+async function getPulseLinkedRoomIds(
+  supabase: ReturnType<typeof createSupabaseServiceClient>,
+  roomIds: string[],
+): Promise<Set<string>> {
+  if (roomIds.length === 0) {
+    return new Set();
+  }
+
+  const { data, error } = await supabase
+    .from("pulse_engines")
+    .select("belief_room_id")
+    .in("belief_room_id", roomIds);
+
+  if (error || !data) {
+    return new Set();
+  }
+
+  return new Set(
+    (data as { belief_room_id: string }[]).map((row) => row.belief_room_id),
+  );
 }
 
 export async function listBeliefRooms(input: {
@@ -124,6 +153,8 @@ export async function listBeliefRooms(input: {
     (votes ?? []) as BeliefRoomVoteRow[],
   );
 
+  const pulseRoomIds = await getPulseLinkedRoomIds(supabase, roomIds);
+
   const items = roomRows.map((room) => {
     const totals = voteTotals.get(room.id) ?? {
       believeCount: 0,
@@ -144,6 +175,7 @@ export async function listBeliefRooms(input: {
       copeCount: totals.copeCount,
       believePct,
       copePct,
+      hasPulseMarket: pulseRoomIds.has(room.id),
     };
   });
 

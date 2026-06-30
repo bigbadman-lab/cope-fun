@@ -114,6 +114,8 @@ export function buildRoomOgImageElement({
           >
             <div
               style={{
+                display: "flex",
+                flexDirection: "column",
                 fontSize: 28,
                 color: COLORS.muted,
                 lineHeight: 1.35,
@@ -121,10 +123,9 @@ export function buildRoomOgImageElement({
                 overflow: "hidden",
               }}
             >
-              {`"${quoteText}"`}
+              <div>{`"${quoteText}"`}</div>
               <span
                 style={{
-                  display: "block",
                   marginTop: 12,
                   fontSize: 22,
                   color: COLORS.subtle,

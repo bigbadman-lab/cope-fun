@@ -25,6 +25,15 @@ function formatChallengeSummary(challengeCount: number): string {
   return `${challengeCount} challenges`;
 }
 
+function LivePulseMarketBadge() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cope-orange/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cope-orange">
+      <span className="size-1.5 animate-pulse rounded-full bg-cope-orange" />
+      Live Pulse Market
+    </span>
+  );
+}
+
 export function BeliefDirectoryRow({ item }: BeliefDirectoryRowProps) {
   return (
     <div className="border-b border-zinc-200/60 last:border-b-0 dark:border-white/[0.06]">
@@ -38,9 +47,15 @@ export function BeliefDirectoryRow({ item }: BeliefDirectoryRowProps) {
               {formatConversationTime(item.createdAt)}
             </span>
           </div>
-          <p className="mt-0.5 text-sm leading-relaxed text-zinc-500 transition-colors duration-300 ease-out group-hover:text-zinc-600 dark:group-hover:text-zinc-400">
-            {formatChallengeSummary(item.challengeCount)} · {formatVoteSummary(item)}
-          </p>
+          {item.hasPulseMarket ? (
+            <div className="mt-1.5">
+              <LivePulseMarketBadge />
+            </div>
+          ) : (
+            <p className="mt-0.5 text-sm leading-relaxed text-zinc-500 transition-colors duration-300 ease-out group-hover:text-zinc-600 dark:group-hover:text-zinc-400">
+              {formatChallengeSummary(item.challengeCount)} · {formatVoteSummary(item)}
+            </p>
+          )}
         </div>
       </Link>
     </div>

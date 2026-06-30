@@ -33,13 +33,16 @@ export default async function Image({ params }: OgImageProps) {
     quote = null;
   }
 
-  return new ImageResponse(
-    buildRoomOgImageElement({
-      belief,
-      quote,
-    }),
-    {
+  // Guard the render itself: if Satori fails on the rich (belief + quote)
+  // layout for any reason, still return a valid branded fallback PNG so
+  // crawlers never receive an empty/broken response.
+  try {
+    return new ImageResponse(buildRoomOgImageElement({ belief, quote }), {
       ...size,
-    },
-  );
+    });
+  } catch {
+    return new ImageResponse(buildRoomOgImageElement({}), {
+      ...size,
+    });
+  }
 }

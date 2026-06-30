@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { ConversationListRow } from "./conversation-list-row";
 import {
   getHighlightedRecentBeliefId,
   getRecentBeliefsSnapshot,
   initializeRecentBeliefs,
-  RECENT_BELIEFS_SERVER_SNAPSHOT,
   recentBeliefToConversation,
-  refetchRecentBeliefs,
   subscribeRecentBeliefs,
 } from "@/lib/recent-beliefs";
 import type { RoomSearchResult } from "@/lib/room-search";
@@ -21,26 +19,22 @@ type RecentConversationsPreviewProps = {
 export function RecentConversationsPreview({
   initialBeliefs = [],
 }: RecentConversationsPreviewProps) {
+  const initializedRef = useRef(false);
+  if (typeof window !== "undefined" && !initializedRef.current) {
+    initializedRef.current = true;
+    initializeRecentBeliefs(initialBeliefs);
+  }
+
   const beliefs = useSyncExternalStore(
     subscribeRecentBeliefs,
     getRecentBeliefsSnapshot,
-    () => RECENT_BELIEFS_SERVER_SNAPSHOT,
+    () => initialBeliefs,
   );
   const highlightedId = useSyncExternalStore(
     subscribeRecentBeliefs,
     getHighlightedRecentBeliefId,
     () => null,
   );
-
-  const initializedRef = useRef(false);
-
-  useEffect(() => {
-    if (!initializedRef.current) {
-      initializeRecentBeliefs(initialBeliefs);
-      initializedRef.current = true;
-    }
-    void refetchRecentBeliefs();
-  }, [initialBeliefs]);
 
   if (beliefs.length === 0) {
     return (

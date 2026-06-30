@@ -310,6 +310,14 @@ export function HomePage({
   useEffect(() => () => clearTimeouts(), [clearTimeouts]);
 
   useEffect(() => {
+    // Skip autofocus on touch/mobile devices: focusing on load pops the
+    // on-screen keyboard and hides the animated placeholder. Pointer-based
+    // devices (desktop) keep autofocus. A media query avoids brittle UA checks.
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    if (isTouchDevice) return;
     heroInputRef.current?.focus({ preventScroll: true });
   }, []);
 

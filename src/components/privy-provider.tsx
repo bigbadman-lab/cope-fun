@@ -1,11 +1,19 @@
 "use client";
 
-import { PrivyProvider } from "@privy-io/react-auth";
+import { PrivyProvider, type WalletListEntry } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { AccountAvatarProvider } from "./account-avatar-provider";
 import { AuthSync } from "./auth-sync";
 
 const solanaConnectors = toSolanaWalletConnectors();
+
+// Privy only renders wallets listed here (order = modal order).
+// `trust` maps to WalletConnect slug `trust-wallet` (not in SDK types until Privy adds it).
+const ALLOWED_EXTERNAL_WALLETS = [
+  "phantom",
+  "trust",
+  "solflare",
+] as WalletListEntry[];
 
 type AppPrivyProviderProps = {
   children: React.ReactNode;
@@ -50,6 +58,7 @@ export function AppPrivyProvider({ children }: AppPrivyProviderProps) {
           accentColor: "#f97316",
           logo: "/logotext3.png",
           walletChainType: "solana-only",
+          walletList: ALLOWED_EXTERNAL_WALLETS,
         },
         embeddedWallets: {
           ethereum: {
@@ -62,6 +71,11 @@ export function AppPrivyProvider({ children }: AppPrivyProviderProps) {
         externalWallets: {
           solana: {
             connectors: solanaConnectors,
+          },
+          // Trust Wallet connects via WalletConnect on mobile; keep enabled but
+          // do not add `wallet_connect` to walletList (that shows 100+ wallets).
+          walletConnect: {
+            enabled: true,
           },
         },
       }}
