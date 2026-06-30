@@ -18,6 +18,9 @@
   --footer-height: 3rem;
   --mobile-bottom-nav-height: 4rem;
   --mobile-bottom-nav-offset: 0px;
+  /* Height of the on-screen keyboard overlapping the layout viewport.
+     Maintained at runtime via the visualViewport API; 0 when no keyboard. */
+  --keyboard-inset: 0px;
   --scroll-bottom-inset: env(safe-area-inset-bottom, 0px);
   --composer-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   --composer-height: 4.75rem;
@@ -149,7 +152,9 @@ body {
   }
 
   .bottom-mobile-bottom-nav {
-    bottom: var(--mobile-bottom-nav-offset);
+    /* Sit above the mobile bottom nav, or above the on-screen keyboard when it
+       is open (whichever is higher) so the composer stays visible while typing. */
+    bottom: max(var(--mobile-bottom-nav-offset), var(--keyboard-inset, 0px));
   }
 
   .pb-composer-scroll {
