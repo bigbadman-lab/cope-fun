@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopeTokenMintCard } from "./cope-token-mint-card";
 import { InnerPageShell } from "./inner-page-shell";
 
 function InfoCard({
@@ -118,12 +119,12 @@ const FAQ = [
   {
     question: "Is $COPE live?",
     answer:
-      "Not yet. $COPE is planned as the protocol token for Cope.",
+      "$COPE is live on Solana. The official mint address is listed at the top of this page.",
   },
   {
     question: "Can I buy $COPE today?",
     answer:
-      "Not yet. Official launch details will be published before TGE.",
+      "Yes. You can trade $COPE on Solana through wallets and DEXs that list the token. Always verify the mint address before swapping.",
   },
   {
     question: "What are COPE Credits?",
@@ -152,20 +153,26 @@ export function CopeTokenPage() {
     <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
         <header className="pb-4">
-          <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            $COPE
-          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              $COPE
+            </h1>
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700 dark:text-emerald-300">
+              Live
+            </span>
+          </div>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
             The token powering the internet&apos;s conviction network.
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope launches with a credit-based market economy first. $COPE
-            supports rewards, Treasury Conviction, and the long-term transition
-            toward on-chain markets.
+            $COPE is live on Solana. Cope still runs Seasons 1–3 on COPE
+            Credits for gameplay, while $COPE supports rewards, Treasury
+            Conviction, and the long-term transition toward on-chain markets.
           </p>
         </header>
 
         <div className="space-y-5">
+          <CopeTokenMintCard />
           <Section title="Why $COPE exists">
             <p>
               Most crypto projects launch a token first and hope a product
@@ -275,11 +282,12 @@ export function CopeTokenPage() {
 
           <div className="h-px bg-zinc-200/80 dark:bg-white/[0.06]" />
 
-          <InfoCard title="Token launch details">
+          <InfoCard title="Token details">
             <p>
-              Token supply, distribution, and launch details will be published
-              before TGE. Until then, this page explains the intended role of
-              $COPE inside the product.
+              $COPE is live on Solana. Supply, distribution, and longer-term
+              token mechanics will continue to be published as the protocol
+              evolves. The mint address above is the official contract to verify
+              before trading.
             </p>
           </InfoCard>
 

@@ -4,8 +4,8 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "$COPE",
   description:
-    "The protocol token behind Cope. COPE Credits power Seasons 1–3 gameplay; $COPE supports rewards, Treasury Conviction, and the path to on-chain markets.",
-  openGraphTitle: "$COPE — the conviction network token",
+    "$COPE is live on Solana. COPE Credits power Seasons 1–3 gameplay; the token supports rewards, Treasury Conviction, and the path to on-chain markets.",
+  openGraphTitle: "$COPE — live on Solana",
   path: "/cope",
 });
 
