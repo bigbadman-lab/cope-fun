@@ -72,6 +72,10 @@ export {
 
 export {
   advancePulseEngine,
+  advancePulseEngineChained,
+  isPulseAdvanceProgressAction,
+  MAX_ADVANCE_STEPS_PER_ENGINE,
+  type AdvancePulseEngineChainedResult,
   type AdvancePulseEngineInput,
   type AdvancePulseEngineResult,
   type PulseAdvanceAction,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireCronAuth } from "@/lib/cron/auth";
 import { getAdvanceablePulseEngines } from "@/lib/db/pulse";
 import {
-  advancePulseEngine,
+  advancePulseEngineChained,
   type PulseAdvanceAction,
 } from "@/lib/pulse/advance-engine";
 
@@ -10,8 +10,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+type CronPulseAdvanceStep = {
+  action: PulseAdvanceAction | "error";
+  reason: string;
+};
+
 type CronPulseAdvanceResult = {
   engineId: string;
+  steps: CronPulseAdvanceStep[];
   action: PulseAdvanceAction | "error";
   reason: string;
 };
@@ -42,18 +48,30 @@ export async function GET(request: Request) {
 
     for (const engine of engines) {
       try {
-        const result = await advancePulseEngine({ engineId: engine.id });
+        const chained = await advancePulseEngineChained({ engineId: engine.id });
+        const steps: CronPulseAdvanceStep[] = chained.steps.map((step) => ({
+          action: step.action,
+          reason: step.reason,
+        }));
 
-        if (result.action !== "noop") {
-          console.info(
-            `[cron/pulse/advance] engine=${engine.id} action=${result.action} reason=${result.reason}`,
-          );
+        for (const step of steps) {
+          if (step.action !== "noop") {
+            console.info(
+              `[cron/pulse/advance] engine=${engine.id} action=${step.action} reason=${step.reason}`,
+            );
+          }
         }
+
+        const lastStep = steps.at(-1) ?? {
+          action: "noop" as const,
+          reason: "no_steps",
+        };
 
         results.push({
           engineId: engine.id,
-          action: result.action,
-          reason: result.reason,
+          steps,
+          action: lastStep.action,
+          reason: lastStep.reason,
         });
       } catch (error) {
         const message =
@@ -65,6 +83,7 @@ export async function GET(request: Request) {
 
         results.push({
           engineId: engine.id,
+          steps: [],
           action: "error",
           reason: message,
         });

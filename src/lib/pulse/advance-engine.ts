@@ -73,7 +73,6 @@ function buildNoopResult(
 
 /**
  * Advances one Pulse engine by a single safe lifecycle step.
- * Not scheduled yet — intended for admin/manual orchestration only.
  */
 export async function advancePulseEngine(
   input: AdvancePulseEngineInput,
@@ -182,6 +181,51 @@ export async function advancePulseEngine(
   }
 
   return buildNoopResult(engine, contextRound, "engine_not_advanceable");
+}
+
+/** Progress actions that warrant another chained advance step in the same invocation. */
+const PROGRESS_ADVANCE_ACTIONS = new Set<PulseAdvanceAction>([
+  "locked_round",
+  "finalized_round",
+  "opened_round",
+]);
+
+export const MAX_ADVANCE_STEPS_PER_ENGINE = 4;
+
+export function isPulseAdvanceProgressAction(
+  action: PulseAdvanceAction,
+): boolean {
+  return PROGRESS_ADVANCE_ACTIONS.has(action);
+}
+
+export type AdvancePulseEngineChainedResult = {
+  steps: AdvancePulseEngineResult[];
+};
+
+/**
+ * Runs advancePulseEngine() repeatedly until a noop or the step cap.
+ * Each step reloads engine/round state from the database via advancePulseEngine().
+ */
+export async function advancePulseEngineChained(
+  input: AdvancePulseEngineInput,
+): Promise<AdvancePulseEngineChainedResult> {
+  const engineId = input.engineId.trim();
+  if (!engineId) {
+    throw new Error("Engine id is required.");
+  }
+
+  const steps: AdvancePulseEngineResult[] = [];
+
+  for (let step = 0; step < MAX_ADVANCE_STEPS_PER_ENGINE; step += 1) {
+    const result = await advancePulseEngine({ engineId });
+    steps.push(result);
+
+    if (!isPulseAdvanceProgressAction(result.action)) {
+      break;
+    }
+  }
+
+  return { steps };
 }
 
 export { PulseEngineNotFoundError };
