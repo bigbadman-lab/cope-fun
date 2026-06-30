@@ -135,25 +135,6 @@ export function SavedChatView({
   const [isCreatorForViewer, setIsCreatorForViewer] = useState<boolean | null>(
     dbBacked ? null : false,
   );
-  // Mobile-only Pulse header collapse, driven by chat scroll. Desktop ignores
-  // this via responsive classes inside PulseRoomHeader.
-  const [pulseHeaderCollapsed, setPulseHeaderCollapsed] = useState(false);
-  const pulseCollapseSuppressRef = useRef(0);
-
-  const handlePulseChatScroll = useCallback((scrollTop: number) => {
-    if (Date.now() < pulseCollapseSuppressRef.current) return;
-    setPulseHeaderCollapsed((prev) => {
-      if (!prev && scrollTop > 56) return true;
-      if (prev && scrollTop <= 4) return false;
-      return prev;
-    });
-  }, []);
-
-  const handleExpandPulseHeader = useCallback(() => {
-    setPulseHeaderCollapsed(false);
-    // Ignore the reflow scroll caused by the header growing back.
-    pulseCollapseSuppressRef.current = Date.now() + 500;
-  }, []);
   const roundTimersRef = useRef<number[]>([]);
   const debateBodyRef = useRef<HTMLDivElement>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
@@ -714,8 +695,6 @@ export function SavedChatView({
                 beliefRoomId={PULSE_BELIEF_ROOM_ID}
                 belief={beliefMessage?.text ?? belief}
                 initialStatus={initialPulseStatus}
-                collapsed={pulseHeaderCollapsed}
-                onExpand={handleExpandPulseHeader}
               />
             ) : dbBacked && roomMarket ? (
               <PinnedMarketHeader market={roomMarket} />
@@ -738,10 +717,7 @@ export function SavedChatView({
           }
         >
           {isPulseRoom ? (
-            <PulseRoomChat
-              beliefRoomId={PULSE_BELIEF_ROOM_ID}
-              onUserScroll={handlePulseChatScroll}
-            />
+            <PulseRoomChat beliefRoomId={PULSE_BELIEF_ROOM_ID} />
           ) : (
             <div className={`w-full px-4 pt-4 ${bottomPanelHeight}`}>
               <div className="relative z-0 mx-auto w-full max-w-md space-y-4">

@@ -24,10 +24,6 @@ type PulseRoomHeaderProps = {
   beliefRoomId: string;
   belief: string;
   initialStatus?: PulseStatusResponse | null;
-  /** Mobile-only: when true, the header renders a compact sticky summary. */
-  collapsed?: boolean;
-  /** Mobile-only: called when the compact summary is activated to expand. */
-  onExpand?: () => void;
 };
 
 function winnerTextClass(side: PulseWinningSide | null): string {
@@ -95,8 +91,6 @@ export function PulseRoomHeader({
   beliefRoomId,
   belief,
   initialStatus = null,
-  collapsed = false,
-  onExpand,
 }: PulseRoomHeaderProps) {
   const pulse = usePulseRoom(beliefRoomId, initialStatus);
   const { status, notFound } = pulse;
@@ -401,83 +395,8 @@ export function PulseRoomHeader({
       </p>
     );
 
-  const compactSummary = (
-    <div className="flex items-center gap-2 rounded-xl border border-cope-orange/30 bg-surface px-3 py-2 dark:border-cope-orange/20">
-      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cope-orange/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-cope-orange">
-        <span className="size-1 animate-pulse rounded-full bg-cope-orange" />
-        Live
-      </span>
-      <span className="shrink-0 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-        {engine.displayPair}
-      </span>
-      <span
-        className={`shrink-0 font-mono text-sm font-bold tabular-nums ${directionColor}`}
-      >
-        {livePriceValue !== null ? formatPulsePrice(livePriceValue) : "—"}
-      </span>
-      <span className="ml-auto shrink-0 font-mono text-xs font-semibold tabular-nums text-zinc-700 dark:text-zinc-200">
-        {isOpen
-          ? formatPulseCountdown(liveSecondsRemaining)
-          : pulseRoundStateLabel(round, derived)}
-      </span>
-      <span className="shrink-0 text-[10px] tabular-nums">
-        <span className="text-emerald-600 dark:text-emerald-400">
-          {formatPulsePercent(round?.believePercent)}
-        </span>
-        <span className="text-zinc-400"> / </span>
-        <span className="text-rose-600 dark:text-rose-400">
-          {formatPulsePercent(round?.copePercent)}
-        </span>
-      </span>
-      {hasPosition ? (
-        <span
-          className="size-1.5 shrink-0 rounded-full bg-cope-orange"
-          aria-hidden
-        />
-      ) : null}
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="size-3.5 shrink-0 text-zinc-400"
-        aria-hidden
-      >
-        <path d="M6 9l6 6 6-6" />
-      </svg>
-    </div>
-  );
-
   return (
     <div className="bg-background pb-3 pt-0.5">
-      {/* Compact summary — mobile only; tap/expand restores the full module. */}
-      <button
-        type="button"
-        onClick={onExpand}
-        aria-expanded={!collapsed}
-        aria-label={
-          hasPosition
-            ? "Expand Pulse market details. You have an active position."
-            : "Expand Pulse market details."
-        }
-        className={`grid w-full text-left transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none md:hidden ${
-          collapsed ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        } rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cope-orange/50`}
-        tabIndex={collapsed ? 0 : -1}
-        aria-hidden={!collapsed}
-      >
-        <div className="overflow-hidden">{compactSummary}</div>
-      </button>
-
-      {/* Full module — always shown on desktop; collapses on mobile only. */}
-      <div
-        className={`grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
-          collapsed ? "grid-rows-[0fr] md:grid-rows-[1fr]" : "grid-rows-[1fr]"
-        }`}
-      >
-        <div className="overflow-hidden">
       <section className="overflow-hidden rounded-xl border border-cope-orange/30 bg-surface dark:border-cope-orange/20">
         <div className="px-3.5 py-2.5 md:py-3">
           {/* Top row: LIVE + pair + round # / status badge */}
@@ -631,8 +550,6 @@ export function PulseRoomHeader({
           {stakeControls}
         </div>
       </section>
-        </div>
-      </div>
     </div>
   );
 }
