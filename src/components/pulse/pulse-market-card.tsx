@@ -9,6 +9,7 @@ import {
   pulseRoundStateLabel,
   pulseWinningSideLabel,
 } from "@/lib/pulse/display";
+import { formatPulseSeedCreditsLabel } from "@/lib/pulse/pool";
 import type { PulseStatusResponse } from "./use-pulse-room";
 
 const POLL_INTERVAL_MS = 3000;
@@ -69,6 +70,7 @@ export function PulseMarketCard({
   const { engine, round, livePrice, derived } = status;
   const believePct = round?.believePercent ?? 50;
   const copePct = round?.copePercent ?? 50;
+  const seedLabel = round ? formatPulseSeedCreditsLabel(round.seedCredits) : null;
   const isOpen = derived.isOpen;
   const winner = derived.currentlyWinningSide;
 
@@ -147,6 +149,9 @@ export function PulseMarketCard({
               {" · "}
               {(round?.totalPool ?? 0).toLocaleString()} credits in pool
             </p>
+            {seedLabel ? (
+              <p className="mt-0.5 text-[11px] text-zinc-500">{seedLabel}</p>
+            ) : null}
           </div>
         </div>
       </Link>

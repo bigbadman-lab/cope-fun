@@ -13,6 +13,7 @@ import type {
   PulseRoundStatus,
   PulseWinningSide,
 } from "@/lib/pulse/types";
+import { PULSE_CYCLE_SEED_CREDITS } from "@/lib/pulse/constants";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 type PulseEngineDbRow = {
@@ -48,6 +49,7 @@ type PulseRoundDbRow = {
   winning_side: PulseWinningSide | null;
   believe_pool: number;
   cope_pool: number;
+  seed_credits: number;
   created_at: string;
   updated_at: string;
 };
@@ -153,6 +155,7 @@ const PULSE_ROUND_SELECT = `
   winning_side,
   believe_pool,
   cope_pool,
+  seed_credits,
   created_at,
   updated_at
 `;
@@ -216,6 +219,7 @@ function toPulseRoundRow(row: PulseRoundDbRow): PulseRoundRow {
     winningSide: row.winning_side,
     believePool: row.believe_pool,
     copePool: row.cope_pool,
+    seedCredits: row.seed_credits ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -571,6 +575,7 @@ export async function createPendingPulseRound(
       engine_id: input.engineId,
       round_number: input.roundNumber,
       status: "pending",
+      seed_credits: PULSE_CYCLE_SEED_CREDITS,
     })
     .select(PULSE_ROUND_SELECT)
     .single();

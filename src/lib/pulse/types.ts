@@ -61,6 +61,7 @@ export type PulseRoundRow = {
   winningSide: PulseWinningSide | null;
   believePool: number;
   copePool: number;
+  seedCredits: number;
   createdAt: string;
   updatedAt: string;
 };

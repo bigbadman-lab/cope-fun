@@ -57,6 +57,20 @@ export {
 } from "@/lib/pulse/duration";
 
 export {
+  PULSE_BELIEF_ROOM_ID,
+  PULSE_CYCLE_SEED_CREDITS,
+  PULSE_CHAT_MIN_BODY_LENGTH,
+  PULSE_CHAT_MAX_BODY_LENGTH,
+  isPulseBeliefRoomId,
+} from "@/lib/pulse/constants";
+
+export {
+  computePulseRewardPool,
+  computePulseUserStakedCredits,
+  formatPulseSeedCreditsLabel,
+} from "@/lib/pulse/pool";
+
+export {
   advancePulseEngine,
   type AdvancePulseEngineInput,
   type AdvancePulseEngineResult,

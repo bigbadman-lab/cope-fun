@@ -33,6 +33,7 @@ export type PulseStatusRound = {
   winningSide: PulseWinningSide | null;
   believePool: number;
   copePool: number;
+  seedCredits: number;
   totalPool: number;
   believePercent: number;
   copePercent: number;

@@ -13,6 +13,7 @@ import {
   formatPulseRoundDurationLabel,
   type PulseRoundDurationSeconds,
 } from "@/lib/pulse/duration";
+import { computePulseRewardPool } from "@/lib/pulse/pool";
 
 import { PULSE_BELIEF_ROOM_ID } from "@/lib/pulse/constants";
 
@@ -686,6 +687,24 @@ export function AdminPulseControlPanel({
             <StatusRow label="winning side" value={formatValue(round?.winningSide)} />
             <StatusRow label="believe pool" value={formatValue(round?.believePool)} />
             <StatusRow label="cope pool" value={formatValue(round?.copePool)} />
+            <StatusRow
+              label="seed credits"
+              value={formatValue(round?.seedCredits)}
+            />
+            <StatusRow
+              label="reward pool"
+              value={
+                round
+                  ? formatValue(
+                      computePulseRewardPool({
+                        seedCredits: round.seedCredits,
+                        believePool: round.believePool,
+                        copePool: round.copePool,
+                      }),
+                    )
+                  : "—"
+              }
+            />
           </dl>
         )}
       </div>

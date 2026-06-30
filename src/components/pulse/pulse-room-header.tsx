@@ -19,6 +19,7 @@ import {
   type PulseUserPosition,
   type PulseWinningSide,
 } from "./use-pulse-room";
+import { formatPulseSeedCreditsLabel } from "@/lib/pulse/pool";
 
 type PulseRoomHeaderProps = {
   beliefRoomId: string;
@@ -121,6 +122,7 @@ export function PulseRoomHeader({
   }
 
   const { engine, round, livePrice, derived, automation } = status;
+  const seedLabel = round ? formatPulseSeedCreditsLabel(round.seedCredits) : null;
   const {
     authenticated,
     login,
@@ -591,6 +593,9 @@ export function PulseRoomHeader({
               {formatPulseCredits(round?.copePool)} cope ·{" "}
               {formatPulseCredits(round?.totalPool)} pool
             </p>
+            {seedLabel ? (
+              <p className="mt-0.5 text-[10px] text-zinc-500">{seedLabel}</p>
+            ) : null}
           </div>
 
           {/* Your position */}

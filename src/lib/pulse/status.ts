@@ -18,6 +18,7 @@ import type {
   PulseRoundStatus,
   PulseWinningSide,
 } from "@/lib/pulse/types";
+import { computePulseRewardPool } from "@/lib/pulse/pool";
 import { isPulseRunnerEnabled } from "@/lib/pulse/runner";
 
 export type PulseAdminStatus = {
@@ -47,6 +48,7 @@ export type PulsePublicRoundView = {
   winningSide: PulseWinningSide | null;
   believePool: number;
   copePool: number;
+  seedCredits: number;
   totalPool: number;
   believePercent: number;
   copePercent: number;
@@ -139,7 +141,12 @@ function toPublicEngineView(engine: PulseEngineRow): PulsePublicEngineView {
 }
 
 function toPublicRoundView(round: PulseRoundRow): PulsePublicRoundView {
-  const totalPool = round.believePool + round.copePool;
+  const userStakedTotal = round.believePool + round.copePool;
+  const totalPool = computePulseRewardPool({
+    seedCredits: round.seedCredits,
+    believePool: round.believePool,
+    copePool: round.copePool,
+  });
 
   return {
     id: round.id,
@@ -154,9 +161,10 @@ function toPublicRoundView(round: PulseRoundRow): PulsePublicRoundView {
     winningSide: round.winningSide,
     believePool: round.believePool,
     copePool: round.copePool,
+    seedCredits: round.seedCredits,
     totalPool,
-    believePercent: poolPercent(round.believePool, totalPool),
-    copePercent: poolPercent(round.copePool, totalPool),
+    believePercent: poolPercent(round.believePool, userStakedTotal),
+    copePercent: poolPercent(round.copePool, userStakedTotal),
   };
 }
 
