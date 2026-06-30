@@ -2,6 +2,7 @@ import "server-only";
 import { formatAppUserLabel } from "@/lib/auth/display-label";
 import { LEADERBOARD_MIN_MARKETS_ENTERED } from "@/lib/leaderboard/eligibility";
 import { LEADERBOARD_RANK_ORDER } from "@/lib/leaderboard/ranking";
+import { resolveAvatarPublicUrl } from "@/lib/profile/avatar-upload";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { LeaderboardEntry } from "@/lib/markets/types";
 
@@ -20,11 +21,17 @@ type LeaderboardRow = {
     display_name: string | null;
     wallet_address: string | null;
     email: string | null;
+    avatar_color: string | null;
+    avatar_url: string | null;
+    avatar_updated_at: string | null;
   } | Array<{
     id: string;
     display_name: string | null;
     wallet_address: string | null;
     email: string | null;
+    avatar_color: string | null;
+    avatar_url: string | null;
+    avatar_updated_at: string | null;
   }>;
 };
 
@@ -53,7 +60,10 @@ export async function getLeaderboardEntries(): Promise<LeaderboardEntry[]> {
         id,
         display_name,
         wallet_address,
-        email
+        email,
+        avatar_color,
+        avatar_url,
+        avatar_updated_at
       )
     `,
     )
@@ -83,6 +93,9 @@ export async function getLeaderboardEntries(): Promise<LeaderboardEntry[]> {
         walletAddress: user.wallet_address,
         email: user.email,
       }),
+      avatarColor: user.avatar_color,
+      avatarPublicUrl: resolveAvatarPublicUrl(user.avatar_url),
+      avatarUpdatedAt: user.avatar_updated_at,
       seasonPoints: normalizeSeasonPoints(row.season_points),
       balanceCredits: row.balance_credits,
       totalWonCredits: row.total_won_credits,

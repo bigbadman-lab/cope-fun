@@ -59,6 +59,9 @@ export type LeaderboardEntry = {
   rank: number;
   userId: string;
   label: string;
+  avatarColor: string | null;
+  avatarPublicUrl: string | null;
+  avatarUpdatedAt: string | null;
   seasonPoints: number;
   balanceCredits: number;
   totalWonCredits: number;

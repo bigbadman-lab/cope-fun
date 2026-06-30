@@ -2,6 +2,7 @@ import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
 import { LeaderboardQualificationHint } from "./leaderboard-qualification-hint";
 import { SeasonExplainer } from "./season-explainer";
+import { UserAccountAvatar } from "./user-account-avatar";
 import {
   getLeaderboardEmptySubtext,
   LEADERBOARD_EMPTY_TITLE,
@@ -30,17 +31,20 @@ function TopBadge({ rank }: { rank: number }) {
 }
 
 function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
-  const initials = entry.label.replace("User ", "").slice(0, 2).toUpperCase();
-
   return (
     <div className="border-b border-zinc-200/60 last:border-b-0 dark:border-white/[0.06]">
       <div className="group -mx-2 flex items-start gap-3 rounded-xl px-2 py-3.5 sm:py-4">
         <div className="w-6 shrink-0 pt-1 text-center text-xs font-medium tabular-nums text-zinc-500">
           #{entry.rank}
         </div>
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-zinc-200/80 bg-surface text-xs font-semibold text-zinc-600 dark:border-white/[0.08] dark:bg-surface/70 dark:text-zinc-300">
-          {initials}
-        </div>
+        <UserAccountAvatar
+          label={entry.label}
+          avatarColor={entry.avatarColor}
+          avatarPublicUrl={entry.avatarPublicUrl}
+          avatarUpdatedAt={entry.avatarUpdatedAt}
+          size="sm"
+          className="pt-0.5"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="min-w-0 text-[15px] font-medium leading-snug text-zinc-900 dark:text-zinc-100">
