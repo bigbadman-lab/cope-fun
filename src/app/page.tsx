@@ -30,16 +30,10 @@ export default async function Home() {
     <>
       <link
         rel="preload"
-        href="/backgrounds/sky1-blur.webp"
-        as="image"
-        type="image/webp"
-        fetchPriority="high"
-      />
-      <link
-        rel="preload"
         href="/backgrounds/sky1.webp"
         as="image"
         type="image/webp"
+        fetchPriority="high"
       />
       <HomePage initialRecentBeliefs={initialRecentBeliefs} />
     </>

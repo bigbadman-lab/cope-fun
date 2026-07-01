@@ -7,7 +7,7 @@ import { ConversationStage } from "./conversation-stage";
 import { USER_DISPLAY_NAME } from "./avatar-placeholder";
 import { ChatMessageRow, type ChatMessage } from "./debate-chat";
 import { HeroMedia } from "./hero-media";
-import { HomepageBackgroundVideo } from "./homepage-background-video";
+import { HomepageBackground } from "./homepage-background";
 import { useSetHomepageFooterInFlow } from "./homepage-footer-context";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
@@ -665,7 +665,7 @@ export function HomePage({
         isConversationLayout ? "relative isolate min-h-dvh" : "relative isolate"
       }
     >
-      <HomepageBackgroundVideo />
+      <HomepageBackground />
       <div
         className={
           isConversationLayout
