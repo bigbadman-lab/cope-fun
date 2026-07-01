@@ -1,51 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAccountAvatar } from "./account-avatar-provider";
 import { useAppAuth } from "@/hooks/use-app-auth";
-import {
-  getLeaderboardUnqualifiedHint,
-  isLeaderboardQualified,
-} from "@/lib/leaderboard/eligibility";
-
-type ProfileMeResponse =
-  | {
-      ok: true;
-      account: { marketsEntered: number };
-    }
-  | { ok: false };
+import { getLeaderboardUnqualifiedHint } from "@/lib/leaderboard/eligibility";
 
 export function LeaderboardQualificationHint() {
-  const { ready, authenticated, authFetch } = useAppAuth();
-  const [unqualified, setUnqualified] = useState<boolean | null>(null);
+  const { ready, authenticated } = useAppAuth();
+  const { dashboard } = useAccountAvatar();
 
-  useEffect(() => {
-    if (!ready || !authenticated) return;
-
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const response = await authFetch("/api/profile/me");
-        const payload = (await response.json()) as ProfileMeResponse;
-
-        if (cancelled || !response.ok || !payload.ok) {
-          return;
-        }
-
-        setUnqualified(!isLeaderboardQualified(payload.account.marketsEntered));
-      } catch {
-        // Ignore — hint is optional UX polish.
-      }
-    }
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ready, authenticated, authFetch]);
-
+  const unqualified = dashboard ? !dashboard.season.isQualified : null;
   const showHint = ready && authenticated && unqualified === true;
 
   if (!showHint) return null;

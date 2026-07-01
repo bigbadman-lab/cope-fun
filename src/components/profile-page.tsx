@@ -37,12 +37,6 @@ import type {
   ProfileUserSummary,
 } from "@/lib/profile/types";
 
-type ProfileResponse =
-  | ({ ok: true } & ProfileDashboard & {
-      disclaimers?: { credits: string };
-    })
-  | { ok: false; error?: string };
-
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-zinc-200/70 bg-background/60 px-3 py-2.5 dark:border-white/[0.06] dark:bg-background/35">
@@ -584,13 +578,15 @@ function ProfileAccountSection({ user }: { user: ProfileUserSummary }) {
   );
 }
 
+type ProfileDashboardViewProps = {
+  dashboard: ProfileDashboard;
+  onUserUpdated: (user: ProfileUserSummary) => void;
+};
+
 function ProfileDashboardView({
   dashboard,
   onUserUpdated,
-}: {
-  dashboard: ProfileDashboard;
-  onUserUpdated: (user: ProfileUserSummary) => void;
-}) {
+}: ProfileDashboardViewProps) {
   return (
     <>
       <SeasonHeroCard dashboard={dashboard} />
@@ -670,71 +666,23 @@ function ProfileDashboardView({
 }
 
 export function ProfilePage() {
-  const { ready, authenticated, login, authFetch } = useAppAuth();
-  const { applyAvatarFromUser } = useAccountAvatar();
+  const { ready, authenticated, login } = useAppAuth();
+  const {
+    dashboard,
+    profileLoading,
+    profileError,
+    refreshProfile,
+    applyAvatarFromUser,
+  } = useAccountAvatar();
   const currentSeason = getCurrentSeason();
-  const [dashboard, setDashboard] = useState<ProfileDashboard | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fetchKey, setFetchKey] = useState(0);
   const walletRetryRef = useRef(false);
 
-  const loadProfile = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await authFetch("/api/profile/me");
-      const payload = (await response.json()) as ProfileResponse;
-
-      if (!response.ok || !payload.ok) {
-        throw new Error(
-          payload.ok === false
-            ? (payload.error ?? "Could not load profile.")
-            : "Could not load profile.",
-        );
-      }
-
-      setDashboard({
-        user: payload.user,
-        season: payload.season,
-        account: payload.account,
-        activePositions: payload.activePositions,
-        activePulsePositions: payload.activePulsePositions ?? [],
-        resolvedPositions: payload.resolvedPositions,
-        createdRooms: payload.createdRooms,
-      });
-      applyAvatarFromUser(payload.user);
-    } catch (err) {
-      setDashboard(null);
-      setError(
-        err instanceof Error ? err.message : "Could not load profile.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [authFetch, applyAvatarFromUser]);
-
-  const handleUserUpdated = useCallback((user: ProfileUserSummary) => {
-    setDashboard((current) => (current ? { ...current, user } : current));
-  }, []);
-
-  useEffect(() => {
-    if (!ready || !authenticated) return;
-
-    let cancelled = false;
-
-    async function run() {
-      await loadProfile();
-      if (cancelled) return;
-    }
-
-    void run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ready, authenticated, loadProfile, fetchKey]);
+  const handleUserUpdated = useCallback(
+    (user: ProfileUserSummary) => {
+      applyAvatarFromUser(user);
+    },
+    [applyAvatarFromUser],
+  );
 
   useEffect(() => {
     if (!dashboard?.user || dashboard.user.walletAddress || walletRetryRef.current) {
@@ -743,17 +691,17 @@ export function ProfilePage() {
 
     walletRetryRef.current = true;
     const timer = window.setTimeout(() => {
-      setFetchKey((value) => value + 1);
+      void refreshProfile();
     }, 4000);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [dashboard?.user]);
+  }, [dashboard?.user, refreshProfile]);
 
   const handleRetry = useCallback(() => {
-    setFetchKey((value) => value + 1);
-  }, []);
+    void refreshProfile();
+  }, [refreshProfile]);
 
   return (
     <InnerPageShell topFade>
@@ -771,10 +719,10 @@ export function ProfilePage() {
           <ProfileLoadingState />
         ) : !authenticated ? (
           <ProfileSignInPrompt onSignIn={() => login()} />
-        ) : loading && !dashboard ? (
+        ) : profileLoading && !dashboard ? (
           <ProfileLoadingState />
-        ) : error ? (
-          <ProfileErrorState message={error} onRetry={handleRetry} />
+        ) : profileError ? (
+          <ProfileErrorState message={profileError} onRetry={handleRetry} />
         ) : dashboard ? (
           <ProfileDashboardView
             dashboard={dashboard}

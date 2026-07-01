@@ -9,7 +9,10 @@ import {
   useState,
 } from "react";
 import { useAppAuth } from "@/hooks/use-app-auth";
-import type { ProfileUserSummary } from "@/lib/profile/types";
+import type {
+  ProfileDashboard,
+  ProfileUserSummary,
+} from "@/lib/profile/types";
 
 export type AccountAvatarState = {
   label: string;
@@ -19,8 +22,18 @@ export type AccountAvatarState = {
   avatarUpdatedAt: string | null;
 };
 
+type ProfileMeResponse =
+  | ({ ok: true } & ProfileDashboard & {
+      disclaimers?: { credits: string };
+    })
+  | { ok: false; error?: string };
+
 type AccountAvatarContextValue = {
   avatar: AccountAvatarState | null;
+  dashboard: ProfileDashboard | null;
+  profileLoading: boolean;
+  profileError: string | null;
+  refreshProfile: () => Promise<void>;
   refreshAvatar: () => Promise<void>;
   applyAvatarFromUser: (user: ProfileUserSummary) => void;
   applyAvatarPatch: (patch: Partial<AccountAvatarState>) => void;
@@ -40,20 +53,28 @@ function toAvatarState(user: ProfileUserSummary): AccountAvatarState {
   };
 }
 
-async function fetchAvatarState(
-  authFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>,
-): Promise<AccountAvatarState | null> {
-  const response = await authFetch("/api/profile/me");
-  const payload = (await response.json()) as {
-    ok?: boolean;
-    user?: ProfileUserSummary;
+function toDashboard(
+  payload: Extract<ProfileMeResponse, { ok: true }>,
+): ProfileDashboard {
+  return {
+    user: payload.user,
+    season: payload.season,
+    account: payload.account,
+    activePositions: payload.activePositions,
+    activePulsePositions: payload.activePulsePositions ?? [],
+    resolvedPositions: payload.resolvedPositions,
+    createdRooms: payload.createdRooms,
   };
+}
 
-  if (response.ok && payload.ok && payload.user) {
-    return toAvatarState(payload.user);
-  }
-
-  return null;
+function fallbackAvatarState(label: string): AccountAvatarState {
+  return {
+    label,
+    avatarColor: null,
+    avatarUrl: null,
+    avatarPublicUrl: null,
+    avatarUpdatedAt: null,
+  };
 }
 
 export function AccountAvatarProvider({
@@ -63,76 +84,109 @@ export function AccountAvatarProvider({
 }) {
   const { ready, authenticated, displayLabel, authFetch } = useAppAuth();
   const [avatar, setAvatar] = useState<AccountAvatarState | null>(null);
+  const [dashboard, setDashboard] = useState<ProfileDashboard | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
-  const refreshAvatar = useCallback(async () => {
+  const refreshProfile = useCallback(async () => {
     if (!authenticated) return;
 
+    setProfileLoading(true);
+    setProfileError(null);
+
     try {
-      const next = await fetchAvatarState(authFetch);
-      if (next) {
-        setAvatar(next);
-      }
-    } catch {
-      if (displayLabel) {
-        setAvatar((current) =>
-          current ?? {
-            label: displayLabel,
-            avatarColor: null,
-            avatarUrl: null,
-            avatarPublicUrl: null,
-            avatarUpdatedAt: null,
-          },
+      const response = await authFetch("/api/profile/me");
+      const payload = (await response.json()) as ProfileMeResponse;
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(
+          payload.ok === false
+            ? (payload.error ?? "Could not load profile.")
+            : "Could not load profile.",
         );
       }
+
+      const nextDashboard = toDashboard(payload);
+      setDashboard(nextDashboard);
+      setAvatar(toAvatarState(payload.user));
+    } catch (error) {
+      setDashboard(null);
+      setProfileError(
+        error instanceof Error ? error.message : "Could not load profile.",
+      );
+
+      if (displayLabel) {
+        setAvatar((current) => current ?? fallbackAvatarState(displayLabel));
+      }
+    } finally {
+      setProfileLoading(false);
     }
   }, [authenticated, authFetch, displayLabel]);
 
   useEffect(() => {
-    if (!ready || !authenticated) return;
+    if (!ready) return;
 
-    let cancelled = false;
+    if (!authenticated) {
+      setAvatar(null);
+      setDashboard(null);
+      setProfileLoading(false);
+      setProfileError(null);
+      return;
+    }
 
-    fetchAvatarState(authFetch)
-      .then((next) => {
-        if (!cancelled && next) {
-          setAvatar(next);
-        }
-      })
-      .catch(() => {
-        if (!cancelled && displayLabel) {
-          setAvatar((current) =>
-            current ?? {
-              label: displayLabel,
-              avatarColor: null,
-              avatarUrl: null,
-              avatarPublicUrl: null,
-              avatarUpdatedAt: null,
-            },
-          );
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ready, authenticated, authFetch, displayLabel]);
+    void refreshProfile();
+  }, [ready, authenticated, refreshProfile]);
 
   const applyAvatarFromUser = useCallback((user: ProfileUserSummary) => {
     setAvatar(toAvatarState(user));
+    setDashboard((current) => (current ? { ...current, user } : current));
   }, []);
 
   const applyAvatarPatch = useCallback((patch: Partial<AccountAvatarState>) => {
     setAvatar((current) => (current ? { ...current, ...patch } : current));
+    setDashboard((current) => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        user: {
+          ...current.user,
+          ...(patch.label !== undefined ? { label: patch.label } : {}),
+          ...(patch.avatarColor !== undefined
+            ? { avatarColor: patch.avatarColor }
+            : {}),
+          ...(patch.avatarUrl !== undefined ? { avatarUrl: patch.avatarUrl } : {}),
+          ...(patch.avatarPublicUrl !== undefined
+            ? { avatarPublicUrl: patch.avatarPublicUrl }
+            : {}),
+          ...(patch.avatarUpdatedAt !== undefined
+            ? { avatarUpdatedAt: patch.avatarUpdatedAt }
+            : {}),
+        },
+      };
+    });
   }, []);
 
   const value = useMemo(
     () => ({
       avatar,
-      refreshAvatar,
+      dashboard,
+      profileLoading,
+      profileError,
+      refreshProfile,
+      refreshAvatar: refreshProfile,
       applyAvatarFromUser,
       applyAvatarPatch,
     }),
-    [avatar, refreshAvatar, applyAvatarFromUser, applyAvatarPatch],
+    [
+      avatar,
+      dashboard,
+      profileLoading,
+      profileError,
+      refreshProfile,
+      applyAvatarFromUser,
+      applyAvatarPatch,
+    ],
   );
 
   return (

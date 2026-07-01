@@ -1,28 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import { BeliefDirectoryRow } from "./belief-directory-row";
+import { BeliefsSearchButton } from "./beliefs-search-button";
 import { InnerPageShell } from "./inner-page-shell";
-import { useGlobalSearch } from "./global-search-provider";
 import type { BeliefDirectoryPage } from "@/lib/db/beliefs-directory";
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20L16.5 16.5" />
-    </svg>
-  );
-}
 
 type BeliefsDirectoryPageProps = BeliefDirectoryPage;
 
@@ -82,8 +62,6 @@ export function BeliefsDirectoryPage({
   totalPages,
   totalCount,
 }: BeliefsDirectoryPageProps) {
-  const { openSearch } = useGlobalSearch();
-
   return (
     <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
@@ -91,14 +69,7 @@ export function BeliefsDirectoryPage({
           Beliefs
         </h1>
 
-        <button
-          type="button"
-          onClick={openSearch}
-          className="mb-5 flex min-h-11 w-full items-center gap-3 rounded-xl border border-zinc-200/80 bg-zinc-900/[0.03] px-4 text-left text-base text-zinc-500 transition-colors active:bg-zinc-900/[0.06] dark:border-white/10 dark:bg-white/[0.03] dark:active:bg-white/[0.06]"
-        >
-          <SearchIcon className="size-[18px] shrink-0" />
-          <span>Search beliefs...</span>
-        </button>
+        <BeliefsSearchButton />
 
         {totalCount === 0 ? (
           <div className="py-16 text-center">
