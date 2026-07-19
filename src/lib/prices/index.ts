@@ -1,7 +1,7 @@
 import "server-only";
 
 /**
- * Server-only entrypoint for the standalone Cope Price Service.
+ * Server-only entrypoint for the standalone Hoodswarm Price Service.
  * Pulse Engine, admin tooling, and internal APIs should import from here.
  */
 export { getLatestCachedSolUsdPrice, startPriceWebSocketService } from "@/lib/prices/service";

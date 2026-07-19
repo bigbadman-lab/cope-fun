@@ -149,11 +149,11 @@ export function TopNav({ onLogoClick }: TopNavProps) {
             className="justify-self-start rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
             <Image
-              src="/logotext3.png"
-              alt="cope"
-              width={313}
-              height={94}
-              className="h-7 w-auto sm:h-8"
+              src="/hoodlogo2.png"
+              alt="Hoodswarm"
+              width={522}
+              height={178}
+              className="h-9 w-auto sm:h-10"
               priority
             />
           </Link>

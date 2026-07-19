@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useCallback } from "react";
 import { formatAppUserLabel } from "@/lib/auth/display-label";
 import {
-  extractSolanaRewardsWallet,
+  extractEvmRewardsWallet,
   type RewardsWalletSource,
 } from "@/lib/auth/rewards-wallet";
 
@@ -12,7 +12,7 @@ export function useAppAuth() {
   const { ready, authenticated, user, login, logout, getAccessToken } =
     usePrivy();
 
-  const rewardsWallet = user ? extractSolanaRewardsWallet(user) : null;
+  const rewardsWallet = user ? extractEvmRewardsWallet(user) : null;
   const walletAddress = rewardsWallet?.address ?? null;
   const rewardsWalletSource: RewardsWalletSource | null =
     rewardsWallet?.source ?? null;

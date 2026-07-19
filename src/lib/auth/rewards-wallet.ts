@@ -1,5 +1,5 @@
 /**
- * Solana rewards wallet selection for Privy users.
+ * EVM rewards wallet selection for Privy users.
  * Shared by client hooks and server auth sync — keep free of server-only imports.
  */
 
@@ -26,16 +26,25 @@ type PrivyUserLike = {
   linkedAccounts?: WalletLikeAccount[] | null;
 };
 
-const BASE58_RE = /^[1-9A-HJ-NP-Za-km-z]+$/;
+const EVM_ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 const EMBEDDED_WALLET_CLIENT_TYPES = new Set(["privy", "privy-v2"]);
 
-/** Base58 Solana address heuristic — Privy should set chainType, but we guard anyway. */
-export function isLikelySolanaAddress(address: string): boolean {
+/** 20-byte 0x-prefixed EVM address check — Privy should set chainType, but we guard anyway. */
+export function isLikelyEvmAddress(address: string): boolean {
+  return EVM_ADDRESS_RE.test(address.trim());
+}
+
+/**
+ * Canonical persisted form: trimmed and lowercased.
+ * EVM addresses are case-insensitive for identity; lowercasing keeps
+ * database comparisons consistent. Returns null for invalid addresses.
+ */
+export function normalizeEvmAddress(address: string | null | undefined): string | null {
+  if (typeof address !== "string") return null;
   const trimmed = address.trim();
-  if (!trimmed || trimmed.startsWith("0x")) return false;
-  if (trimmed.length < 32 || trimmed.length > 44) return false;
-  return BASE58_RE.test(trimmed);
+  if (!EVM_ADDRESS_RE.test(trimmed)) return null;
+  return trimmed.toLowerCase();
 }
 
 function readChainType(account: WalletLikeAccount): string | null {
@@ -59,17 +68,17 @@ export function isEmbeddedPrivyWallet(account: WalletLikeAccount): boolean {
   return readConnectorType(account) === "embedded";
 }
 
-function isSolanaWalletAccount(account: WalletLikeAccount): boolean {
+function isEvmWalletAccount(account: WalletLikeAccount): boolean {
   if (typeof account.address !== "string" || !account.address.trim()) {
     return false;
   }
 
   const chainType = readChainType(account);
-  if (chainType === "solana") return true;
-  if (chainType === "ethereum") return false;
+  if (chainType === "ethereum") return true;
+  if (chainType === "solana") return false;
 
   // Fallback when Privy omits chain metadata on older linked accounts.
-  return isLikelySolanaAddress(account.address);
+  return isLikelyEvmAddress(account.address);
 }
 
 function collectWalletAccounts(user: PrivyUserLike): WalletLikeAccount[] {
@@ -92,39 +101,41 @@ function pickRewardsWallet(
   accounts: WalletLikeAccount[],
   preferEmbedded: boolean,
 ): RewardsWalletInfo {
-  const solanaWallets = accounts.filter(isSolanaWalletAccount);
-  if (solanaWallets.length === 0) {
+  const evmWallets = accounts.filter(isEvmWalletAccount);
+  if (evmWallets.length === 0) {
     return { address: null, source: null };
   }
 
-  const external = solanaWallets.filter((account) => !isEmbeddedPrivyWallet(account));
-  const embedded = solanaWallets.filter((account) => isEmbeddedPrivyWallet(account));
+  const external = evmWallets.filter((account) => !isEmbeddedPrivyWallet(account));
+  const embedded = evmWallets.filter((account) => isEmbeddedPrivyWallet(account));
 
   const primaryPool = preferEmbedded
     ? [...embedded, ...external]
     : [...external, ...embedded];
 
   const selected = primaryPool[0];
-  if (!selected?.address) {
+  const normalized = normalizeEvmAddress(selected?.address);
+  if (!selected || !normalized) {
     return { address: null, source: null };
   }
 
   if (isEmbeddedPrivyWallet(selected)) {
-    return { address: selected.address, source: "embedded" };
+    return { address: normalized, source: "embedded" };
   }
 
   if (external.length > 0) {
-    return { address: selected.address, source: "connected" };
+    return { address: normalized, source: "connected" };
   }
 
-  return { address: selected.address, source: "unknown" };
+  return { address: normalized, source: "unknown" };
 }
 
 /**
- * Select the user's Solana rewards wallet.
- * Priority: external Solana wallet, then Privy embedded Solana wallet.
+ * Select the user's EVM rewards wallet.
+ * Priority: external (connected) EVM wallet, then Privy embedded EVM wallet.
+ * The returned address is normalized (trimmed, lowercased).
  */
-export function extractSolanaRewardsWallet(user: PrivyUserLike): RewardsWalletInfo {
+export function extractEvmRewardsWallet(user: PrivyUserLike): RewardsWalletInfo {
   const accounts = collectWalletAccounts(user);
   return pickRewardsWallet(accounts, false);
 }
@@ -136,7 +147,7 @@ export function rewardsWalletSourceLabel(
     case "connected":
       return "Connected wallet";
     case "embedded":
-      return "Cope wallet";
+      return "Hoodswarm wallet";
     default:
       return "Unknown";
   }

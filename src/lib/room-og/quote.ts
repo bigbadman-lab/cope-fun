@@ -1,8 +1,8 @@
 import type { ChatMessage } from "@/components/debate-chat";
 
-const ENGINE_AUTHOR = "Cope Engine";
+const ENGINE_AUTHOR = "Swarm Engine";
 const GROUP_FORMATION_TEXT =
-  "Cope Engine added Mason, Victor, Logan and Theo";
+  "Swarm Engine added Mason, Victor, Logan and Theo";
 
 const ALLOWED_AGENT_AUTHORS = new Set(["Mason", "Victor", "Logan", "Theo"]);
 

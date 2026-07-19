@@ -48,7 +48,7 @@ export function PinnedBelief({
           {text}
         </p>
         <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
-          Being stress-tested by the Cope Engine
+          Being stress-tested by the Swarm Engine
         </p>
 
         {showAttention && (

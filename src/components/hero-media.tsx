@@ -6,10 +6,10 @@ export function HeroMedia() {
   return (
     <div className={MEDIA_WRAPPER_CLASS}>
       <Image
-        src="/copemainlight.png"
+        src="/hoodhome.png"
         alt=""
-        width={150}
-        height={75}
+        width={1485}
+        height={1485}
         className="h-full w-full object-contain"
         priority
       />

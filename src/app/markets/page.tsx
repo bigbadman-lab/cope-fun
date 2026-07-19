@@ -9,8 +9,8 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Markets",
   description:
-    "Season conviction markets on Cope. Stake COPE Credits on Believe or Cope and compete on the leaderboard.",
-  openGraphTitle: "Cope Markets",
+    "Season conviction markets on Hoodswarm. Stake Swarm Credits on Believe or Cope and compete on the leaderboard.",
+  openGraphTitle: "Hoodswarm Markets",
   path: "/markets",
 });
 

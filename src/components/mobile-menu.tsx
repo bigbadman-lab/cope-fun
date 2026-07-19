@@ -10,7 +10,7 @@ import { navIconButtonClass } from "./theme-toggle";
 const PRIMARY_LINKS = [
   { href: "/agents", label: "Agents" },
   { href: "/how-markets-work", label: "Markets" },
-  { href: "/cope", label: "$COPE" },
+  { href: "/swarm", label: "$SWARM" },
 ] as const;
 
 const SECONDARY_LINKS = [
@@ -226,10 +226,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           ))}
           <li>
             <a
-              href="https://x.com/copefun"
+              href="https://x.com/HoodSwarmApp"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Cope on X"
+              aria-label="Hoodswarm on X"
               className="flex min-h-11 w-full items-center rounded-xl px-3 text-zinc-500 transition-colors hover:text-zinc-800 active:bg-zinc-950/[0.05] dark:text-zinc-500 dark:hover:text-zinc-300 dark:active:bg-white/[0.05]"
               onClick={onClose}
             >
@@ -245,10 +245,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
           >
             <Image
-              src="/logotext3.png"
-              alt="cope"
-              width={313}
-              height={94}
+              src="/hoodlogo2.png"
+              alt="Hoodswarm"
+              width={522}
+              height={178}
               className="h-8 w-auto"
             />
           </Link>

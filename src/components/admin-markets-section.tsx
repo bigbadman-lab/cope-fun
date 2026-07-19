@@ -304,7 +304,7 @@ function MarketEditForm({ market }: { market: AdminMarketRow }) {
           </div>
           <div>
             <label className="text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500">
-              Treasury Conviction ($COPE)
+              Treasury Conviction ($SWARM)
             </label>
             <input
               type="number"
@@ -361,7 +361,7 @@ function MarketEditForm({ market }: { market: AdminMarketRow }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex min-h-7 items-center rounded-lg bg-cope-orange px-2.5 text-[11px] font-medium text-white disabled:opacity-60"
+          className="inline-flex min-h-7 items-center rounded-lg bg-cope-orange px-2.5 text-[11px] font-medium text-zinc-950 disabled:opacity-60"
         >
           {isSubmitting ? "Saving…" : "Save changes"}
         </button>
@@ -384,7 +384,7 @@ function MarketPools({ market }: { market: AdminMarketRow }) {
       {market.copePool.toLocaleString()} · {market.participantCount}{" "}
       {market.participantCount === 1 ? "participant" : "participants"}
       {market.treasuryConvictionCope > 0
-        ? ` · Treasury ${formatWholeAmount(market.treasuryConvictionCope)} $COPE`
+        ? ` · Treasury ${formatWholeAmount(market.treasuryConvictionCope)} $SWARM`
         : ""}
     </p>
   );
@@ -522,7 +522,7 @@ function CreateMarketForm({
       </div>
       <div>
         <label className="text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500">
-          Treasury Conviction ($COPE)
+          Treasury Conviction ($SWARM)
         </label>
         <input
           type="number"
@@ -535,7 +535,7 @@ function CreateMarketForm({
           className="mt-1 w-full rounded-lg border border-zinc-200/80 bg-background px-3 py-2 text-sm dark:border-white/10"
         />
         <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
-          Display-only MVP field. Does not affect COPE Credit settlement.
+          Display-only field. Does not affect Swarm Credit settlement.
         </p>
       </div>
       {error ? <p className="text-xs text-rose-500">{error}</p> : null}
@@ -543,7 +543,7 @@ function CreateMarketForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex min-h-9 items-center rounded-lg bg-cope-orange px-3 text-xs font-medium text-white disabled:opacity-60"
+          className="inline-flex min-h-9 items-center rounded-lg bg-cope-orange px-3 text-xs font-medium text-zinc-950 disabled:opacity-60"
         >
           {isSubmitting ? "Creating…" : "Create draft"}
         </button>

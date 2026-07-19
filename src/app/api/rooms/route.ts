@@ -4,7 +4,7 @@ import { tryGetAppUserFromRequest } from "@/lib/auth/app-user";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 const USER_DISPLAY_NAME = "You";
-const ENGINE_AUTHOR = "Cope Engine";
+const ENGINE_AUTHOR = "Swarm Engine";
 const ALLOWED_AGENT_AUTHORS = new Set(["Mason", "Victor", "Logan", "Theo"]);
 const MAX_BELIEF_LENGTH = 500;
 const MAX_MESSAGE_COUNT = 20;

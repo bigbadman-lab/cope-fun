@@ -5,7 +5,7 @@ import {
   fetchPrivyUser,
   isPrivyConfigured,
 } from "@/lib/auth/privy";
-import { isLikelySolanaAddress } from "@/lib/auth/rewards-wallet";
+import { isLikelyEvmAddress } from "@/lib/auth/rewards-wallet";
 import type { RewardsWalletSource } from "@/lib/auth/rewards-wallet";
 import { LEADERBOARD_MIN_MARKETS_ENTERED } from "@/lib/leaderboard/eligibility";
 import { LEADERBOARD_RANK_ORDER } from "@/lib/leaderboard/ranking";
@@ -99,7 +99,7 @@ function normalizeSeasonPoints(value: number | null | undefined): number {
 function hasRewardsWalletAddress(
   walletAddress: string | null | undefined,
 ): walletAddress is string {
-  return typeof walletAddress === "string" && isLikelySolanaAddress(walletAddress);
+  return typeof walletAddress === "string" && isLikelyEvmAddress(walletAddress);
 }
 
 async function resolveRewardsWalletSource(

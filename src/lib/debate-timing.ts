@@ -1,7 +1,7 @@
 type Range = readonly [number, number];
 
 const TYPING_RANGES: Record<string, Range> = {
-  "Cope Engine": [700, 950],
+  "Swarm Engine": [700, 950],
   Mason: [1500, 2100],
   Victor: [2100, 3000],
   Logan: [1400, 2000],

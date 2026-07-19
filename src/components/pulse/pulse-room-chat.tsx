@@ -330,7 +330,7 @@ export function PulseRoomChat({ beliefRoomId }: PulseRoomChatProps) {
             <button
               type="button"
               onClick={() => login()}
-              className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-white"
+              className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-zinc-950"
             >
               Sign in
             </button>

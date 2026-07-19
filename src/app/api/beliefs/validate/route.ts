@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       normalizedBelief: originalBelief.trim(),
       reason: "error",
       issues: ["Validation failed."],
-      message: "The Cope Engine couldn’t test that input. Try again.",
+      message: "The Swarm Engine couldn’t test that input. Try again.",
       isDebatable: false,
       isMarketReadyCandidate: false,
     };

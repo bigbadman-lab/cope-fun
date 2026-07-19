@@ -41,10 +41,10 @@ export const SEASON_QUALIFICATION_COPY =
   "You enter the leaderboard after joining your first Season market.";
 
 export const SEASON_SNAPSHOT_COPY =
-  "At the end of each season, Cope takes a final leaderboard snapshot.";
+  "At the end of each season, Hoodswarm takes a final leaderboard snapshot.";
 
 export const SEASON_REWARDS_COPY =
-  "Eligible rewards, if any, are reviewed after the season snapshot. Automatic $COPE payout is not live at MVP launch.";
+  "Eligible rewards, if any, are reviewed after the season snapshot. Automatic $SWARM payouts are not live yet.";
 
 export const SEASON_LEADERBOARD_RANKING_COPY =
   "Ranked by season points earned from winning settled markets during the active season.";
@@ -55,13 +55,13 @@ export const SEASON_LEADERBOARD_QUALIFICATION_COPY =
 export const SEASON_POINTS_LABEL = "season points";
 
 export const SEASON_WALLET_SIGNUP_COPY =
-  "When you sign up, Cope creates or assigns a Solana rewards wallet for your account. This wallet is used for future $COPE rewards you qualify for. Automatic payout is not live at MVP launch. COPE Credits remain internal gameplay credits and are not $COPE.";
+  "When you sign up, Hoodswarm creates or assigns a rewards wallet for your account. This wallet is used for future $SWARM rewards you qualify for. Automatic payouts are not live yet. Swarm Credits remain internal gameplay credits and are not $SWARM.";
 
 export const SEASON_WALLET_PROFILE_COPY =
-  "This wallet is used for future $COPE rewards you qualify for. Automatic payout is not live at MVP launch. COPE Credits are internal and are not $COPE.";
+  "This wallet is used for future $SWARM rewards you qualify for. Automatic payouts are not live yet. Swarm Credits are internal and are not $SWARM.";
 
 export const REWARDS_WALLET_UNAVAILABLE_COPY =
-  "Your rewards wallet is still being prepared. Sign out and back in, or connect a Solana wallet if this does not update.";
+  "Your rewards wallet is still being prepared. Sign out and back in, or connect a wallet if this does not update.";
 
 /** @deprecated Use SEASON_WALLET_SIGNUP_COPY — kept for import stability. */
 export const REWARDS_WALLET_SIGNUP_COPY = SEASON_WALLET_SIGNUP_COPY;
@@ -75,8 +75,8 @@ export const SEASON_ELIGIBILITY_NOTE =
 export const SEASON_FAQ_BULLETS = [
   "Join Season markets to compete during the active season.",
   "Climb the leaderboard with season points from winning settled markets.",
-  "Cope takes a final snapshot when the season closes.",
-  "Final $COPE rewards, if any, are reviewed after the snapshot — not auto-distributed at MVP launch.",
+  "Hoodswarm takes a final snapshot when the season closes.",
+  "Final $SWARM rewards, if any, are reviewed after the snapshot — not auto-distributed.",
 ] as const;
 
 export function getSeasonStatus(
@@ -190,5 +190,5 @@ export function formatWalletAddress(address: string): string {
 export function getCopeCreditsDisclaimer(
   season: Season = getCurrentSeason(),
 ): string {
-  return `COPE Credits are gameplay credits for ${season.name}. They are not $COPE, not real money, not transferable, and not withdrawable.`;
+  return `Swarm Credits are gameplay credits for ${season.name}. They are not $SWARM, not real money, not transferable, and not withdrawable.`;
 }

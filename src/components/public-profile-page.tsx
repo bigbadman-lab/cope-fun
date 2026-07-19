@@ -132,7 +132,7 @@ function ProfileContent({ profile }: { profile: MockProfile }) {
             value={profile.seasonPoints.toLocaleString()}
           />
           <StatCard
-            label="COPE Credits"
+            label="Swarm Credits"
             value={profile.copeCredits.toLocaleString()}
           />
           <StatCard label="Win Rate" value={`${profile.winRate}%`} />

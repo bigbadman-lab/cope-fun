@@ -6,7 +6,7 @@ import type { BeliefValidationResult, DebateGenerationResult } from "./types";
 
 const REQUIRED_AGENT_NAMES = ["Mason", "Victor", "Logan", "Theo"] as const;
 const ALLOWED_AUTHORS = new Set([
-  "Cope Engine",
+  "Swarm Engine",
   ...REQUIRED_AGENT_NAMES,
 ] as const);
 const MAX_TURN_LENGTH = 220;
@@ -110,7 +110,7 @@ function normalizeTurns(payload: ModelDebatePayload): ChatMessage[] | null {
     });
   }
 
-  if (messages[0]?.author !== "Cope Engine") return null;
+  if (messages[0]?.author !== "Swarm Engine") return null;
 
   const authorOrder = messages.map((message) => message.author);
   const requiredAgentsPresent = REQUIRED_AGENT_NAMES.every((agent) =>

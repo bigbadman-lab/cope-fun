@@ -87,7 +87,7 @@ const MOCK_PROFILES: MockProfile[] = [
     ],
   },
   {
-    username: "CopeMaxi",
+    username: "SwarmMaxi",
     initials: "CM",
     bio: "High conviction, low patience, always checking the pool split.",
     seasonRank: 2,

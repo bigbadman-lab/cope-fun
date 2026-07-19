@@ -27,16 +27,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Optional: set NEXT_PUBLIC_SITE_URL locally and in production (e.g. https://cope.fun).
+// Optional: set NEXT_PUBLIC_SITE_URL locally and in production.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "cope.fun",
-    template: "%s | Cope",
+    default: "Hoodswarm",
+    template: "%s | Hoodswarm",
   },
   description: DEFAULT_SITE_DESCRIPTION,
   openGraph: {
-    siteName: "Cope",
+    siteName: "Hoodswarm",
     type: "website",
     images: [
       {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@copefun",
+    site: "@HoodSwarmApp",
     images: [DEFAULT_OG_IMAGE_URL],
   },
 };

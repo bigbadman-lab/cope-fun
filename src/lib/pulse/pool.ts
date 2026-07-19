@@ -25,5 +25,5 @@ export function formatPulseSeedCreditsLabel(seedCredits: number): string | null 
     return null;
   }
 
-  return `Includes ${seedCredits.toLocaleString()} COPE Credits Cope Seed.`;
+  return `Includes ${seedCredits.toLocaleString()} Swarm Credits Swarm Seed.`;
 }

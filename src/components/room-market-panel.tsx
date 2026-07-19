@@ -267,12 +267,12 @@ export function RoomMarketPanel({
       {stakingAllowed && !market.userPosition && !authenticated ? (
         <div className="mt-4 space-y-3 border-t border-zinc-200/60 pt-4 dark:border-white/[0.06]">
           <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Sign in to receive COPE Credits and enter this market.
+            Sign in to receive Swarm Credits and enter this market.
           </p>
           <button
             type="button"
             onClick={() => login()}
-            className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-white"
+            className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-zinc-950"
           >
             Sign in
           </button>
@@ -282,13 +282,13 @@ export function RoomMarketPanel({
       {stakingAllowed && authenticated && !market.userPosition ? (
         <div className="mt-4 space-y-3 border-t border-zinc-200/60 pt-4 dark:border-white/[0.06]">
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            Stake COPE Credits before the market closes.
+            Stake Swarm Credits before the market closes.
           </p>
 
           <p className="text-xs text-zinc-500">
             {isLoadingAccount
               ? "Loading balance…"
-              : `Available: ${(account?.balanceCredits ?? 0).toLocaleString()} COPE Credits`}
+              : `Available: ${(account?.balanceCredits ?? 0).toLocaleString()} Swarm Credits`}
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -340,7 +340,7 @@ export function RoomMarketPanel({
             type="button"
             disabled={isStaking || isLoadingAccount}
             onClick={() => void handleStake()}
-            className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-medium text-zinc-950 disabled:opacity-60"
           >
             {isStaking ? "Staking…" : `Stake ${selectedStake} credits`}
           </button>

@@ -2,9 +2,9 @@ import type { AgentProfile } from "@/lib/agent-profiles";
 import type { ChatMessage } from "@/components/debate-chat";
 import type { BeliefValidationResult } from "./types";
 
-export const BELIEF_VALIDATION_SYSTEM_PROMPT = `You are the Cope Engine belief validator.
+export const BELIEF_VALIDATION_SYSTEM_PROMPT = `You are the Swarm Engine belief validator.
 
-Decide whether a user input is suitable for Cope.fun.
+Decide whether a user input is suitable for Hoodswarm.
 
 A suitable belief is:
 - A clear claim, prediction, opinion, or conviction
@@ -30,19 +30,19 @@ Return only JSON matching this shape:
 Use null for optional fields when there is no value. Do not output undefined.
 
 Use short, on-brand messages.
-Default invalid message: "The Cope Engine can’t test that belief. Try a clearer claim, prediction, or conviction."
-Unsafe message: "The Cope Engine can’t help with that one. Try a belief that can be debated safely."
+Default invalid message: "The Swarm Engine can’t test that belief. Try a clearer claim, prediction, or conviction."
+Unsafe message: "The Swarm Engine can’t help with that one. Try a belief that can be debated safely."
 Too vague message: "That belief is too vague to pressure-test. Try making a sharper claim."
 
 Do not over-accept commands, requests, factual lookup questions, or low-information fragments.`;
 
 export function buildBeliefValidationPrompt(belief: string): string {
-  return `Validate this Cope.fun belief:\n\n${belief}`;
+  return `Validate this Hoodswarm belief:\n\n${belief}`;
 }
 
-export const OPENING_DEBATE_SYSTEM_PROMPT = `You are the Cope Engine opening debate generator.
+export const OPENING_DEBATE_SYSTEM_PROMPT = `You are the Swarm Engine opening debate generator.
 
-Generate a simulated multi-agent debate for Cope.fun in one structured JSON response.
+Generate a simulated multi-agent debate for Hoodswarm in one structured JSON response.
 
 The debate must:
 - Pressure-test the belief, not simply answer it
@@ -66,17 +66,17 @@ The debate must:
 - Keep each agent turn roughly 180-220 characters max
 
 Required ordered turns:
-1. Cope Engine opening line
+1. Swarm Engine opening line
 2. Mason
 3. Victor
 4. Logan
 5. Theo
-6. Optional short Cope Engine synthesis only if it improves the UX
+6. Optional short Swarm Engine synthesis only if it improves the UX
 
 Return only JSON matching this shape:
 {
   "turns": [
-    { "author": "Cope Engine" | "Mason" | "Victor" | "Logan" | "Theo", "text": string }
+    { "author": "Swarm Engine" | "Mason" | "Victor" | "Logan" | "Theo", "text": string }
   ],
   "summary": string | null,
   "roomTitle": string | null,
@@ -145,7 +145,7 @@ Product rules:
 - topics should contain 2-5 lowercase topic tags.`;
 }
 
-export const FOLLOW_UP_DEBATE_SYSTEM_PROMPT = `You are the Cope Engine generating replies to an Attention Challenge inside an existing Cope Belief Room.
+export const FOLLOW_UP_DEBATE_SYSTEM_PROMPT = `You are the Swarm Engine generating replies to an Attention Challenge inside an existing Hoodswarm Belief Room.
 
 Continue the room. Do not restart the opening debate.
 

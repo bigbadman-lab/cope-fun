@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        // Legacy $COPE token page → canonical $SWARM token page.
+        source: "/cope",
+        destination: "/swarm",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

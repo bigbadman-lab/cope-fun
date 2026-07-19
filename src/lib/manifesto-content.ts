@@ -1,6 +1,6 @@
 import type { ChatMessage } from "@/components/debate-chat";
 
-const ENGINE = "Cope Engine";
+const ENGINE = "Swarm Engine";
 
 export const MANIFESTO_MESSAGES: ChatMessage[] = [
   {
@@ -71,6 +71,6 @@ export const MANIFESTO_MESSAGES: ChatMessage[] = [
   {
     id: "manifesto-14",
     author: ENGINE,
-    text: "Welcome to Cope.fun.",
+    text: "Welcome to Hoodswarm.",
   },
 ];

@@ -264,12 +264,12 @@ export function PulseRoomHeader({
       !authenticated ? (
         <div className="mt-2.5 flex items-center justify-between gap-3 border-t border-zinc-200/60 pt-2.5 dark:border-white/[0.06] md:mt-3 md:pt-3">
           <p className="text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
-            Sign in to stake COPE Credits this round.
+            Sign in to stake Swarm Credits this round.
           </p>
           <button
             type="button"
             onClick={() => login()}
-            className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg bg-cope-orange px-4 text-xs font-semibold text-white"
+            className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg bg-cope-orange px-4 text-xs font-semibold text-zinc-950"
           >
             Sign in
           </button>
@@ -354,7 +354,7 @@ export function PulseRoomHeader({
               type="button"
               disabled={isStaking || !stakeValid || alreadyStakedSelected}
               onClick={() => void handleStake()}
-              className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-semibold text-white disabled:opacity-60"
+              className="inline-flex min-h-9 w-full items-center justify-center rounded-lg bg-cope-orange text-sm font-semibold text-zinc-950 disabled:opacity-60"
             >
               {isStaking
                 ? "Staking…"

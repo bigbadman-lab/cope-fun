@@ -80,7 +80,7 @@ export function ManifestoPage() {
     <InnerPageShell topFade>
       <div className="inner-page-content space-y-4">
         {!started && (
-          <TransmissionStatus>Cope Engine initializing…</TransmissionStatus>
+          <TransmissionStatus>Swarm Engine initializing…</TransmissionStatus>
         )}
 
         {started &&

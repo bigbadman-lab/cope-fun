@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 /**
  * Temporary local follow gating only — NOT a real wallet.
  *
- * Do not use for markets, COPE Credits, staking, leaderboard, or Privy auth.
+ * Do not use for markets, Swarm Credits, staking, leaderboard, or Privy auth.
  * Real wallet identity lives on `app_users.wallet_address` via Privy.
  */
 export type WalletSession = {

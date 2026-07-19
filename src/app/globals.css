@@ -10,10 +10,12 @@
   --surface: #fafafa;
   --surface-elevated: #f4f4f5;
   --accent: #52525b;
-  --cope-orange: #d9773f;
+  /* Hoodswarm brand accent. Light mode uses a darkened derivative of
+     #CCFE02 because the pure value is unreadable on white backgrounds. */
+  --cope-orange: #7a9900;
   --belief-input-focus-shadow:
-    0 0 0 1px rgb(217 119 63 / 0.12),
-    0 0 14px -2px rgb(217 119 63 / 0.1);
+    0 0 0 1px rgb(122 153 0 / 0.14),
+    0 0 14px -2px rgb(122 153 0 / 0.12);
   --nav-height: 3.5rem;
   --footer-height: 3rem;
   --mobile-bottom-nav-height: 4rem;
@@ -47,10 +49,10 @@ html.homepage-debate-active {
   --surface: #0a0a0a;
   --surface-elevated: #141414;
   --accent: #a1a1aa;
-  --cope-orange: #e8854a;
+  --cope-orange: #ccfe02;
   --belief-input-focus-shadow:
-    0 0 0 1px rgb(232 133 74 / 0.1),
-    0 0 14px -2px rgb(232 133 74 / 0.07);
+    0 0 0 1px rgb(204 254 2 / 0.12),
+    0 0 14px -2px rgb(204 254 2 / 0.08);
 }
 
 @supports (height: 100dvh) {

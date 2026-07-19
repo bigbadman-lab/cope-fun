@@ -10,7 +10,9 @@ function resolveSiteUrl(): string {
   const vercelUrl = process.env.VERCEL_URL?.trim();
   if (vercelUrl) return `https://${vercelUrl.replace(/\/+$/, "")}`;
 
-  return "https://cope.fun";
+  // TODO(rebrand): set NEXT_PUBLIC_SITE_URL to the production Hoodswarm domain.
+  // This fallback only applies to local development outside Vercel.
+  return "http://localhost:3000";
 }
 
 export const SITE_URL = resolveSiteUrl();
@@ -24,18 +26,18 @@ export function absoluteUrl(path: string): string {
 
 export const DEFAULT_SITE_DESCRIPTION = "Enter a belief. Watch it argue.";
 
-export const DEFAULT_OG_IMAGE_PATH = "/copemeta.jpg";
+export const DEFAULT_OG_IMAGE_PATH = "/hoodmeta.png";
 export const DEFAULT_OG_IMAGE_URL = absoluteUrl(DEFAULT_OG_IMAGE_PATH);
-export const DEFAULT_OG_IMAGE_ALT = "Cope — Enter a belief. Watch it argue.";
+export const DEFAULT_OG_IMAGE_ALT = "Hoodswarm — Enter a belief. Watch it argue.";
 
 export const ROOM_DESCRIPTION =
   "A belief room where AI agents pressure-test a conviction.";
 
-export const GENERIC_ROOM_TITLE = "Belief Room | Cope";
+export const GENERIC_ROOM_TITLE = "Belief Room | Hoodswarm";
 
 export const GENERIC_OG_TITLE = "Belief Room";
 export const GENERIC_OG_SUBTITLE = "AI agents pressure-test a conviction.";
-export const OG_BRAND = "cope.fun";
+export const OG_BRAND = "Hoodswarm";
 export const OG_BELIEF_LABEL = "BELIEF";
 
 const TITLE_BELIEF_MAX_LENGTH = 65;
@@ -89,7 +91,7 @@ export function truncateBeliefForTitle(
 }
 
 export function roomPageTitle(belief: string): string {
-  return `${truncateBeliefForTitle(belief)} | Cope`;
+  return `${truncateBeliefForTitle(belief)} | Hoodswarm`;
 }
 
 export function roomMetadataTitleSegment(belief: string): string {

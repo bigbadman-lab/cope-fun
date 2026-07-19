@@ -213,7 +213,7 @@ export function getAgentsOverviewConversation(): ChatMessage[] {
     GUEST("agents-1", "who are the agents?"),
     AGENT(
       "agents-2",
-      "Cope Engine",
+      "Swarm Engine",
       "Four personalities. Each one stress-tests a different angle of your belief.",
     ),
   ];
@@ -233,7 +233,7 @@ export function getAgentsOverviewConversation(): ChatMessage[] {
     GUEST("agents-close-q", "do they ever agree?"),
     AGENT(
       "agents-close-a",
-      "Cope Engine",
+      "Swarm Engine",
       "Together they run every belief through the room. You bring the claim — they bring the friction.",
     ),
   );

@@ -37,9 +37,9 @@ import type {
 } from "@/lib/cope-engine";
 
 const VALIDATION_ERROR_MESSAGE =
-  "The Cope Engine couldn’t test that input. Try again.";
+  "The Swarm Engine couldn’t test that input. Try again.";
 const GUEST_LIMIT_MESSAGE =
-  "Sign in to keep testing ideas with the Cope Engine.";
+  "Sign in to keep testing ideas with the Swarm Engine.";
 const DEBUG_HOMEPAGE_FLOW = process.env.NODE_ENV !== "production";
 
 type SubmitStage = "idle" | "validating" | "generating" | "opening";
@@ -81,7 +81,7 @@ function logHomepageFlow(message: string, data?: Record<string, unknown>) {
 
 const RESPONSES: { author: string; text: (belief: string) => string }[] = [
   {
-    author: "Cope Engine",
+    author: "Swarm Engine",
     text: (belief) =>
       `Belief registered. Running contradiction scan on "${belief}".`,
   },

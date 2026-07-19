@@ -22,7 +22,7 @@ export function createPageMetadata(input: PageMetadataInput): Metadata {
       title: input.openGraphTitle,
       description: openGraphDescription,
       url: input.path,
-      siteName: "Cope",
+      siteName: "Hoodswarm",
       type: "website",
       images: [
         {
@@ -35,7 +35,7 @@ export function createPageMetadata(input: PageMetadataInput): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      site: "@copefun",
+      site: "@HoodSwarmApp",
       title: input.openGraphTitle,
       description: openGraphDescription,
       images: [DEFAULT_OG_IMAGE_URL],

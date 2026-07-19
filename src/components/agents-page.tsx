@@ -54,7 +54,7 @@ function AgentDossierCard({
   return (
     <Link
       href={`/agents/${slug}`}
-      className="group flex flex-col items-center rounded-2xl border border-zinc-200/80 bg-surface/50 px-5 py-8 text-center transition-[border-color,background-color,box-shadow] duration-150 ease-out hover:border-[#fc8401]/35 hover:bg-surface hover:shadow-[0_0_28px_-10px_rgb(252_132_1/0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#fc8401]/30 motion-reduce:transition-none dark:border-white/[0.06] dark:bg-surface/40 dark:hover:border-[#fc8401]/30 dark:hover:bg-surface/80 dark:hover:shadow-[0_0_28px_-10px_rgb(252_132_1/0.14)]"
+      className="group flex flex-col items-center rounded-2xl border border-zinc-200/80 bg-surface/50 px-5 py-8 text-center transition-[border-color,background-color,box-shadow] duration-150 ease-out hover:border-cope-orange/35 hover:bg-surface hover:shadow-[0_0_28px_-10px_rgb(122_153_0/0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cope-orange/30 motion-reduce:transition-none dark:border-white/[0.06] dark:bg-surface/40 dark:hover:border-cope-orange/30 dark:hover:bg-surface/80 dark:hover:shadow-[0_0_28px_-10px_rgb(204_254_2/0.14)]"
     >
       <div className="mb-5 transition-[filter,transform] duration-150 ease-out group-hover:scale-[1.03] group-hover:brightness-110 motion-reduce:transition-none motion-reduce:group-hover:transform-none">
         <AgentPortrait name={name} />
@@ -72,7 +72,7 @@ function AgentDossierCard({
         {rosterRole}
       </p>
 
-      <span className="mt-6 inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 transition-[color,transform] duration-150 ease-out group-hover:translate-x-0.5 group-hover:text-[#fc8401] motion-reduce:transition-none motion-reduce:group-hover:transform-none dark:text-zinc-500 dark:group-hover:text-[#fc8401]">
+      <span className="mt-6 inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 transition-[color,transform] duration-150 ease-out group-hover:translate-x-0.5 group-hover:text-cope-orange motion-reduce:transition-none motion-reduce:group-hover:transform-none dark:text-zinc-500 dark:group-hover:text-cope-orange">
         View Profile
         <span aria-hidden>→</span>
       </span>
@@ -90,7 +90,7 @@ export function AgentsPage() {
           </p>
           <div className="mx-auto mt-5 max-w-[22rem] space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             <p>
-              The Cope Engine is powered by a collection of personalities.
+              The Swarm Engine is powered by a collection of personalities.
             </p>
             <p>
               Each sees the world differently.

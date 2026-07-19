@@ -17,7 +17,7 @@ const FOOTER_COLUMNS = [
   {
     title: "Product",
     links: [
-      { href: "/cope", label: "$COPE" },
+      { href: "/swarm", label: "$SWARM" },
       { href: "/docs", label: "Docs" },
       { href: "/how-markets-work", label: "Markets" },
     ],
@@ -127,8 +127,8 @@ export function SiteFooter() {
             {column.title === "Legal" ? (
               <li>
                 <FooterLink
-                  href="https://x.com/copefun"
-                  label="Cope on X"
+                  href="https://x.com/HoodSwarmApp"
+                  label="Hoodswarm on X"
                   external
                 />
               </li>
@@ -140,8 +140,8 @@ export function SiteFooter() {
       <div className="mt-8 w-full overflow-hidden">
         <div className="mx-auto h-[calc(min(560px,72vw)*0.92/3)] w-full max-w-[560px] overflow-hidden">
           <Image
-            src="/copefooter.png"
-            alt="Cope"
+            src="/hoodfooter.png"
+            alt="Hoodswarm"
             width={750}
             height={250}
             className="h-auto w-full max-w-[560px] object-contain"

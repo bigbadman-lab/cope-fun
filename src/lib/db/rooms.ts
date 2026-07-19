@@ -12,7 +12,7 @@ import { getRoomVoteTotals } from "./votes";
 import { buildRoomSearchSummary } from "./room-search";
 
 const USER_DISPLAY_NAME = "You";
-const ENGINE_AUTHOR = "Cope Engine";
+const ENGINE_AUTHOR = "Swarm Engine";
 const MAX_ROOM_ATTENTION = 5;
 const MAX_SLUG_ATTEMPTS = 5;
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export const EXAMPLE_BELIEFS = [
-  "solana will hit a new ath this cycle",
+  "bitcoin will hit a new ath this cycle",
   "university is mostly a scam",
   "remote work is dead",
   "ai will replace junior developers",

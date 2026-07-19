@@ -1,19 +1,38 @@
 "use client";
 
-import { PrivyProvider, type WalletListEntry } from "@privy-io/react-auth";
-import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
+import { PrivyProvider, type PrivyClientConfig, type WalletListEntry } from "@privy-io/react-auth";
 import { AccountAvatarProvider } from "./account-avatar-provider";
 import { AuthSync } from "./auth-sync";
 
-const solanaConnectors = toSolanaWalletConnectors();
-
 // Privy only renders wallets listed here (order = modal order).
-// `trust` maps to WalletConnect slug `trust-wallet` (not in SDK types until Privy adds it).
-const ALLOWED_EXTERNAL_WALLETS = [
-  "phantom",
-  "trust",
-  "solflare",
-] as WalletListEntry[];
+// `wallet_connect` covers mobile/other EVM wallets via WalletConnect.
+const ALLOWED_EXTERNAL_WALLETS: WalletListEntry[] = [
+  "metamask",
+  "coinbase_wallet",
+  "rainbow",
+  "wallet_connect",
+];
+
+// Stable reference — recreating this object each render can remount Privy's modal.
+const PRIVY_CONFIG: PrivyClientConfig = {
+  loginMethods: ["wallet", "email"],
+  appearance: {
+    theme: "dark",
+    accentColor: "#CCFE02",
+    // Square mark — wide wordmarks can render poorly in the Privy modal header.
+    logo: "/hoodhome.png",
+    walletChainType: "ethereum-only",
+    walletList: ALLOWED_EXTERNAL_WALLETS,
+  },
+  embeddedWallets: {
+    ethereum: {
+      createOnLogin: "users-without-wallets",
+    },
+    solana: {
+      createOnLogin: "off",
+    },
+  },
+};
 
 type AppPrivyProviderProps = {
   children: React.ReactNode;
@@ -49,37 +68,7 @@ export function AppPrivyProvider({ children }: AppPrivyProviderProps) {
   }
 
   return (
-    <PrivyProvider
-      appId={appId}
-      config={{
-        loginMethods: ["wallet", "email"],
-        appearance: {
-          theme: "#0a0a0a",
-          accentColor: "#f97316",
-          logo: "/logotext3.png",
-          walletChainType: "solana-only",
-          walletList: ALLOWED_EXTERNAL_WALLETS,
-        },
-        embeddedWallets: {
-          ethereum: {
-            createOnLogin: "off",
-          },
-          solana: {
-            createOnLogin: "users-without-wallets",
-          },
-        },
-        externalWallets: {
-          solana: {
-            connectors: solanaConnectors,
-          },
-          // Trust Wallet connects via WalletConnect on mobile; keep enabled but
-          // do not add `wallet_connect` to walletList (that shows 100+ wallets).
-          walletConnect: {
-            enabled: true,
-          },
-        },
-      }}
-    >
+    <PrivyProvider appId={appId} config={PRIVY_CONFIG}>
       <AuthSync />
       <AccountAvatarProvider>{children}</AccountAvatarProvider>
     </PrivyProvider>

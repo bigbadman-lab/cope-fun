@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useExportWallet } from "@privy-io/react-auth/solana";
+import { useExportWallet } from "@privy-io/react-auth";
 import { InnerPageShell } from "./inner-page-shell";
 import { ProfileAvatarCustomizer } from "./profile-avatar-customizer";
 import { UserAccountAvatar } from "./user-account-avatar";
@@ -267,7 +267,7 @@ function ProfileSignInPrompt({ onSignIn }: { onSignIn: () => void }) {
   return (
     <div className="rounded-xl border border-zinc-200/70 bg-surface/50 px-4 py-5 dark:border-white/[0.07] dark:bg-surface/40">
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Sign in to track your COPE Credits, enter markets, view your{" "}
+        Sign in to track your Swarm Credits, enter markets, view your{" "}
         {currentSeason.name} rank, and manage your beliefs.
       </p>
       <button
@@ -354,7 +354,7 @@ function SeasonHeroCard({ dashboard }: { dashboard: ProfileDashboard }) {
         </div>
         <div className="text-right">
           <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500">
-            COPE Credits
+            Swarm Credits
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-zinc-900 dark:text-zinc-50">
             {account.balanceCredits.toLocaleString()}
@@ -459,7 +459,9 @@ function RewardsWalletSection({
 
     setExportState("loading");
     try {
-      await exportWallet({ address: walletAddress });
+      // No address argument: exports the user's embedded EVM wallet. Our stored
+      // address is lowercase-normalized and may not match Privy's checksummed form.
+      await exportWallet();
       setExportState("idle");
     } catch {
       setExportState("error");
@@ -572,7 +574,7 @@ function ProfileAccountSection({ user }: { user: ProfileUserSummary }) {
       </ProfileSection>
 
       <p className="pb-2 text-center text-[11px] tracking-wide text-zinc-500 dark:text-zinc-600">
-        Cope Beta
+        Hoodswarm Beta
       </p>
     </>
   );

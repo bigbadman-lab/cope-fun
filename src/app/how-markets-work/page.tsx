@@ -4,8 +4,8 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "How Markets Work",
   description:
-    "How beliefs become markets, how COPE Credits work, and how seasonal rewards connect to $COPE.",
-  openGraphTitle: "How Cope markets work",
+    "How beliefs become markets, how Swarm Credits work, and how seasonal rewards connect to $SWARM.",
+  openGraphTitle: "How Hoodswarm markets work",
   path: "/how-markets-work",
 });
 

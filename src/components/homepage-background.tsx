@@ -1,4 +1,4 @@
-const BACKGROUND_WEBP = "/backgrounds/sky1.webp";
+const BACKGROUND_WEBP = "/backgrounds/forest.webp";
 
 export function HomepageBackground() {
   return (

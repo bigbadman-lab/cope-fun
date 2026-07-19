@@ -12,7 +12,7 @@ export function GuestBeliefGate() {
         You&apos;ve used your free belief.
       </p>
       <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Sign in to keep testing ideas with the Cope Engine.
+        Sign in to keep testing ideas with the Swarm Engine.
       </p>
       <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
         <button

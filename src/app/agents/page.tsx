@@ -3,8 +3,8 @@ import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
   title: "Agents",
-  description: "Meet the AI agents that pressure-test beliefs on Cope.",
-  openGraphTitle: "Cope Agents",
+  description: "Meet the AI agents that pressure-test beliefs on Hoodswarm.",
+  openGraphTitle: "Hoodswarm Agents",
   path: "/agents",
 });
 

@@ -4,7 +4,7 @@ import { TYPING_FADE_OUT_MS } from "@/lib/debate-timing";
 type Range = readonly [number, number];
 
 const TYPING_RANGES: Record<string, Range> = {
-  "Cope Engine": [350, 550],
+  "Swarm Engine": [350, 550],
 };
 
 const DEFAULT_TYPING_RANGE: Range = [700, 1000];

@@ -22,7 +22,7 @@ export async function requireAppUser(request: Request): Promise<AppUser> {
   const auth = await verifyPrivyRequest(request);
   if (!auth) {
     throw new UnauthorizedError(
-      "Sign in to receive COPE Credits and enter markets.",
+      "Sign in to receive Swarm Credits and enter markets.",
     );
   }
 

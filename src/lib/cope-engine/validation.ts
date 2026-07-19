@@ -43,7 +43,7 @@ function shouldLogValidationDebug(): boolean {
 function logValidationConfig(model: string, apiKey: string | undefined) {
   if (!shouldLogValidationDebug()) return;
 
-  console.info("[Cope Engine validation]", {
+  console.info("[Swarm Engine validation]", {
     openaiApiKeyPresent: Boolean(apiKey),
     model,
   });
@@ -53,7 +53,7 @@ function logValidationError(error: unknown) {
   if (!shouldLogValidationDebug()) return;
 
   const err = error as OpenAIErrorLike;
-  console.error("[Cope Engine validation error]", {
+  console.error("[Swarm Engine validation error]", {
     name: typeof err.name === "string" ? err.name : undefined,
     message: typeof err.message === "string" ? err.message : "Unknown error",
     status: typeof err.status === "number" ? err.status : undefined,
@@ -92,7 +92,7 @@ function errorResult(originalBelief: string): BeliefValidationResult {
     originalBelief,
     reason: "error",
     issues: ["Validation failed."],
-    message: "The Cope Engine couldn’t test that input. Try again.",
+    message: "The Swarm Engine couldn’t test that input. Try again.",
   });
 }
 
@@ -135,7 +135,7 @@ function runDeterministicChecks(originalBelief: string): BeliefValidationResult 
       normalizedBelief: "",
       reason: "empty",
       issues: ["Belief is empty."],
-      message: "Give the Cope Engine a clearer belief to test.",
+      message: "Give the Swarm Engine a clearer belief to test.",
     });
   }
 
@@ -145,7 +145,7 @@ function runDeterministicChecks(originalBelief: string): BeliefValidationResult 
       originalBelief,
       reason: "too_short",
       issues: ["Belief is too short."],
-      message: "Give the Cope Engine a clearer belief to test.",
+      message: "Give the Swarm Engine a clearer belief to test.",
     });
   }
 
@@ -166,7 +166,7 @@ function runDeterministicChecks(originalBelief: string): BeliefValidationResult 
       reason: "spam",
       issues: ["Input looks like spam."],
       message:
-        "The Cope Engine can’t test that belief. Try a clearer claim, prediction, or conviction.",
+        "The Swarm Engine can’t test that belief. Try a clearer claim, prediction, or conviction.",
     });
   }
 
@@ -201,7 +201,7 @@ function normalizeModelResult(
     stringOrUndefined(payload.message) ??
     (ok
       ? "Belief accepted."
-      : "The Cope Engine can’t test that belief. Try a clearer claim, prediction, or conviction.");
+      : "The Swarm Engine can’t test that belief. Try a clearer claim, prediction, or conviction.");
 
   return createResult({
     ok,

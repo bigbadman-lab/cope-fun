@@ -21,7 +21,7 @@ export function AdminRewardsExportSection({
         Rewards export
       </h2>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500">
-        For manual $COPE reward review. This does not send tokens.
+        For manual $SWARM reward review. This does not send tokens.
       </p>
 
       {missingWalletCount > 0 ? (

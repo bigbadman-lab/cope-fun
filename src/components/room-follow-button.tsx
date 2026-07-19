@@ -37,7 +37,7 @@ type RoomFollowButtonProps = {
 
 /**
  * Local follow bookmark — uses temporary wallet-session gating, not Privy.
- * Unrelated to market staking or COPE Credits.
+ * Unrelated to market staking or Swarm Credits.
  */
 export function RoomFollowButton({ slug, roomId, belief }: RoomFollowButtonProps) {
   const followGate = useWalletSession();

@@ -128,7 +128,7 @@ export function PinnedMarketHeader({ market }: PinnedMarketHeaderProps) {
             <button
               type="button"
               onClick={scrollToPanel}
-              className="shrink-0 rounded-lg bg-cope-orange px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-cope-orange/90"
+              className="shrink-0 rounded-lg bg-cope-orange px-3 py-1.5 text-xs font-medium text-zinc-950 transition-colors hover:bg-cope-orange/90"
             >
               Participate
             </button>

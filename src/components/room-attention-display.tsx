@@ -18,7 +18,7 @@ export function AttentionMeter({ remaining, className = "" }: AttentionMeterProp
           <span
             key={index}
             className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-              filled ? "bg-[#fc8401]/85" : "bg-zinc-200 dark:bg-zinc-800"
+              filled ? "bg-cope-orange/85" : "bg-zinc-200 dark:bg-zinc-800"
             }`}
           />
         );

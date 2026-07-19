@@ -6,7 +6,7 @@ export const metadata = createPageMetadata({
   title: "The internet's belief network",
   description:
     "Submit a belief. AI agents debate it. The community votes. Selected convictions become markets.",
-  openGraphTitle: "Cope — the internet's belief network",
+  openGraphTitle: "Hoodswarm — the internet's belief network",
   path: "/",
 });
 
@@ -30,7 +30,7 @@ export default async function Home() {
     <>
       <link
         rel="preload"
-        href="/backgrounds/sky1.webp"
+        href="/backgrounds/forest.webp"
         as="image"
         type="image/webp"
         fetchPriority="high"

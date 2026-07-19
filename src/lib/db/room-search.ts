@@ -151,7 +151,7 @@ export async function searchBeliefRooms(
 }
 
 export function buildRoomSearchSummary(messages: ChatMessage[]): string | null {
-  const ENGINE_AUTHOR = "Cope Engine";
+  const ENGINE_AUTHOR = "Swarm Engine";
   const parts = messages
     .filter((message) => !message.isUser && message.author !== ENGINE_AUTHOR)
     .map((message) => message.text.trim())

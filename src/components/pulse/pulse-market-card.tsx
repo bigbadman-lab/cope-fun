@@ -75,7 +75,7 @@ export function PulseMarketCard({
   const winner = derived.currentlyWinningSide;
 
   return (
-    <section className="mb-6 overflow-hidden rounded-xl border border-cope-orange/35 bg-gradient-to-br from-cope-orange/[0.08] via-surface/70 to-surface/50 shadow-[0_8px_30px_-18px_rgba(232,133,74,0.35)] dark:border-cope-orange/25 dark:from-cope-orange/[0.06] dark:via-surface/50 dark:to-surface/30">
+    <section className="mb-6 overflow-hidden rounded-xl border border-cope-orange/35 bg-gradient-to-br from-cope-orange/[0.08] via-surface/70 to-surface/50 shadow-[0_8px_30px_-18px_rgba(122,153,0,0.35)] dark:shadow-[0_8px_30px_-18px_rgba(204,254,2,0.30)] dark:border-cope-orange/25 dark:from-cope-orange/[0.06] dark:via-surface/50 dark:to-surface/30">
       <Link href={`/room/${roomSlug}`} className="block px-4 py-3.5 transition-colors hover:bg-cope-orange/[0.04]">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">

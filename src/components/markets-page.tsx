@@ -35,7 +35,7 @@ function SeasonBanner() {
             {currentSeason.name}
           </p>
           <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Enter curated Season markets with COPE Credits
+            Enter curated Season markets with Swarm Credits
           </p>
           <p className="mt-1 text-xs text-zinc-500">
             {formatSeasonDateRange(currentSeason)}
@@ -95,7 +95,7 @@ export function MarketsPage({
             Markets
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-            Back your conviction with COPE Credits.
+            Back your conviction with Swarm Credits.
           </p>
         </header>
 
@@ -113,7 +113,7 @@ export function MarketsPage({
           <div className="py-16 text-center">
             <p className="text-base text-zinc-500">No active markets yet.</p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-500">
-              Markets selected by the Cope team will appear here.
+              Markets selected by the Hoodswarm team will appear here.
             </p>
           </div>
         ) : (
@@ -157,10 +157,10 @@ export function MarketsPage({
             Leaderboard
           </Link>
           <Link
-            href="/cope"
+            href="/swarm"
             className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
           >
-            About $COPE
+            About $SWARM
           </Link>
         </div>
       </div>

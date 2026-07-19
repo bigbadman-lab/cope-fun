@@ -18,10 +18,10 @@ export function TreasuryConvictionDisplay({
           Treasury Conviction
         </p>
         <p className="mt-1 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-          {formatWholeAmount(amount)} $COPE
+          {formatWholeAmount(amount)} $SWARM
         </p>
         <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
-          Protocol incentive signal for this market. Does not affect COPE Credit
+          Protocol incentive signal for this market. Does not affect Swarm Credit
           staking or settlement.
         </p>
       </div>
@@ -32,7 +32,7 @@ export function TreasuryConvictionDisplay({
     <span className="inline-flex items-center gap-1.5 rounded-full border border-cope-orange/25 bg-cope-orange/[0.07] px-2 py-0.5 text-[11px] font-medium text-cope-orange dark:border-cope-orange/30 dark:bg-cope-orange/[0.1]">
       <span className="uppercase tracking-[0.08em]">Treasury Conviction</span>
       <span aria-hidden>·</span>
-      <span className="tabular-nums">{formatWholeAmount(amount)} $COPE</span>
+      <span className="tabular-nums">{formatWholeAmount(amount)} $SWARM</span>
     </span>
   );
 }

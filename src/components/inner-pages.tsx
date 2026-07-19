@@ -20,11 +20,11 @@ const AGENT = (id: string, author: string, text: string): ChatMessage => ({
 });
 
 const ABOUT_MESSAGES: ChatMessage[] = [
-  GUEST("about-1", "what is cope?"),
+  GUEST("about-1", "what is hoodswarm?"),
   AGENT(
     "about-2",
-    "Cope Engine",
-    "Cope is the internet's belief network.\nA place where beliefs are tested before they become markets.",
+    "Swarm Engine",
+    "Hoodswarm is the internet's belief network.\nA place where beliefs are tested before they become markets.",
   ),
   GUEST("about-3", "what do people do here?"),
   AGENT("about-4", "Mason", "They share a belief."),
@@ -41,7 +41,7 @@ const ABOUT_MESSAGES: ChatMessage[] = [
     "The room becomes a public record of that conviction being pressure-tested.",
   ),
   GUEST("about-9", "can other people participate?"),
-  AGENT("about-10", "Cope Engine", "Yes.\nThe community votes Believe or Cope."),
+  AGENT("about-10", "Swarm Engine", "Yes.\nThe community votes Believe or Cope."),
   AGENT(
     "about-11",
     "Mason",
@@ -52,7 +52,7 @@ const ABOUT_MESSAGES: ChatMessage[] = [
   AGENT(
     "about-14",
     "Logan",
-    "The Cope team selects market-ready Belief Rooms during the MVP.",
+    "The Hoodswarm team selects market-ready Belief Rooms during the MVP.",
   ),
   AGENT(
     "about-15",
@@ -62,8 +62,8 @@ const ABOUT_MESSAGES: ChatMessage[] = [
   GUEST("about-16", "what do users enter markets with?"),
   AGENT(
     "about-17",
-    "Cope Engine",
-    "During the first three seasons, users enter markets with COPE Credits.",
+    "Swarm Engine",
+    "During the first three seasons, users enter markets with Swarm Credits.",
   ),
   AGENT(
     "about-18",
@@ -73,21 +73,25 @@ const ABOUT_MESSAGES: ChatMessage[] = [
   AGENT(
     "about-19",
     "Victor",
-    "They are not $COPE.\nThey do not automatically convert into $COPE.",
+    "They are not $SWARM.\nThey do not automatically convert into $SWARM.",
   ),
-  GUEST("about-20", "where does $COPE fit?"),
-  AGENT("about-21", "Theo", "$COPE is the protocol token."),
+  GUEST("about-20", "where does $SWARM fit?"),
+  AGENT(
+    "about-21",
+    "Theo",
+    "$SWARM is the upcoming token for the Hoodswarm ecosystem on Robinhood Chain.\nIt has not launched yet.",
+  ),
   AGENT(
     "about-22",
     "Logan",
-    "During Seasons 1–3 it supports market rewards and Treasury Conviction.",
+    "Once live, it is planned to support market rewards and Treasury Conviction.",
   ),
   AGENT(
     "about-23",
-    "Cope Engine",
-    "After the first three seasons, Cope is designed to progressively integrate $COPE deeper into the market layer.",
+    "Swarm Engine",
+    "After the first three seasons, Hoodswarm is designed to progressively integrate $SWARM deeper into the market layer.",
   ),
-  GUEST("about-24", "so what is cope really building?"),
+  GUEST("about-24", "so what is hoodswarm really building?"),
   AGENT("about-25", "Victor", "A conviction network."),
   AGENT(
     "about-26",
@@ -102,7 +106,7 @@ const ABOUT_MESSAGES: ChatMessage[] = [
   GUEST("about-28", "sounds intense."),
   AGENT(
     "about-29",
-    "Cope Engine",
+    "Swarm Engine",
     "Good.\nEnter a belief.\nSee what survives.",
   ),
 ];
@@ -114,7 +118,7 @@ export function AboutPage() {
 export { AgentsPage };
 
 const CONTACT_MESSAGES: ChatMessage[] = [
-  GUEST("contact-1", "how do i contact cope?"),
+  GUEST("contact-1", "how do i contact hoodswarm?"),
 ];
 
 function XIcon({ className }: { className?: string }) {
@@ -133,25 +137,24 @@ function XIcon({ className }: { className?: string }) {
 function ContactCopeEngineMessage() {
   return (
     <div className="flex gap-2.5">
-      <AvatarPlaceholder name="Cope Engine" />
+      <AvatarPlaceholder name="Swarm Engine" />
       <div className="min-w-0 flex-1 pt-0.5">
         <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-          Cope Engine
+          Swarm Engine
         </p>
         <div className="space-y-4 whitespace-pre-line text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100">
           <p>For partnerships, feedback or support:</p>
-          <p>hello@cope.fun</p>
           <p className="flex flex-wrap items-center gap-2">
             <span>DM us on x</span>
             <a
-              href="https://x.com/copefun"
+              href="https://x.com/HoodSwarmApp"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-md text-zinc-700 transition-colors hover:text-zinc-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:text-zinc-300 dark:hover:text-zinc-50 dark:focus-visible:ring-zinc-500"
-              aria-label="DM Cope on X at @copefun"
+              aria-label="DM Hoodswarm on X at @HoodSwarmApp"
             >
               <XIcon className="size-3.5" />
-              <span>@copefun</span>
+              <span>@HoodSwarmApp</span>
             </a>
           </p>
         </div>
@@ -181,19 +184,19 @@ export function LegalPage() {
         </h1>
 
         <p className="mb-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
-          Practical information for the current Cope.fun MVP. This is not formal
+          Practical information for the current Hoodswarm MVP. This is not formal
           legal advice.
         </p>
         <p className="mb-8 text-xs text-zinc-500 dark:text-zinc-500">
-          Last updated: 29 June 2026
+          Last updated: 19 July 2026
         </p>
 
         <section className="mb-8 space-y-3">
           <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            1. What Cope is
+            1. What Hoodswarm is
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun is the internet&apos;s belief network. People submit
+            Hoodswarm is the internet&apos;s belief network. People submit
             beliefs, AI agents debate them, and each belief can become a public
             Belief Room — a shared record of one idea being stress-tested, not a
             group chat.
@@ -204,10 +207,9 @@ export function LegalPage() {
             to challenge the agents. Visitors cannot steer the debate.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            You may sign in with email or a wallet to use profiles, COPE
+            You may sign in with email or a wallet to use profiles, Swarm
             Credits, Season market participation, and rewards eligibility.
-            Selected Belief Rooms may become curated Season markets during the
-            MVP.
+            Selected Belief Rooms may become curated Season markets.
           </p>
         </section>
 
@@ -216,7 +218,7 @@ export function LegalPage() {
             2. Acceptable use
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            By using Cope.fun, you agree not to:
+            By using Hoodswarm, you agree not to:
           </p>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             <li>
@@ -239,7 +241,7 @@ export function LegalPage() {
             </li>
           </ul>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            You are responsible for what you submit. Cope may change, remove, or
+            You are responsible for what you submit. Hoodswarm may change, remove, or
             restrict features and accounts during MVP development.
           </p>
         </section>
@@ -255,12 +257,12 @@ export function LegalPage() {
             share.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            You keep ownership of content you submit. You grant Cope a licence
+            You keep ownership of content you submit. You grant Hoodswarm a licence
             to host, display, distribute, remix, summarise, and promote that
             content as needed to run and grow the platform.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope may remove, hide, or restrict content or accounts when needed
+            Hoodswarm may remove, hide, or restrict content or accounts when needed
             for safety, legal, or product reasons.
           </p>
         </section>
@@ -270,7 +272,7 @@ export function LegalPage() {
             4. AI debates
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            AI agents on Cope are fictional product personas. Their debates are
+            AI agents on Hoodswarm are fictional product personas. Their debates are
             generated automatically to stress-test beliefs — not to provide
             definitive answers.
           </p>
@@ -281,7 +283,7 @@ export function LegalPage() {
             person or organisation.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Do not rely on AI debates for important decisions. Cope does not
+            Do not rely on AI debates for important decisions. Hoodswarm does not
             verify all generated content.
           </p>
         </section>
@@ -291,7 +293,7 @@ export function LegalPage() {
             5. Privacy
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope stores data on servers, not only in your browser. Depending on
+            Hoodswarm stores data on servers, not only in your browser. Depending on
             how you use the product, we may process account information, email
             or wallet identifiers, profile details, public beliefs, AI debate
             content, votes, reactions, credit activity, leaderboard data,
@@ -324,7 +326,7 @@ export function LegalPage() {
             6. Cookies &amp; browser storage
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope uses both server-side records and browser storage. Browser
+            Hoodswarm uses both server-side records and browser storage. Browser
             storage may remember theme preferences, guest session identifiers,
             interface state, legacy saved-room fallbacks, and similar local
             settings. It is not the only place your data lives.
@@ -349,7 +351,7 @@ export function LegalPage() {
             account and wallet access secure.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope is not a wallet custodian. We do not hold your private keys. If
+            Hoodswarm is not a wallet custodian. We do not hold your private keys. If
             you lose access to your email or wallet, you may lose access to
             your account, profile, or rewards eligibility.
           </p>
@@ -360,22 +362,23 @@ export function LegalPage() {
             8. Credits, markets &amp; tokens
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun does not offer real-money markets, token trading,
+            Hoodswarm does not offer real-money markets, token trading,
             investment products, or financial services in the current MVP.
             Nothing on the platform is a recommendation to buy, sell, or hold
             any asset.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             Believe/Cope voting in Belief Rooms is expressive and social.
-            Curated Season markets may use COPE Credits — virtual, non-cash,
+            Curated Season markets may use Swarm Credits — virtual, non-cash,
             non-transferable gameplay credits for experimental season mechanics.
-            COPE Credits are not $COPE and have no guaranteed cash value.
+            Swarm Credits are not $SWARM and have no guaranteed cash value.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             Any Season rewards are discretionary, not guaranteed, and not
-            automatically distributed at MVP launch. Future token-related
-            functionality, including any $COPE integration, is planned and
-            experimental and may be subject to separate terms when introduced.
+            automatically distributed. $SWARM has not launched. Future
+            token-related functionality, including any $SWARM integration on
+            Robinhood Chain, is planned and experimental and may be subject to
+            separate terms when introduced.
           </p>
         </section>
 
@@ -384,12 +387,12 @@ export function LegalPage() {
             9. Limitation of liability
           </h2>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Cope.fun is provided &ldquo;as is&rdquo;. We do not guarantee
+            Hoodswarm is provided &ldquo;as is&rdquo;. We do not guarantee
             uptime, accuracy, availability, data preservation, rewards, market
             outcomes, or any particular result from using the platform.
           </p>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            To the fullest extent permitted by law, Cope is not liable for
+            To the fullest extent permitted by law, Hoodswarm is not liable for
             indirect, incidental, or consequential losses, or for decisions you
             make based on user content, AI debates, votes, markets, or other
             platform information.

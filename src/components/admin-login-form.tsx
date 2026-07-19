@@ -52,7 +52,7 @@ export function AdminLoginForm({ adminConfigured }: AdminLoginFormProps) {
           Sign in
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-500">
-          Enter the admin password to view Cope product metrics.
+          Enter the admin password to view Hoodswarm product metrics.
         </p>
 
         {!adminConfigured ? (

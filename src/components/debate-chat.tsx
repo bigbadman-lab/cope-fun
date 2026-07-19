@@ -30,7 +30,7 @@ export type MessageReactionProps = {
 };
 
 export const GROUP_FORMATION_TEXT =
-  "Cope Engine added Mason, Victor, Logan and Theo";
+  "Swarm Engine added Mason, Victor, Logan and Theo";
 
 function AttentionChallengeLabel() {
   return (

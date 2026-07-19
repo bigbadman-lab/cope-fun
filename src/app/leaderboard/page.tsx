@@ -5,8 +5,8 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Leaderboard",
   description:
-    "Compete in the active Cope season by entering markets, earning season points, and climbing the leaderboard.",
-  openGraphTitle: "Cope Leaderboard",
+    "Compete in the active Hoodswarm season by entering markets, earning season points, and climbing the leaderboard.",
+  openGraphTitle: "Hoodswarm Leaderboard",
   path: "/leaderboard",
 });
 

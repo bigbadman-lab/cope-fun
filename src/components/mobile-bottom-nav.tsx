@@ -130,20 +130,20 @@ function NavItem({
         href={href}
         prefetch
         aria-current={active ? "page" : undefined}
-        className="group -mt-4 flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#fc8401]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group -mt-4 flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cope-orange/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span
-          className={`flex size-12 items-center justify-center rounded-full border shadow-[0_8px_20px_-10px_rgb(252_132_1/0.65)] transition-[transform,background-color,border-color] duration-150 ease-out group-active:scale-95 dark:shadow-[0_8px_20px_-10px_rgb(252_132_1/0.55)] ${
+          className={`flex size-12 items-center justify-center rounded-full border shadow-[0_8px_20px_-10px_rgb(122_153_0/0.65)] transition-[transform,background-color,border-color] duration-150 ease-out group-active:scale-95 dark:shadow-[0_8px_20px_-10px_rgb(204_254_2/0.45)] ${
             active
-              ? "border-[#fc8401]/50 bg-[#fc8401] text-white"
-              : "border-[#fc8401]/35 bg-[#fc8401] text-white group-hover:bg-[#fc8401]/90"
+              ? "border-cope-orange/50 bg-cope-orange text-zinc-950"
+              : "border-cope-orange/35 bg-cope-orange text-zinc-950 group-hover:bg-cope-orange/90"
           }`}
         >
           <Icon className="size-5" />
         </span>
         <span
           className={`text-xs font-semibold leading-none ${
-            active ? "text-[#fc8401]" : "text-zinc-600 dark:text-zinc-400"
+            active ? "text-cope-orange" : "text-zinc-600 dark:text-zinc-400"
           }`}
         >
           {label}

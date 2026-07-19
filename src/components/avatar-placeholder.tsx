@@ -9,7 +9,7 @@ import { RoomYouAvatar } from "./room-you-avatar";
 export const USER_DISPLAY_NAME = "You";
 
 const AVATAR_COLORS: Record<string, string> = {
-  "Cope Engine": "from-emerald-500 to-teal-700",
+  "Swarm Engine": "from-emerald-500 to-teal-700",
   Mason: "from-orange-500 to-red-600",
   Victor: "from-sky-500 to-blue-700",
   Logan: "from-amber-400 to-orange-600",
@@ -17,7 +17,7 @@ const AVATAR_COLORS: Record<string, string> = {
 };
 
 const AGENT_AVATARS: Record<string, string> = {
-  "Cope Engine": "/engine2.png",
+  "Swarm Engine": "/hoodhome.png",
   Mason: "/mason.png",
   Victor: "/victor.png",
   Logan: "/logan.png",

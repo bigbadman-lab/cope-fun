@@ -22,7 +22,7 @@ const BELIEF_HARD_CAP_NO_QUOTE = 100;
 let LOGO_DATA_URL: string | null = null;
 try {
   const logoBuffer = readFileSync(
-    join(process.cwd(), "public", "logotext3.png"),
+    join(process.cwd(), "public", "hoodlogo2.png"),
   );
   LOGO_DATA_URL = `data:image/png;base64,${logoBuffer.toString("base64")}`;
 } catch {
@@ -36,9 +36,9 @@ const COLORS = {
   foreground: "#fafafa",
   muted: "#a1a1aa",
   subtle: "#71717a",
-  accent: "#e8854a",
-  accentSoft: "rgba(232, 133, 74, 0.14)",
-  accentBorder: "rgba(232, 133, 74, 0.35)",
+  accent: "#CCFE02",
+  accentSoft: "rgba(204, 254, 2, 0.14)",
+  accentBorder: "rgba(204, 254, 2, 0.35)",
   cardBg: "rgba(255, 255, 255, 0.04)",
   cardBorder: "rgba(255, 255, 255, 0.08)",
   frameBorder: "rgba(255, 255, 255, 0.06)",
@@ -126,7 +126,7 @@ function QuoteInsightCard({
         padding: "14px 18px",
         borderRadius: 14,
         border: `1px solid ${COLORS.accentBorder}`,
-        background: `linear-gradient(135deg, ${COLORS.cardBg} 0%, rgba(232, 133, 74, 0.06) 100%)`,
+        background: `linear-gradient(135deg, ${COLORS.cardBg} 0%, rgba(204, 254, 2, 0.06) 100%)`,
       }}
     >
       <div
@@ -210,7 +210,7 @@ function BackgroundLayers() {
           width: 520,
           height: 420,
           background:
-            "radial-gradient(circle at center, rgba(232, 133, 74, 0.22) 0%, rgba(232, 133, 74, 0) 68%)",
+            "radial-gradient(circle at center, rgba(204, 254, 2, 0.22) 0%, rgba(204, 254, 2, 0) 68%)",
         }}
       />
       <div
@@ -222,7 +222,7 @@ function BackgroundLayers() {
           width: 440,
           height: 360,
           background:
-            "radial-gradient(circle at center, rgba(232, 133, 74, 0.1) 0%, rgba(232, 133, 74, 0) 70%)",
+            "radial-gradient(circle at center, rgba(204, 254, 2, 0.1) 0%, rgba(204, 254, 2, 0) 70%)",
         }}
       />
       <div
@@ -281,7 +281,7 @@ function OgLogo() {
         letterSpacing: "-0.03em",
       }}
     >
-      cope.
+      Hoodswarm
     </div>
   );
 }

@@ -15,16 +15,16 @@ import {
 export const metadata = createPageMetadata({
   title: "Docs",
   description:
-    "Product docs for Belief Rooms, COPE Credits, markets, seasons, resolution, and the path to $COPE integration.",
-  openGraphTitle: "Cope product docs",
+    "Product docs for Belief Rooms, Swarm Credits, markets, seasons, resolution, and the path to $SWARM integration.",
+  openGraphTitle: "Hoodswarm product docs",
   path: "/docs",
 });
 
 const HERO_PILLS = [
   "Belief Rooms",
-  "COPE Credits",
+  "Swarm Credits",
   "Season Markets",
-  "$COPE",
+  "$SWARM",
 ] as const;
 
 const COPE_LOOP = [
@@ -46,10 +46,10 @@ const AGENT_ROSTER = [
 
 const NOT_LIVE_YET = [
   "Permissionless market creation",
-  "Direct $COPE staking in markets",
+  "Direct $SWARM staking in markets",
   "On-chain market settlement",
   "Holder rewards",
-  "Full $COPE integration into the market layer",
+  "Full $SWARM integration into the market layer",
 ] as const;
 
 type BadgeTone = "core" | "market" | "future" | "experimental";
@@ -164,7 +164,7 @@ export default function DocsPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
             A product reference for Belief Rooms, AI agents, Season markets,
-            COPE Credits, and the path to $COPE integration.
+            Swarm Credits, and the path to $SWARM integration.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {HERO_PILLS.map((pill) => (
@@ -180,11 +180,11 @@ export default function DocsPage() {
 
         <div className="space-y-12">
           <section className="space-y-5">
-            <SectionHeader eyebrow="Overview" title="The Cope loop">
+            <SectionHeader eyebrow="Overview" title="The Hoodswarm loop">
               <p>
-                Cope starts with a belief. AI agents pressure-test it. The
+                Hoodswarm starts with a belief. AI agents pressure-test it. The
                 community votes Believe or Cope. Selected Belief Rooms can become
-                Season markets. Users enter markets with COPE Credits and compete
+                Season markets. Users enter markets with Swarm Credits and compete
                 on the leaderboard.
               </p>
             </SectionHeader>
@@ -258,20 +258,20 @@ export default function DocsPage() {
           <section className="space-y-5">
             <SectionHeader eyebrow="Market layer" title="Season markets">
               <p>
-                Season markets are curated by the Cope team during the MVP. Users
+                Season markets are curated by the Hoodswarm team during the MVP. Users
                 cannot create markets directly yet. Selected Belief Rooms become
-                markets with Believe and Cope sides, close windows, and written
+                markets with Believe and Hoodswarm sides, close windows, and written
                 resolution criteria.
               </p>
             </SectionHeader>
 
             <DocCard
               label="Market system"
-              title="Believe / Cope markets"
+              title="Believe / Hoodswarm markets"
               copy="Each Season market turns a clear, measurable belief into a two-sided conviction contest. Objective resolution criteria matter before a market opens."
               bullets={[
                 "Markets are team-curated during the MVP.",
-                "Users commit COPE Credits to Believe or Cope.",
+                "Users commit Swarm Credits to Believe or Cope.",
                 "Each market has close and resolution criteria.",
                 "Subjective beliefs can remain social Belief Rooms only.",
               ]}
@@ -295,28 +295,28 @@ export default function DocsPage() {
                 "No AI debate — Pulse Rooms run on live data and community chat.",
                 "Rounds open, lock, and settle automatically.",
                 "Outcomes come from live price movement, not team resolution.",
-                "Participation uses COPE Credits, the same as other markets.",
+                "Participation uses Swarm Credits, the same as other markets.",
               ]}
             />
           </section>
 
           <section className="space-y-5">
-            <SectionHeader eyebrow="Market layer" title="COPE Credits">
+            <SectionHeader eyebrow="Market layer" title="Swarm Credits">
               <p>
-                COPE Credits are gameplay credits used during Seasons 1–3. They
-                let users enter markets while Cope tests mechanics before deeper
+                Swarm Credits are gameplay credits used during Seasons 1–3. They
+                let users enter markets while Hoodswarm tests mechanics before deeper
                 token integration.
               </p>
             </SectionHeader>
 
             <DocCard
               label="Participation unit"
-              title="COPE Credits"
-              copy="Users spend COPE Credits to enter markets — both Season markets and Pulse markets. Credits are separate from the $COPE protocol token."
+              title="Swarm Credits"
+              copy="Users spend Swarm Credits to enter markets — both Season markets and Pulse markets. Credits are separate from the $SWARM protocol token."
               bullets={[
-                "COPE Credits are not $COPE.",
-                "COPE Credits are not redeemable token balances.",
-                "COPE Credits do not automatically convert into $COPE.",
+                "Swarm Credits are not $SWARM.",
+                "Swarm Credits are not redeemable token balances.",
+                "Swarm Credits do not automatically convert into $SWARM.",
                 "Credits are for gameplay and scoring — not monetary value.",
               ]}
             />
@@ -333,7 +333,7 @@ export default function DocsPage() {
                   How seasons work
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  Seasons 1–3 run on COPE Credits. {SEASON_LEADERBOARD_QUALIFICATION_COPY}
+                  Seasons 1–3 run on Swarm Credits. {SEASON_LEADERBOARD_QUALIFICATION_COPY}
                 </p>
                 <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                   {SEASON_FAQ_BULLETS.map((bullet) => (
@@ -382,24 +382,25 @@ export default function DocsPage() {
           </section>
 
           <section className="space-y-5">
-            <SectionHeader eyebrow="Economic layer" title="Treasury Conviction and $COPE">
+            <SectionHeader eyebrow="Economic layer" title="Treasury Conviction and $SWARM">
               <p>
-                $COPE is the protocol token. During Seasons 1–3, it supports
-                market rewards and Treasury Conviction — not direct in-market
-                staking. Read the full explanation on{" "}
-                <DocLink href="/cope">$COPE</DocLink>.
+                $SWARM is the upcoming token for the Hoodswarm ecosystem on
+                Robinhood Chain. It has not launched yet. Once live, it is
+                planned to support market rewards and Treasury Conviction —
+                not direct in-market staking. Read the full explanation on{" "}
+                <DocLink href="/swarm">$SWARM</DocLink>.
               </p>
             </SectionHeader>
 
             <DocCard
               label="Protocol token"
               title="Treasury Conviction"
-              copy="Treasury Conviction is a visible $COPE allocation attached to selected Season markets. During Seasons 1–3 it is display and incentive signalling only."
+              copy="Treasury Conviction is a visible $SWARM allocation attached to selected Season markets. During Seasons 1–3 it is display and incentive signalling only."
               bullets={[
-                "Shows where the Cope treasury commits attention and incentive weight.",
-                "Does not change COPE Credit pricing, staking, settlement, or user balances.",
-                "$COPE market rewards are reviewed after season snapshots — not auto-claimed.",
-                "Full token economics are documented on the $COPE page.",
+                "Shows where the Hoodswarm treasury commits attention and incentive weight.",
+                "Does not change Swarm Credit pricing, staking, settlement, or user balances.",
+                "$SWARM market rewards are reviewed after season snapshots — not auto-claimed.",
+                "Full token economics are documented on the $SWARM page.",
               ]}
             />
           </section>
@@ -407,9 +408,9 @@ export default function DocsPage() {
           <section className="space-y-5">
             <SectionHeader eyebrow="Market layer" title="Resolution">
               <p>
-                Markets eventually close. The Cope team resolves each market as
-                Believe, Cope, or Void against its written criteria. Resolution
-                updates market outcomes, COPE Credit positions, and leaderboard
+                Markets eventually close. The Hoodswarm team resolves each
+                market as Believe, Cope, or Void against its written criteria.
+                Resolution updates market outcomes, Swarm Credit positions, and leaderboard
                 stats through database-backed logic.
               </p>
             </SectionHeader>
@@ -432,9 +433,9 @@ export default function DocsPage() {
               <StatusBadge tone="experimental">Important distinction</StatusBadge>
             </div>
             <div className="space-y-2 text-sm leading-relaxed text-amber-900/90 dark:text-amber-200/85">
-              <p>COPE Credits are not the same as the $COPE token.</p>
-              <p>COPE Credits do not automatically convert into $COPE.</p>
-              <p>Users do not stake $COPE directly in markets during Seasons 1–3.</p>
+              <p>Swarm Credits are not the same as the $SWARM token.</p>
+              <p>Swarm Credits do not automatically convert into $SWARM.</p>
+              <p>Users do not stake $SWARM directly in markets during Seasons 1–3.</p>
               <p>Subjective beliefs can remain social Belief Rooms.</p>
               <p>
                 Only objective, measurable beliefs should become Season markets.
@@ -445,7 +446,7 @@ export default function DocsPage() {
           <section className="space-y-5">
             <SectionHeader eyebrow="Roadmap" title="What is not live yet">
               <p>
-                Cope is designed to progressively integrate $COPE into the
+                Hoodswarm is designed to progressively integrate $SWARM into the
                 market layer after the first three seasons. These capabilities
                 are future direction — not missing broken features.
               </p>
@@ -471,10 +472,10 @@ export default function DocsPage() {
               Explore Markets
             </Link>
             <Link
-              href="/cope"
+              href="/swarm"
               className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-zinc-200/80 bg-surface/50 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/[0.08] dark:bg-surface/40 dark:text-zinc-300 dark:hover:bg-white/[0.04]"
             >
-              About $COPE
+              About $SWARM
             </Link>
           </section>
 
@@ -488,7 +489,7 @@ export default function DocsPage() {
                 step-by-step market participation
               </li>
               <li>
-                <DocLink href="/cope">$COPE</DocLink> — token role, COPE
+                <DocLink href="/swarm">$SWARM</DocLink> — token role, Swarm
                 Credits, and Treasury Conviction
               </li>
               <li>

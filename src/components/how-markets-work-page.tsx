@@ -28,15 +28,15 @@ const JOURNEY_STEPS = [
   },
   {
     title: "Team selection",
-    copy: "The Cope team selects clear, measurable beliefs that can resolve inside the active season.",
+    copy: "The Hoodswarm team selects clear, measurable beliefs that can resolve inside the active season.",
   },
   {
     title: "Season market",
-    copy: "Selected Belief Rooms become Season markets with Believe and Cope sides, close dates, and resolution criteria.",
+    copy: "Selected Belief Rooms become Season markets with Believe and Hoodswarm sides, close dates, and resolution criteria.",
   },
   {
     title: "Resolution",
-    copy: "After close, the Cope team resolves the market as Believe, Cope, or Void against its criteria.",
+    copy: "After close, the Hoodswarm team resolves the market as Believe, Cope, or Void against its criteria.",
   },
   {
     title: "Leaderboard",
@@ -46,7 +46,7 @@ const JOURNEY_STEPS = [
 
 const SEASON_MARKET_BULLETS = [
   "Not every Belief Room becomes a market.",
-  "Markets are curated by the Cope team during the MVP.",
+  "Markets are curated by the Hoodswarm team during the MVP.",
   "Markets require objective resolution criteria.",
   "Each market must have a clear close date.",
   "Markets reward thoughtful conviction — not random speculation.",
@@ -177,8 +177,8 @@ export function HowMarketsWorkPage() {
             From a single belief to a Season market.
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Most markets on Cope begin as a belief — debated by AI agents,
-            challenged by the community, and selected by the Cope team to become
+            Most markets on Hoodswarm begin as a belief — debated by AI agents,
+            challenged by the community, and selected by the Hoodswarm team to become
             a Season market. Pulse markets are the exception: they run
             automatically from a live data feed.
           </p>
@@ -217,17 +217,17 @@ export function HowMarketsWorkPage() {
               items={[
                 "Rounds open, lock, and settle automatically.",
                 "Outcomes are determined by live price movement, not team resolution.",
-                "You still take part with COPE Credits — Believe or Cope.",
+                "You still take part with Swarm Credits — Believe or Cope.",
               ]}
             />
           </InfoCard>
 
-          <InfoCard title="COPE Credits">
+          <InfoCard title="Swarm Credits">
             <p>
-              During the first three seasons, users enter markets using COPE
-              Credits. Credits power gameplay — they are not $COPE, not
+              During the first three seasons, users enter markets using Swarm
+              Credits. Credits power gameplay — they are not $SWARM, not
               redeemable token balances, and do not automatically convert into
-              $COPE.
+              $SWARM.
             </p>
           </InfoCard>
 
@@ -249,7 +249,7 @@ export function HowMarketsWorkPage() {
 
           <InfoCard title="Resolution">
             <p className="mb-2">
-              Markets close at their scheduled time. The Cope team then resolves
+              Markets close at their scheduled time. The Hoodswarm team then resolves
               each market as Believe, Cope, or Void.
             </p>
             <p className="mb-2">Resolution updates:</p>
@@ -257,7 +257,7 @@ export function HowMarketsWorkPage() {
               items={[
                 "market outcome",
                 "open positions",
-                "COPE Credit balances",
+                "Swarm Credit balances",
                 "leaderboard season points",
               ]}
             />
@@ -266,7 +266,7 @@ export function HowMarketsWorkPage() {
           <InfoCard title="Rewards">
             <p>{SEASON_LEADERBOARD_RANKING_COPY}</p>
             <p className="mt-2">
-              {SEASON_SNAPSHOT_COPY} {SEASON_REWARDS_COPY} $COPE supports
+              {SEASON_SNAPSHOT_COPY} {SEASON_REWARDS_COPY} $SWARM supports
               seasonal rewards behind the scenes — eligibility is reviewed after
               each season, not automatically claimed at close.
             </p>
@@ -277,16 +277,16 @@ export function HowMarketsWorkPage() {
           <InfoCard title="Treasury Conviction">
             <p>
               Some featured Season markets display Treasury Conviction — a
-              visible $COPE allocation associated with the market. During the
+              visible $SWARM allocation associated with the market. During the
               first three seasons it does not affect pricing, staking,
               settlement, or user balances.
             </p>
             <p className="mt-2">
               <Link
-                href="/cope"
+                href="/swarm"
                 className="font-medium text-cope-orange underline decoration-cope-orange/30 underline-offset-2 transition-colors hover:decoration-cope-orange/60"
               >
-                Read more about $COPE
+                Read more about $SWARM
               </Link>
             </p>
           </InfoCard>
