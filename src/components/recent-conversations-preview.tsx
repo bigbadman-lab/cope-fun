@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { ConversationListRow } from "./conversation-list-row";
 import {
   getHighlightedRecentBeliefId,
   getRecentBeliefsSnapshot,
   initializeRecentBeliefs,
   recentBeliefToConversation,
+  refetchRecentBeliefs,
   subscribeRecentBeliefs,
 } from "@/lib/recent-beliefs";
 import type { RoomSearchResult } from "@/lib/room-search";
@@ -19,11 +20,15 @@ type RecentConversationsPreviewProps = {
 export function RecentConversationsPreview({
   initialBeliefs = [],
 }: RecentConversationsPreviewProps) {
-  const initializedRef = useRef(false);
-  if (typeof window !== "undefined" && !initializedRef.current) {
-    initializedRef.current = true;
+  // Seed only when the client store is empty so first paint matches SSR and
+  // an existing optimistic/client snapshot is preserved.
+  if (typeof window !== "undefined") {
     initializeRecentBeliefs(initialBeliefs);
   }
+
+  useEffect(() => {
+    void refetchRecentBeliefs();
+  }, []);
 
   const beliefs = useSyncExternalStore(
     subscribeRecentBeliefs,

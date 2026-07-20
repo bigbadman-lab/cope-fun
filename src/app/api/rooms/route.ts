@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { createBeliefRoom } from "@/lib/db/rooms";
 import type { ChatMessage } from "@/components/debate-chat";
 import { tryGetAppUserFromRequest } from "@/lib/auth/app-user";
@@ -104,6 +105,8 @@ export async function POST(request: Request) {
           : undefined,
       createdByUserId: (await tryGetAppUserFromRequest(request))?.id ?? null,
     });
+
+    revalidatePath("/");
 
     return Response.json({ ok: true, slug: result.slug, room: result.room });
   } catch {

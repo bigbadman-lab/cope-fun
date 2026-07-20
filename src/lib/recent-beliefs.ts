@@ -52,8 +52,15 @@ export function getHighlightedRecentBeliefId(): string | null {
 }
 
 export function initializeRecentBeliefs(items: RoomSearchResult[]) {
+  // Preserve an existing client snapshot (e.g. optimistic prepend after save)
+  // so stale SSR props do not clobber fresher state. Mount refetch is the
+  // eventual source of truth.
+  if (recentBeliefsSnapshot.length > 0) return;
+
   recentBeliefsSnapshot = dedupeAndCap(items);
-  notifyRecentBeliefsListeners();
+  // No listener notify: this may run during render to seed the store before
+  // the first getSnapshot() read. Callers that need a re-render after a
+  // later update use prepend/refetch instead.
 }
 
 export function prependRecentBelief(item: RoomSearchResult) {
@@ -73,6 +80,7 @@ export async function refetchRecentBeliefs(): Promise<void> {
   try {
     const response = await fetch(
       `/api/rooms/recent?limit=${RECENT_BELIEFS_LIMIT}`,
+      { cache: "no-store" },
     );
     if (!response.ok) return;
 
