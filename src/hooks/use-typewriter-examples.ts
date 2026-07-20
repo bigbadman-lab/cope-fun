@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 
 export const EXAMPLE_BELIEFS = [
-  "bitcoin will hit a new ath this cycle",
-  "university is mostly a scam",
-  "remote work is dead",
-  "ai will replace junior developers",
-  "the uk housing market is broken",
-  "social media is making people lonelier",
-  "bitcoin will outperform every major asset",
-  "the future belongs to small teams",
+  "robinhood chain will outperform solana this year",
+  "a robinhood chain memecoin will hit a $1b market cap",
+  "vlad tenev will post about robinhood chain this week",
+  "tokenized stocks will become crypto's biggest narrative",
+  "robinhood chain will become the home of onchain rwas",
+  "a major consumer app will launch on robinhood chain",
+  "robinhood chain activity will surge before august ends",
+  "the next major memecoin cycle will happen on robinhood chain",
 ] as const;
 
 const PAUSE_AFTER_COMPLETE_MS = 2000;
