@@ -12,7 +12,9 @@ export function GuestBeliefGate() {
         Join the Swarm
       </p>
       <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Sign in to test more beliefs, enter markets and see where you rank.
+        Sign in to test more beliefs,
+        <br className="hidden sm:inline" />
+        enter markets and see where you rank.
       </p>
       <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
         <button

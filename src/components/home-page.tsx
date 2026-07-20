@@ -699,17 +699,19 @@ export function HomePage({
         ) : (
           <div className="mx-auto flex w-full max-w-md min-h-home-idle flex-col justify-center px-4 py-8 pb-[calc(2rem+var(--scroll-bottom-inset))] md:pb-8">
             <div
-                className={`mb-6 transition-[opacity,filter,transform] duration-500 ease-out ${
+                className={`${isGuestBlocked ? "mb-4" : "mb-6"} transition-[opacity,filter,transform] duration-500 ease-out ${
                   phase === "idle"
                     ? "scale-100 opacity-100 blur-0"
                     : "pointer-events-none scale-[0.98] opacity-0 blur-sm"
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <HeroMedia />
-                  <h1 className="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tight text-white drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)] sm:text-3xl md:text-4xl">
-                    What do you believe?
-                  </h1>
+                  <HeroMedia compact={isGuestBlocked} />
+                  {!isGuestBlocked && (
+                    <h1 className="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tight text-white drop-shadow-[0_1px_10px_rgb(0_0_0/0.22)] sm:text-3xl md:text-4xl">
+                      What do you believe?
+                    </h1>
+                  )}
                 </div>
               </div>
 
