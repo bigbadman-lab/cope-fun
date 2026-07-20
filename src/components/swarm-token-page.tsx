@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
+import { SwarmContractAddressCard } from "./swarm-contract-address-card";
 import {
   SEASONS,
   formatSeasonDateRange,
@@ -122,12 +123,12 @@ const FAQ = [
   {
     question: "Is $SWARM live?",
     answer:
-      "Not yet. $SWARM is the upcoming token for the Hoodswarm ecosystem on Robinhood Chain. It has not launched and is not tradable.",
+      "Yes. $SWARM is live on Robinhood Chain. The official contract address is listed on this page — only trust that address.",
   },
   {
     question: "Can I buy $SWARM today?",
     answer:
-      "No. There is no contract address, no listing, and no legitimate way to buy $SWARM today. Treat any token claiming to be $SWARM before an official announcement as fake.",
+      "Yes, $SWARM is live on Robinhood Chain. Always verify you are interacting with the official contract address shown on this page. Treat any other address claiming to be $SWARM as fake.",
   },
   {
     question: "What are Swarm Credits?",
@@ -137,7 +138,7 @@ const FAQ = [
   {
     question: "Are Swarm Credits the same as $SWARM?",
     answer:
-      "No. Swarm Credits are off-chain gameplay points. They are not tokens, not on Robinhood Chain, and do not automatically convert into $SWARM.",
+      "No. Swarm Credits are off-chain gameplay points. They are not tokens, not on Robinhood Chain, and do not automatically convert into $SWARM. Entering Hoodswarm belief markets uses Swarm Credits — not $SWARM.",
   },
   {
     question: "How do seasons and rewards work?",
@@ -145,9 +146,9 @@ const FAQ = [
       "Each season runs for one month. Compete on the leaderboard with season points from winning settled markets. At the end of a season, Hoodswarm may use standings to determine discretionary $SWARM allocations — not automatic payouts.",
   },
   {
-    question: "When does $SWARM launch?",
+    question: "Where is the official $SWARM contract?",
     answer:
-      "Launch details — contract address, supply, and distribution — will be published through official Hoodswarm channels before launch.",
+      "On this page under Official $SWARM Contract, and on the Robinhood Chain block explorer linked from that address.",
   },
 ] as const;
 
@@ -162,21 +163,24 @@ export function SwarmTokenPage() {
               $SWARM
             </h1>
             <span className="rounded-full border border-cope-orange/40 bg-cope-orange/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-700 dark:text-cope-orange">
-              Upcoming
+              $SWARM is live
             </span>
           </div>
           <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
             The token powering the internet&apos;s conviction network.
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-            $SWARM is the upcoming token for the Hoodswarm ecosystem on
-            Robinhood Chain. It has not launched yet.             Hoodswarm launches with {currentSeason.name} (
-            {formatSeasonDateRange(currentSeason)}). Gameplay runs on Swarm
-            Credits — off-chain points on your profile, not on-chain $SWARM.
+            $SWARM is the Hoodswarm ecosystem token on Robinhood Chain, and it
+            is live. Hoodswarm is currently in {currentSeason.name} (
+            {formatSeasonDateRange(currentSeason)}). Season gameplay still runs
+            on Swarm Credits — off-chain points on your profile. Entering
+            markets uses Swarm Credits, not on-chain $SWARM.
           </p>
         </header>
 
         <div className="space-y-5">
+          <SwarmContractAddressCard />
+
           <Section title="Why $SWARM exists">
             <p>
               Most crypto projects launch a token first and hope a product
@@ -223,8 +227,9 @@ export function SwarmTokenPage() {
           <Section title="Why Swarm Credits?">
             <p>
               Swarm Credits let Hoodswarm run Season markets and leaderboard
-              competition before $SWARM launches on Robinhood Chain. Credits
-              stay off-chain, while wallet identity is EVM-based.
+              competition with a clear separation from on-chain $SWARM. Credits
+              stay off-chain, while wallet identity is EVM-based. You do not
+              stake or trade $SWARM when entering Hoodswarm belief markets.
             </p>
             <InfoCard title="Important distinction">
               <ul className="space-y-1.5">
@@ -233,6 +238,7 @@ export function SwarmTokenPage() {
                 <li>
                   Swarm Credits do not automatically convert into $SWARM.
                 </li>
+                <li>Swarm Credits are not $SWARM.</li>
               </ul>
             </InfoCard>
           </Section>
@@ -261,10 +267,10 @@ export function SwarmTokenPage() {
           <Section title="After Season 3">
             <p>
               Following the first three seasons, Hoodswarm may progressively
-              integrate $SWARM on Robinhood Chain. Season leaderboard
+              deepen $SWARM integration on Robinhood Chain. Season leaderboard
               standings during Seasons 1–3 may inform discretionary token
               allocations — not automatic conversion of Swarm Credits into
-              $SWARM.
+              $SWARM, and not a guaranteed reward.
             </p>
             <div className="rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-3.5 dark:border-white/[0.07] dark:bg-surface/40">
               {SEASONS.map((season) => (
@@ -276,7 +282,7 @@ export function SwarmTokenPage() {
               ))}
               <TimelineItem
                 label="Next"
-                copy="Progressively integrate $SWARM on Robinhood Chain"
+                copy="Deeper $SWARM integration on Robinhood Chain"
                 isLast
               />
             </div>
@@ -293,15 +299,6 @@ export function SwarmTokenPage() {
           </Section>
 
           <div className="h-px bg-zinc-200/80 dark:bg-white/[0.06]" />
-
-          <InfoCard title="Token details">
-            <p>
-              $SWARM has not launched. There is no contract address yet.
-              Supply, distribution, and launch details will be published
-              through official Hoodswarm channels before launch. Do not trust
-              any token claiming to be $SWARM until then.
-            </p>
-          </InfoCard>
 
           <Section title="FAQ">
             <div className="space-y-2">
