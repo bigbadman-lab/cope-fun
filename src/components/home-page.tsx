@@ -12,6 +12,7 @@ import { useSetHomepageFooterInFlow } from "./homepage-footer-context";
 import { TopNav } from "./top-nav";
 import { RecentConversationsPreview } from "./recent-conversations-preview";
 import { GuestBeliefGate } from "./guest-belief-gate";
+import { HomepageOnboardingOverlay } from "./homepage-onboarding-overlay";
 import { getAnonymousSessionToken } from "@/lib/anonymous-token";
 import { throwIfRateLimited, readRateLimitMessage } from "@/lib/rate-limit/client";
 import { getBeliefTopViewportPx } from "@/lib/belief-layout";
@@ -21,6 +22,10 @@ import {
   recordGuestBeliefCreated,
   useGuestBeliefUsage,
 } from "@/lib/guest-usage";
+import {
+  isOnboardingCompleted,
+  markOnboardingCompleted,
+} from "@/lib/onboarding";
 import { saveConversation, type SavedConversation } from "@/lib/saved-chats";
 import {
   prependRecentBelief,
@@ -166,6 +171,7 @@ export function HomePage({
   const [composerStartCenterY, setComposerStartCenterY] = useState<number | null>(
     null,
   );
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const router = useRouter();
   const { authenticated, authFetch } = useAppAuth();
@@ -191,6 +197,16 @@ export function HomePage({
     !authenticated && phase === "idle" && guestUsage.beliefCount >= 1;
   const isSubmitProcessing = submitStage !== "idle";
   const setHomepageFooterInFlow = useSetHomepageFooterInFlow();
+
+  const handleDismissOnboarding = useCallback(() => {
+    markOnboardingCompleted();
+    setShowOnboarding(false);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== "idle" || isOnboardingCompleted()) return;
+    setShowOnboarding(true);
+  }, [phase]);
 
   const resetSubmitFlow = useCallback(() => {
     setSubmitStage("idle");
@@ -792,6 +808,10 @@ export function HomePage({
             {saveErrorMessage}
           </p>
         </div>
+      )}
+
+      {showOnboarding && phase === "idle" && (
+        <HomepageOnboardingOverlay onDismiss={handleDismissOnboarding} />
       )}
     </div>
   );
