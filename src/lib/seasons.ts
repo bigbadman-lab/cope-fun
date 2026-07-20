@@ -14,23 +14,23 @@ export const SEASONS: readonly Season[] = [
   {
     id: 1,
     name: "Season 1",
-    startAt: "2026-06-30T00:00:00.000Z",
-    endAt: "2026-07-31T23:59:59.000Z",
-    rewardsAt: "2026-08-01T00:00:00.000Z",
+    startAt: "2026-07-20T00:00:00.000Z",
+    endAt: "2026-08-19T23:59:59.000Z",
+    rewardsAt: "2026-08-20T00:00:00.000Z",
   },
   {
     id: 2,
     name: "Season 2",
-    startAt: "2026-08-01T00:00:00.000Z",
-    endAt: "2026-08-31T23:59:59.000Z",
-    rewardsAt: "2026-09-01T00:00:00.000Z",
+    startAt: "2026-08-20T00:00:00.000Z",
+    endAt: "2026-09-19T23:59:59.000Z",
+    rewardsAt: "2026-09-20T00:00:00.000Z",
   },
   {
     id: 3,
     name: "Season 3",
-    startAt: "2026-09-01T00:00:00.000Z",
-    endAt: "2026-09-30T23:59:59.000Z",
-    rewardsAt: "2026-10-01T00:00:00.000Z",
+    startAt: "2026-09-20T00:00:00.000Z",
+    endAt: "2026-10-19T23:59:59.000Z",
+    rewardsAt: "2026-10-20T00:00:00.000Z",
   },
 ] as const;
 
@@ -55,7 +55,7 @@ export const SEASON_LEADERBOARD_QUALIFICATION_COPY =
 export const SEASON_POINTS_LABEL = "season points";
 
 export const SEASON_WALLET_SIGNUP_COPY =
-  "When you sign up, Hoodswarm creates or assigns a rewards wallet for your account. This wallet is used for future $SWARM rewards you qualify for. Automatic payouts are not live yet. Swarm Credits remain internal gameplay credits and are not $SWARM.";
+  "When you sign up with an EVM wallet, Hoodswarm grants 1,000 Swarm Credits to your profile. These credits are used to enter markets — they are not $SWARM. A rewards wallet is also assigned for future $SWARM allocations you may qualify for. Automatic token payouts are not live yet.";
 
 export const SEASON_WALLET_PROFILE_COPY =
   "This wallet is used for future $SWARM rewards you qualify for. Automatic payouts are not live yet. Swarm Credits are internal and are not $SWARM.";

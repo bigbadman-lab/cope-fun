@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { InnerPageShell } from "./inner-page-shell";
+import {
+  SEASONS,
+  formatSeasonDateRange,
+  getCurrentSeason,
+} from "@/lib/seasons";
 
 function InfoCard({
   title,
@@ -99,15 +104,15 @@ function TimelineItem({
 }
 
 const SEASONS_ONE_TO_THREE = [
-  "Swarm Credits power gameplay.",
-  "Treasury Conviction signals protocol commitment.",
-  "The product collects data before deeper token integration.",
+  "New users receive 1,000 Swarm Credits when they connect an EVM wallet.",
+  "Swarm Credits are used to enter Season markets — they are not $SWARM.",
+  "Season points from winning markets feed the leaderboard.",
+  "Treasury Conviction signals featured-market incentive weight.",
 ] as const;
 
 const LONG_TERM_DIRECTION = [
-  "Token-powered market participation",
-  "Holder rewards",
-  "On-chain market mechanics",
+  "Deeper token integration on Robinhood Chain",
+  "Holder rewards tied to ecosystem participation",
   "Community market creation",
   "Treasury-backed incentives",
   "Community ownership over the network",
@@ -127,17 +132,17 @@ const FAQ = [
   {
     question: "What are Swarm Credits?",
     answer:
-      "Swarm Credits are virtual gameplay credits used in the first three seasons.",
+      "Swarm Credits are gameplay points shown on your profile. New users receive 1,000 Swarm Credits when they connect an EVM wallet. You use them to enter Hoodswarm markets during Seasons 1–3.",
   },
   {
-    question: "Are Swarm Credits tokens?",
+    question: "Are Swarm Credits the same as $SWARM?",
     answer:
-      "No. They are not tokens, not redeemable balances, and do not automatically convert into $SWARM.",
+      "No. Swarm Credits are off-chain gameplay points. They are not tokens, not on Robinhood Chain, and do not automatically convert into $SWARM.",
   },
   {
-    question: "What will $SWARM do?",
+    question: "How do seasons and rewards work?",
     answer:
-      "$SWARM is planned to support market rewards, Treasury Conviction, and the long-term transition toward deeper token integration.",
+      "Each season runs for one month. Compete on the leaderboard with season points from winning settled markets. At the end of a season, Hoodswarm may use standings to determine discretionary $SWARM allocations — not automatic payouts.",
   },
   {
     question: "When does $SWARM launch?",
@@ -147,6 +152,7 @@ const FAQ = [
 ] as const;
 
 export function SwarmTokenPage() {
+  const currentSeason = getCurrentSeason();
   return (
     <InnerPageShell topFade>
       <div className="inner-page-content w-full max-w-md !py-5">
@@ -164,9 +170,9 @@ export function SwarmTokenPage() {
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
             $SWARM is the upcoming token for the Hoodswarm ecosystem on
-            Robinhood Chain. It has not launched yet. Hoodswarm runs Seasons
-            1–3 on Swarm Credits for gameplay while the token economy is being
-            prepared.
+            Robinhood Chain. It has not launched yet.             Hoodswarm launches with {currentSeason.name} (
+            {formatSeasonDateRange(currentSeason)}). Gameplay runs on Swarm
+            Credits — off-chain points on your profile, not on-chain $SWARM.
           </p>
         </header>
 
@@ -186,13 +192,29 @@ export function SwarmTokenPage() {
 
           <Section title="The first three seasons">
             <p>
-              For Seasons 1–3, markets run on Swarm Credits. Users submit
-              beliefs, agents debate them, the community votes, and selected
-              rooms become markets. Players use credits to enter markets and
-              compete on the leaderboard.
+              For Seasons 1–3, markets run on Swarm Credits. Connect an EVM
+              wallet to receive 1,000 Swarm Credits on your profile. Use them
+              to enter Season markets, compete on the leaderboard, and earn
+              season points from winning settled positions.
             </p>
             <InfoCard title="During Seasons 1–3">
               <BulletList items={SEASONS_ONE_TO_THREE} />
+            </InfoCard>
+            <InfoCard title="Season schedule">
+              <ul className="space-y-2">
+                {SEASONS.map((season) => (
+                  <li key={season.id} className="flex gap-2">
+                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-cope-orange/80" />
+                    <span>
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                        {season.name}
+                      </span>
+                      {": "}
+                      {formatSeasonDateRange(season)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </InfoCard>
           </Section>
 
@@ -200,10 +222,9 @@ export function SwarmTokenPage() {
 
           <Section title="Why Swarm Credits?">
             <p>
-              Swarm Credits let Hoodswarm test market mechanics, resolution
-              rules, and leaderboard behaviour before introducing direct
-              on-chain market participation. This keeps the early product
-              simple while the token economy is designed properly.
+              Swarm Credits let Hoodswarm run Season markets and leaderboard
+              competition before $SWARM launches on Robinhood Chain. Credits
+              stay off-chain, while wallet identity is EVM-based.
             </p>
             <InfoCard title="Important distinction">
               <ul className="space-y-1.5">
@@ -220,11 +241,11 @@ export function SwarmTokenPage() {
 
           <Section title="Treasury Conviction">
             <p>
-              Featured markets may carry a Treasury Conviction allocation. This
-              is a visible $SWARM allocation associated with selected markets.
-              During the first three seasons it is display and incentive
-              signalling only. It does not change Swarm Credit pricing,
-              staking, settlement, or user balances.
+              Featured markets may carry a Treasury Conviction allocation — a
+              visible $SWARM amount associated with selected markets. During
+              Seasons 1–3 this is display and incentive signalling only. It
+              does not change Swarm Credit balances, market entry, settlement,
+              or user points.
             </p>
             <InfoCard title="Treasury Conviction">
               <p>
@@ -239,27 +260,23 @@ export function SwarmTokenPage() {
 
           <Section title="After Season 3">
             <p>
-              Following the first three seasons, Hoodswarm is designed to
-              progressively integrate $SWARM into the market layer. This is
-              when the system can move beyond credits toward on-chain
-              mechanics.
+              Following the first three seasons, Hoodswarm may progressively
+              integrate $SWARM on Robinhood Chain. Season leaderboard
+              standings during Seasons 1–3 may inform discretionary token
+              allocations — not automatic conversion of Swarm Credits into
+              $SWARM.
             </p>
             <div className="rounded-xl border border-zinc-200/80 bg-surface/50 px-4 py-3.5 dark:border-white/[0.07] dark:bg-surface/40">
-              <TimelineItem
-                label="Season 1"
-                copy="Launch the Season market network"
-              />
-              <TimelineItem
-                label="Season 2"
-                copy="Grow participation and improve market quality"
-              />
-              <TimelineItem
-                label="Season 3"
-                copy="Validate the economy"
-              />
+              {SEASONS.map((season) => (
+                <TimelineItem
+                  key={season.id}
+                  label={season.name}
+                  copy={formatSeasonDateRange(season)}
+                />
+              ))}
               <TimelineItem
                 label="Next"
-                copy="Progressively integrate $SWARM into the market layer"
+                copy="Progressively integrate $SWARM on Robinhood Chain"
                 isLast
               />
             </div>
@@ -269,8 +286,8 @@ export function SwarmTokenPage() {
 
           <Section title="Long-term direction">
             <p>
-              The long-term goal is an on-chain conviction network powered by
-              $SWARM on Robinhood Chain.
+              The long-term goal is a conviction network where $SWARM on
+              Robinhood Chain supports rewards and ecosystem participation.
             </p>
             <BulletList items={LONG_TERM_DIRECTION} />
           </Section>

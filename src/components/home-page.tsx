@@ -39,7 +39,7 @@ import type {
 const VALIDATION_ERROR_MESSAGE =
   "The Swarm Engine couldn’t test that input. Try again.";
 const GUEST_LIMIT_MESSAGE =
-  "Sign in to keep testing ideas with the Swarm Engine.";
+  "Sign in to test more beliefs, enter markets and see where you rank.";
 const DEBUG_HOMEPAGE_FLOW = process.env.NODE_ENV !== "production";
 
 type SubmitStage = "idle" | "validating" | "generating" | "opening";

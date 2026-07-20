@@ -258,10 +258,9 @@ export default function DocsPage() {
           <section className="space-y-5">
             <SectionHeader eyebrow="Market layer" title="Season markets">
               <p>
-                Season markets are curated by the Hoodswarm team during the MVP. Users
-                cannot create markets directly yet. Selected Belief Rooms become
-                markets with Believe and Hoodswarm sides, close windows, and written
-                resolution criteria.
+                Season markets are curated by the Hoodswarm team. Selected
+                Belief Rooms become markets with Believe and Cope sides, close
+                windows, and written resolution criteria.
               </p>
             </SectionHeader>
 
@@ -270,7 +269,7 @@ export default function DocsPage() {
               title="Believe / Hoodswarm markets"
               copy="Each Season market turns a clear, measurable belief into a two-sided conviction contest. Objective resolution criteria matter before a market opens."
               bullets={[
-                "Markets are team-curated during the MVP.",
+                "Markets are team-curated.",
                 "Users commit Swarm Credits to Believe or Cope.",
                 "Each market has close and resolution criteria.",
                 "Subjective beliefs can remain social Belief Rooms only.",
@@ -279,40 +278,19 @@ export default function DocsPage() {
           </section>
 
           <section className="space-y-5">
-            <SectionHeader eyebrow="Room types" title="Pulse Rooms">
-              <p>
-                Most rooms are standard Belief Rooms built around debate. Pulse
-                Rooms are a newer room type centred on a live data feed instead
-                of AI agents — open community chat alongside a live Pulse market.
-              </p>
-            </SectionHeader>
-
-            <DocCard
-              label="Live markets"
-              title="Pulse markets"
-              copy="A Pulse market is built from a real-time data feed. It opens, locks, and settles automatically in continuous rounds, with outcomes determined by live price movement. Pulse currently tracks SOL/USD."
-              bullets={[
-                "No AI debate — Pulse Rooms run on live data and community chat.",
-                "Rounds open, lock, and settle automatically.",
-                "Outcomes come from live price movement, not team resolution.",
-                "Participation uses Swarm Credits, the same as other markets.",
-              ]}
-            />
-          </section>
-
-          <section className="space-y-5">
             <SectionHeader eyebrow="Market layer" title="Swarm Credits">
               <p>
-                Swarm Credits are gameplay credits used during Seasons 1–3. They
-                let users enter markets while Hoodswarm tests mechanics before deeper
-                token integration.
+                Swarm Credits are gameplay points used during Seasons 1–3.
+                New users receive 1,000 Swarm Credits when they connect an EVM
+                wallet. Credits are tracked on your profile and used to enter
+                Season markets.
               </p>
             </SectionHeader>
 
             <DocCard
               label="Participation unit"
               title="Swarm Credits"
-              copy="Users spend Swarm Credits to enter markets — both Season markets and Pulse markets. Credits are separate from the $SWARM protocol token."
+              copy="Users spend Swarm Credits to enter Season markets. Credits are separate from the $SWARM protocol token."
               bullets={[
                 "Swarm Credits are not $SWARM.",
                 "Swarm Credits are not redeemable token balances.",

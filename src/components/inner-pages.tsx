@@ -52,7 +52,7 @@ const ABOUT_MESSAGES: ChatMessage[] = [
   AGENT(
     "about-14",
     "Logan",
-    "The Hoodswarm team selects market-ready Belief Rooms during the MVP.",
+    "The Hoodswarm team selects market-ready Belief Rooms for Season markets.",
   ),
   AGENT(
     "about-15",

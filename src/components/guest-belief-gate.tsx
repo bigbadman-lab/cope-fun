@@ -9,10 +9,10 @@ export function GuestBeliefGate() {
   return (
     <div className="rounded-2xl border border-zinc-200/80 bg-surface/60 px-4 py-5 text-center dark:border-white/[0.06] dark:bg-surface/50">
       <p className="text-sm font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
-        You&apos;ve used your free belief.
+        Join the Swarm
       </p>
       <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Sign in to keep testing ideas with the Swarm Engine.
+        Sign in to test more beliefs, enter markets and see where you rank.
       </p>
       <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
         <button

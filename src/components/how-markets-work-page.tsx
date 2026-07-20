@@ -32,7 +32,7 @@ const JOURNEY_STEPS = [
   },
   {
     title: "Season market",
-    copy: "Selected Belief Rooms become Season markets with Believe and Hoodswarm sides, close dates, and resolution criteria.",
+    copy: "Selected Belief Rooms become Season markets with Believe or Cope sides, close dates, and resolution criteria.",
   },
   {
     title: "Resolution",
@@ -46,7 +46,7 @@ const JOURNEY_STEPS = [
 
 const SEASON_MARKET_BULLETS = [
   "Not every Belief Room becomes a market.",
-  "Markets are curated by the Hoodswarm team during the MVP.",
+  "Markets are curated by the Hoodswarm team.",
   "Markets require objective resolution criteria.",
   "Each market must have a clear close date.",
   "Markets reward thoughtful conviction — not random speculation.",
@@ -178,9 +178,8 @@ export function HowMarketsWorkPage() {
           </p>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400">
             Most markets on Hoodswarm begin as a belief — debated by AI agents,
-            challenged by the community, and selected by the Hoodswarm team to become
-            a Season market. Pulse markets are the exception: they run
-            automatically from a live data feed.
+            challenged by the community, and selected by the Hoodswarm team to
+            become a Season market.
           </p>
         </header>
 
@@ -206,28 +205,13 @@ export function HowMarketsWorkPage() {
             <BulletList items={SEASON_MARKET_BULLETS} />
           </InfoCard>
 
-          <InfoCard title="Pulse markets">
-            <p>
-              Pulse markets are a different kind of market built on a live data
-              feed instead of a team-curated belief. They live inside Pulse
-              Rooms — open community chat with no AI debate — and currently
-              track live SOL/USD price movement.
-            </p>
-            <BulletList
-              items={[
-                "Rounds open, lock, and settle automatically.",
-                "Outcomes are determined by live price movement, not team resolution.",
-                "You still take part with Swarm Credits — Believe or Cope.",
-              ]}
-            />
-          </InfoCard>
-
           <InfoCard title="Swarm Credits">
             <p>
               During the first three seasons, users enter markets using Swarm
-              Credits. Credits power gameplay — they are not $SWARM, not
-              redeemable token balances, and do not automatically convert into
-              $SWARM.
+              Credits. New users receive 1,000 Swarm Credits when they connect
+              an EVM wallet. Credits are tracked on your profile and are not
+              $SWARM, not redeemable token balances, and do not automatically
+              convert into $SWARM.
             </p>
           </InfoCard>
 

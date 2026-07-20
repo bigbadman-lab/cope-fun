@@ -36,10 +36,24 @@ function noStoreJson<T>(body: T, init?: ResponseInit): NextResponse<T> {
   });
 }
 
+const PULSE_CRON_ENABLED = false;
+
 export async function GET(request: Request) {
   const unauthorized = requireCronAuth(request);
   if (unauthorized) {
     return unauthorized;
+  }
+
+  // Pulse/SOL markets are retired for Hoodswarm launch. Cron is also removed
+  // from vercel.json; this guard prevents accidental re-enablement.
+  if (!PULSE_CRON_ENABLED) {
+    return noStoreJson({
+      ok: true,
+      processed: 0,
+      results: [],
+      disabled: true,
+      reason: "pulse_cron_disabled",
+    });
   }
 
   try {
